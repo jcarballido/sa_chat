@@ -10,10 +10,10 @@ const TextInputComponent: React.FC<TextInputComponentProps> = ({ value }) => {
 
   return(
     <textarea
-      className="flex flex-col min-h-[50px] px-4 py-2 border border-gray-300 rounded resize-none"
+      className="flex flex-col min-h-12.5 max-h-64 px-4 py-2 border border-gray-300 rounded resize-none"
       rows={1}
       value={input}
-      onChange={setInput}
+      onChange={(e) => setInput(e.target.value)}
       onInput={(event) => {
         const target = event.target as HTMLTextAreaElement;
         target.style.height = 'auto';

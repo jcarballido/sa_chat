@@ -6,10 +6,10 @@ interface TextInputContainerProps {
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const TextInputContainer: React.FC<TextInputContainerProps> = ({ children, onChange }) => {
+const TextInputContainer: React.FC<TextInputContainerProps> = () => {
   return (
-    <div className="flex flex-col grow">
-      <TextInputComponent value='start' onChange={}/>
+    <div className="flex flex-col grow max-h-full">
+      <TextInputComponent value='start'/>
       <button className="ml-auto p-2 bg-blue-500 text-white rounded" type="button">Submit</button>
     </div>
   );

@@ -11,7 +11,7 @@ const ScrollingContainer: React.FC<ScrollingContainerProps> = ({ children}) => (
       {children}
     </div>
     
-    <div className="sticky bottom-0 bg-white shadow">
+    <div className="sticky bottom-0 bg-white shadow max-h-full">
       <TextInputContainer />
     </div>
   </div>

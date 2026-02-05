@@ -2,7 +2,7 @@ import BottomFixedUserComponent from "../features/chat/BottomFixedUserComponent"
 import ScrollingContainer from "../features/chat/ScrollingContainer";
 
 export interface FullPageContainerProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 const App: React.FC<FullPageContainerProps> = ({ children }) => {
   return (

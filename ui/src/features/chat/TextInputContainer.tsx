@@ -7,10 +7,15 @@ interface TextInputContainerProps {
 }
 
 const TextInputContainer: React.FC<TextInputContainerProps> = () => {
+  
+  const handleClick = () => {
+    console.log("Button clicked")
+  }
+
   return (
     <div className="flex flex-col grow max-h-full">
       <TextInputComponent value='start'/>
-      <button className="ml-auto p-2 bg-blue-500 text-white rounded" type="button">Submit</button>
+      <button className="ml-auto p-2 bg-blue-500 text-white rounded" type="button" onClick={handleClick}>Submit</button>
     </div>
   );
 };

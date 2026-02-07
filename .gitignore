@@ -1,6 +1,7 @@
 # Node dependencies
 ui/node_modules/
 server/node_modules/
+node_modules
 
 # Build outputs
 ui/dist/

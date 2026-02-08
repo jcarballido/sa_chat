@@ -8,12 +8,14 @@ interface TextInputContainerProps {
 
 const TextInputContainer: React.FC<TextInputContainerProps> = () => {
   
-  const handleClick = async() => {
-    console.log("Button clicked")
-    const res = await fetch("/api")
-    console.log(res)
-    const data = res.json()
-    console.log(data)
+  const handleClick = async () => {
+    try {
+      const res = await fetch('/api/get')
+      const data = await res.json()
+      console.log(data)
+    } catch (error) {
+      
+    }
   }
 
   return (

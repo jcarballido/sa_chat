@@ -6,29 +6,33 @@ const fastify: FastifyInstance = Fastify({
   logger: true
 })
 
-try {
-  console.log("Attempting to connect with ollama")
-  const res = await ollama.chat({
-    model: "llama3.1",
-    stream: false,
-    messages:[{role:"user",content:"Where is Patagonia."}]
-  })
-  console.log("Connection made, parsing response")
-  
-  console.log("Ollama call:\n")
-  console.log(res)
-  
-} catch (error) {
-  console.log('Error\n',error)  
-}
-
 fastify.get('/api/get', async(request,reply) => {
   return {message: "Hello World"}
 })
 
+const askOllama = async (message: string) => {
+  console.log("Attempting to connect with ollama")
+  const res = await ollama.chat({
+    model: "llama3.1",
+    stream: false,
+    messages:[{role:"user",content:message}]
+  })
+  return res.message.content
+}
+
+type ChatMessage = {
+  message: string
+}
+
 fastify.post('/api/submit', async(request,reply) => {
-  const body = request.body
-  return {message: `Message received. Body is: ${body}`}
+  const body = request.body as ChatMessage
+  try {
+    const res = await askOllama(body.message)
+    return {res}   
+  } catch (error) {
+    console.log("error:", error)
+    return {error: `${error}`}
+  }
 })
 
 

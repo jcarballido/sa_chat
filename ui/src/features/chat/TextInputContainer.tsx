@@ -15,7 +15,7 @@ const TextInputContainer: React.FC<TextInputContainerProps> = () => {
       const res = await fetch('/api/submit', {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(message) 
+          body: JSON.stringify({message}) 
         })
         const data = await res.json()
         console.log('Data:')

@@ -35,9 +35,33 @@ fastify.post('/api/submit', async(request,reply) => {
   }
 })
 
+const checkOllamaReachable = async () => {
+  try {
+    const res = await fetch("http://localhost:11434")
+    return res.ok     
+  } catch (error) {
+    return false
+  }
+}
+
+type ChatModels = {
+  models: {name: string}[]
+}
+
+const checkModelAvailble = async () => {
+  const response = await fetch("http://localhost:11434/api/tags")
+  if(!response) throw new Error("Zero models available.")
+  const models = (await response.json()) as ChatModels
+  return models
+}
+
+
 
 const start = async () => {
   try {
+    const reachable = await checkOllamaReachable()
+    const models = await checkModelAvailble()
+    console.log("Stored Models:",models)
     await fastify.listen({ port: 3000 })
   } catch (error) {
     fastify.log.error(error)

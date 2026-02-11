@@ -40,7 +40,7 @@ const checkOllamaReachable = async () => {
     const res = await fetch("http://localhost:11434")
     return res.ok     
   } catch (error) {
-    return false
+    throw error
   }
 }
 
@@ -49,19 +49,30 @@ type ChatModels = {
 }
 
 const checkModelAvailble = async () => {
-  const response = await fetch("http://localhost:11434/api/tags")
-  if(!response) throw new Error("Zero models available.")
-  const models = (await response.json()) as ChatModels
-  return models
+  try {
+    const response = await fetch("http://localhost:11434/api/tags")
+    if(!response) throw new Error("Zero models available.")
+    const data = (await response.json()) as ChatModels
+    if(data.models.some(model => model.name.includes("llama"))) return true
+  } catch (error) {
+    throw error    
+  }
 }
 
+const checkDependencies = async() => {
+  try {
+    await checkOllamaReachable()
+    await checkModelAvailble() 
+    console.log("Dependencies OK")
+  } catch (error) {
+    console.log("Error in dependency check:\n")
+    console.log(error)
+  }
+}
 
 
 const start = async () => {
   try {
-    const reachable = await checkOllamaReachable()
-    const models = await checkModelAvailble()
-    console.log("Stored Models:",models)
     await fastify.listen({ port: 3000 })
   } catch (error) {
     fastify.log.error(error)
@@ -69,4 +80,5 @@ const start = async () => {
   }
 }
 
+checkDependencies()
 start()

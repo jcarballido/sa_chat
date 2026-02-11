@@ -5,6 +5,9 @@ export interface FullPageContainerProps {
   children?: React.ReactNode;
 }
 const App: React.FC<FullPageContainerProps> = ({ children }) => {
+
+  
+
   return (
     <div className="flex h-screen w-screen">
       <aside className="w-1/4 max-w-sm bg-gray-200 p-4 flex flex-col gap-4">

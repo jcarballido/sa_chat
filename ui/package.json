@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/react-query": "^5.90.21",
     "agent": "link:../../../../.local/share/pnpm/global/5/node_modules/agent",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

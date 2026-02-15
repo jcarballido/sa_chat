@@ -10,6 +10,26 @@ fastify.get('/api/get', async(request,reply) => {
   return {message: "Hello World"}
 })
 
+type Message = {
+  role:"SYSTEM"|"USER"|"ASSISTANT",
+  content:string
+}
+
+const createMessageStorage = () => {
+  let messages:Message[] = [
+    {
+      role:"SYSTEM",
+      content:"You are a customer service representative assistant who can traverse documents and return the most accurate response to a rep's question."
+    }
+  ]
+
+  return {
+    getMessages: () => messages,
+    addMessage: (newMessage: Message) => messages.push(newMessage),
+    
+  }
+}
+
 const askOllama = async (message: string) => {
   console.log("Attempting to connect with ollama")
   const res = await ollama.chat({

@@ -2,32 +2,21 @@ import Fastify, { type FastifyInstance } from "fastify"
 import { request } from "node:http"
 import ollama from "ollama"
 import type  { Message, ChatMessage, ChatModels } from "./types/types.js"
+import { createMessageStorage } from "./services/message-store.js"
+import { llmPlugin } from "./plugins/llm.plugin.js"
+import { chatPlugin } from "./plugins/chat.plugin.js"
 
 const fastify: FastifyInstance = Fastify({
   logger: true
 })
 
+fastify.register(llmPlugin)
+fastify.register(chatPlugin)
+
+
 fastify.get('/api/get', async(request,reply) => {
   return {message: "Hello World"}
 })
-
-
-const createMessageStorage = () => {
-  let messages:Message[] = [
-    {
-      role:"SYSTEM",
-      content:"You are a customer service representative assistant who can traverse documents and return the most accurate response to a rep's question."
-    }
-  ]
-
-  return {
-    getMessages: () => messages,
-    addMessage: (newMessage: Message) => messages.push(newMessage),
-    clearMessages: () => messages = [
-      { role:"SYSTEM", content:"You are a customer service representative assistant who can traverse documents and return the most accurate response to a rep's question."}
-    ]    
-  }
-}
 
 const askOllama = async (message: string) => {
   console.log("Attempting to connect with ollama")

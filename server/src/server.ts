@@ -1,6 +1,7 @@
 import Fastify, { type FastifyInstance } from "fastify"
 import { request } from "node:http"
 import ollama from "ollama"
+import type  { Message, ChatMessage, ChatModels } from "./types/types.js"
 
 const fastify: FastifyInstance = Fastify({
   logger: true
@@ -10,10 +11,6 @@ fastify.get('/api/get', async(request,reply) => {
   return {message: "Hello World"}
 })
 
-type Message = {
-  role:"SYSTEM"|"USER"|"ASSISTANT",
-  content:string
-}
 
 const createMessageStorage = () => {
   let messages:Message[] = [
@@ -26,7 +23,9 @@ const createMessageStorage = () => {
   return {
     getMessages: () => messages,
     addMessage: (newMessage: Message) => messages.push(newMessage),
-    
+    clearMessages: () => messages = [
+      { role:"SYSTEM", content:"You are a customer service representative assistant who can traverse documents and return the most accurate response to a rep's question."}
+    ]    
   }
 }
 
@@ -40,9 +39,6 @@ const askOllama = async (message: string) => {
   return res.message.content
 }
 
-type ChatMessage = {
-  message: string
-}
 
 fastify.post('/api/submit', async(request,reply) => {
   const body = request.body as ChatMessage
@@ -64,9 +60,6 @@ const checkOllamaReachable = async () => {
   }
 }
 
-type ChatModels = {
-  models: {name: string}[]
-}
 
 const checkModelAvailble = async () => {
   try {

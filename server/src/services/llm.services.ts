@@ -3,12 +3,16 @@ import type { ChatModels } from "../types/types.js"
 
 export async function llm(prompt:string) {
   console.log("Sending prompt to ollama")
-  const res = await ollama.chat({
-    model: "llama3.1",
-    stream: false,
-    messages:[{role:"user",content:prompt}]
-  })
-  return res.message.content
+  try {
+    const res = await ollama.chat({
+      model: "llama3.1",
+      stream: false,
+      messages:[{role:"user",content:prompt}]
+    })
+    return res.message.content    
+  } catch (error) {
+    throw error
+  }
 }
 
 export const checkOllamaReachable = async () => {

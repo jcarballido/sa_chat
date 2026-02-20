@@ -2,13 +2,14 @@ import Fastify, { type FastifyInstance } from "fastify"
 import llmPlugin from "./plugins/llm.plugin.js"
 import { chatPlugin } from "./plugins/chat.plugin.js"
 import { checkModelAvailble, checkOllamaReachable } from "./services/llm.services.js"
+import chatRoutes from "./routes/chat.routes.js"
 
 const fastify: FastifyInstance = Fastify({
   logger: true
 })
 
 fastify.register(llmPlugin)
-fastify.register(chatPlugin)
+fastify.register(chatRoutes, { prefix: "/chat"})
 
 const checkDependencies = async() => {
   try {

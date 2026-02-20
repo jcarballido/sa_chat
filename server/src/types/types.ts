@@ -6,5 +6,5 @@ export type ChatModels = {
 }
 export type Message = {
   role:"SYSTEM"|"USER"|"ASSISTANT",
-  content:string
+  prompt:string
 }

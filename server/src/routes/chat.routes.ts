@@ -8,8 +8,3 @@ const chatRoutes: FastifyPluginAsync = async function (fastify) {
 
 export default fastifyPlugin(chatRoutes)
 
-declare module 'fastify' {
-  interface FastifyInstance {
-    runLLM(prompt:string): Promise<string>
-  }
-}

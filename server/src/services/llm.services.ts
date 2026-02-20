@@ -1,14 +1,17 @@
-import ollama from "ollama"
+import ollama, { type Message} from "ollama"
 import type { ChatModels } from "../types/types.js"
 
-export async function llm(prompt:string) {
+const MODEL = "llama3.1"
+
+export async function llm(messageHistory:Message[]) {
   console.log("Sending prompt to ollama")
   try {
     const res = await ollama.chat({
-      model: "llama3.1",
+      model: MODEL,
       stream: false,
-      messages:[{role:"user",content:prompt}]
+      messages:messageHistory 
     })
+    
     return res.message.content    
   } catch (error) {
     throw error

@@ -4,5 +4,5 @@ POST http://localhost:3000/
 Content-Type: application/json
 
 {
-  "message": "asdjklqweoiurmzxncbvtyplokmnhgfasdfqwerzxcvbnmlkjhpoiuytrewqasdfghjklmnbvcxzqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmasdfqwertyuioplkjhgzxcvbnmasdfqweoiuytrplkjhgfzxcvbnmasdfghqwertyuioplkjdfd"
+  "message": "Which guns fit in my safe?"
 }

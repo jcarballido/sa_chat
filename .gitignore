@@ -11,6 +11,8 @@ server/dist/
 ui/.env
 server/.env
 .env
+data/
+data/*
 
 # Logs
 logs

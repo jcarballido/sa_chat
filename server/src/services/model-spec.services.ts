@@ -1,26 +1,27 @@
 import parse from "csv-parser"
-import type { FastifyInstance } from "fastify"
 import fs from "fs"
-import fp from "fastify-plugin"
+import { type ModelRow } from "../types/types.js"
 
-export async function modelParsePlugin(fastify: FastifyInstance){
-  fastify.decorate("modelParse", async(path: string) => {
-    fs.createReadStream(path)
-      .pipe(parse())
-      .on("data",(data) => {
-        console.log(data)
-      })
-      .on("end",() => {
-        console.log("File parsing complete.")
-      })
-  })
+export async function modelParse(filePath: string){
+
+  const result: ModelRow[] = []
+
+  fs.createReadStream(filePath)
+    .pipe(parse(["Model No.","MFR","Ht"]))
+    .on("data",(data:ModelRow) => {
+      result.push(data)
+    })
+    .on("end",() => {
+      console.log("File parsing complete.")
+      // console.log("Result: ", result)
+      const columns = Object.keys(result[0] || {})
+      console.log("Columns: ",columns)
+    })
+
+        console.log("Result: ", result)
+
+  const columnHeaders = Object.keys(result[0] || {})
+  console.log("Column headers: ", columnHeaders)
+
 } 
-
-export default fp(modelParsePlugin)
-
-declare module "fastify"{
-  interface FastifyInstance {
-    modelParse(path: string): Promise<void>
-  }
-}
 

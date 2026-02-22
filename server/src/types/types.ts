@@ -4,7 +4,13 @@ export type ChatMessage = {
 export type ChatModels = {
   models: {name: string}[]
 }
-export type Message = {
-  role:"SYSTEM"|"USER"|"ASSISTANT",
-  prompt:string
+
+export type ModelRow = {
+  "Model No": string,
+  "MFR": string,
+  "Ht": string
 }
+
+export type ModelColumn = {
+
+}  

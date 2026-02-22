@@ -5,6 +5,9 @@ const MODEL = "llama3.1"
 
 export async function llm(messageHistory:Message[]) {
   console.log("Sending prompt to ollama")
+  console.log("Message History: ",
+    messageHistory
+  )
   try {
     const res = await ollama.chat({
       model: MODEL,

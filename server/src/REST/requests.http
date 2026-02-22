@@ -4,5 +4,5 @@ POST http://localhost:3000/
 Content-Type: application/json
 
 {
-  "message": "Which guns fit in my safe?"
+  "message": "fire rating of my SP24SA7040P safe?"
 }

@@ -6,9 +6,9 @@ export type ChatModels = {
 }
 
 export type ModelRow = {
-  "Model No": string,
-  "MFR": string,
-  "Ht": string
+  "model": string,
+  "origin": string,
+  "height": string
 }
 
 export type ModelColumn = {

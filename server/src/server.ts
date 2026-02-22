@@ -1,5 +1,4 @@
 import Fastify, { type FastifyInstance } from "fastify"
-import llmPlugin from "./plugins/llm.plugin.js"
 import { checkModelAvailble, checkOllamaReachable } from "./services/llm.services.js"
 import chatRoutes from "./routes/chat.routes.js"
 import path from "node:path"
@@ -9,10 +8,8 @@ const fastify: FastifyInstance = Fastify({
   logger: true
 })
 
-fastify.register(llmPlugin)
+
 fastify.register(chatRoutes, { prefix: "/chat"})
-const dataPath = path.join(process.cwd(),"data/modelSpec.csv")
-const modelLookup = modelParse(dataPath)
 
 const checkDependencies = async() => {
   try {

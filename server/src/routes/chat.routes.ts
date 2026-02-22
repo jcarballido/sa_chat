@@ -1,9 +1,9 @@
 import type { FastifyPluginAsync } from "fastify";
-import { createChat } from "../controllers/chat.controllers.js";
+import { createChat, extractModelNumber } from "../controllers/chat.controllers.js";
 import fastifyPlugin from "fastify-plugin";
 
 const chatRoutes: FastifyPluginAsync = async function (fastify) {
-  fastify.post("/", createChat)
+  fastify.post("/", extractModelNumber)
 }
 
 export default fastifyPlugin(chatRoutes)

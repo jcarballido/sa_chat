@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
-import { createChat, extractModelNumber } from "../controllers/chat.controllers.js";
+import { extractModelNumber } from "../controllers/chat.controllers.js";
 import fastifyPlugin from "fastify-plugin";
 
 const chatRoutes: FastifyPluginAsync = async function (fastify) {

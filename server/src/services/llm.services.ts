@@ -4,10 +4,6 @@ import type { ChatModels } from "../types/types.js"
 const MODEL = "llama3.1"
 
 export async function llm(messageHistory:Message[]) {
-  console.log("Sending prompt to ollama")
-  console.log("Message History: ",
-    messageHistory
-  )
   try {
     const res = await ollama.chat({
       model: MODEL,
@@ -16,6 +12,21 @@ export async function llm(messageHistory:Message[]) {
     })
     
     return res.message.content    
+  } catch (error) {
+    throw error
+  }
+}
+
+export async function modelNumberExtractor(inventoriedModelNumbers: string[], prompt: string){
+  try {
+    const res = await ollama.chat({
+      model: MODEL,
+      stream: false,
+      messages:[{role:"USER",content: prompt}]
+    })
+    
+    return res.message.content    
+    
   } catch (error) {
     throw error
   }

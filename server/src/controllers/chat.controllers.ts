@@ -51,15 +51,19 @@ export async function extractModelNumber(request: FastifyRequest, reply: Fastify
     let messageHistory = [
       {
         role: "SYSTEM",
-        content: `You will attempt to extract a model number submitted by the USER role. You will respond in JSON format and no additional text. Your response will be input into another model. If you successfully determine a model number answer in the following format:
+        content: `ONLY THE FOLLOWING MODEL NUMBERS ARE VALID:
+        
+        ${inventoryModelNumbers.join()}
 
-          {
-            result: success,
-            extracted: MODEL NUMBER FROM USER PROMPT
-          }
+        You will parse a message from a USER role and extract a model number from it. It is extremly common for the USER role to erroneously misplace the '-' and commit typos. You will respond ONLY in valid JSON format and no additional text. Your response will be input into another model. If you successfully determine a model number, answer in the following format:
+
+        {"result": "success","extracted": "//MODEL NUMBER EXTRACTED FROM USER PROMPT"}
 
         If you CANNOT determine a model number from the USER role, your response must follow this format:
-        {result: error, message: A model number could not be determined from your input.}
+        
+        {"result": "error", "message": "A model number could not be determined from your input."}
+
+        DO NOT GUESS AND DO NOT ASSUME MODEL NUMBERS.
         `
       },
       {
@@ -76,11 +80,15 @@ export async function extractModelNumber(request: FastifyRequest, reply: Fastify
       message: string
     }
     
-    const response= await llm(messageHistory)
+    const response = await llm(messageHistory)
+    // ADD VALIDATION STEP
     console.log("Response: ", response)
-    const parsedResponse: Response = JSON.parse(JSON.stringify(response))
+    const parsedResponse: Response = await JSON.parse(response)
     console.log("Parsed Response: ", parsedResponse)
     if(parsedResponse.result !== "success"){
+      console.log("parsed request when not success: ", parsedResponse)
+      console.log("Type check: ", typeof parsedResponse)
+      console.log("Parsed response result: ",Object.entries(parsedResponse))
       return {
         response: "Confirm you have the correct model number."
       }
@@ -88,10 +96,23 @@ export async function extractModelNumber(request: FastifyRequest, reply: Fastify
       messageHistory = [
         {
           role: "SYSTEM",
-          content:`You will attempt to match the following model number: ${response} extracted from a USER role message to the closest model number or numbers existing in the following list of confirmed model numbers that exist in inventory:
+          content:`You are a model number inventory lookup. You will analyze a model number suggested by a USER role and determine the closest model number or model numbers from the following inventory list:
           ${inventoryModelNumbers.join()}
-  
-          It is extremely common for an existing dash to be positioned in the wrong location, for letters and numbers to be missing, and for typos.
+
+          When a message is recieved from the USER role, it is extremely common for an existing '-' to be positioned in the wrong location or completely missing, for letters and numbers to be missing, and for typos to exist. 
+          1. DO NOT RESPOND WITH ADDITIONAL TEXT, ONLY VALID JSON IN THE FOLLOWING FORMAT:
+          {"matches":string[]} 
+          2. ONLY SUGGEST MODEL NUMBERS THAT EXIST IN THE INVENTORY LIST.
+          3. DO NOT INVENT MODEL NUMBERS.
+          4. DO NOT TREAT THE '-' CHARACTER AS A SPLIT.
+
+          `
+        },
+        {
+          role:"USER",
+          content:`Analyze the extracted model number: ${parsedResponse.extracted}, and return any model number or model numbers that match the closest from the inventory list.
+          Return ONLY VALID JSON  with the potential matches as an array of strings in the following format:
+          {"matches":string[]}
           `
         }
       ]
@@ -104,7 +125,8 @@ export async function extractModelNumber(request: FastifyRequest, reply: Fastify
       }
     }
   } catch (error) {
-    throw error
+    console.log("ERROR: ", error)
+    // throw error
   }
 }
 

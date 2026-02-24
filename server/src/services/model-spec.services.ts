@@ -1,27 +1,59 @@
 import { parse } from "csv-parse"
 import fs from "fs"
-import { type ModelRow } from "../types/types.js"
 
-export async function modelParse(filePath: string){
+export interface CsvQuery {
+  headers: string[];
+  getColumnValues: (column: string) => (string|undefined)[];
+  getRowsByColumnValue: (
+    column: string,
+    value: string
+  ) => Record<string, string>[];
+}
 
-  // Pull from a single column
-  const result: ModelRow[] = []
+export async function loadCsv(filePath: string): Promise<CsvQuery> {
+  const rows: Record<string, string>[] = [];
+  let headers: string[] = [];
 
-  const fileStream = fs.createReadStream(filePath)
-  const parser = parse({columns: true})
-
-  fileStream.pipe(parser)
+  const parser = fs
+    .createReadStream(filePath)
+    .pipe(
+      parse({
+        columns: true,
+        trim: true,
+        skip_empty_lines: true,
+      })
+    );
 
   for await (const row of parser) {
-    result.push(row)
+    if (headers.length === 0) {
+      headers = Object.keys(row);
+    }
+    rows.push(row);
   }
-  console.log("Result: ", result)
+
+  const getColumnValues = (column: string): (string|undefined)[] => {
+    if (!headers.includes(column)) {
+      throw new Error(`Column "${column}" does not exist`);
+    }
+    return rows.map(row => row[column]) ;
+  };
+
+  const getRowsByColumnValue = (
+    column: string,
+    value: string
+  ): Record<string, string>[] => {
+    if (!headers.includes(column)) {
+      throw new Error(`Column "${column}" does not exist`);
+    }
+    console.log("HEADERS: ")
+    console.log("Column name passed in: ",column)
+    console.log("Value passed in: ", value)
+    return rows.filter(row => row[column] === value);
+  };
 
   return {
-    getColumn: (columnName: "model" | "height" | "origin") => {
-      const columnData = result.map((r) => r[columnName])
-      return columnData
-    }
-  }
-} 
-
+    headers,
+    getColumnValues,
+    getRowsByColumnValue,
+  };
+}

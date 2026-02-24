@@ -2,7 +2,7 @@ import Fastify, { type FastifyInstance } from "fastify"
 import { checkModelAvailble, checkOllamaReachable } from "./services/llm.services.js"
 import chatRoutes from "./routes/chat.routes.js"
 import path from "node:path"
-import { modelParse } from "./services/model-spec.services.js"
+import { loadCsv } from "./services/model-spec.services.js"
 
 const fastify: FastifyInstance = Fastify({
   logger: true

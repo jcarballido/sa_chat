@@ -5,10 +5,10 @@ import { buildChatController } from "../controllers/chat.controllers.js";
 
 const chatRoutes: FastifyPluginAsync = async function (fastify: FastifyInstance) {
   
-  const service = buildChatService(fastify.inventoryStore)
+  const service = buildChatService(fastify.inventoryStore, fastify.specificationStore)
   const controller = buildChatController(service)
 
-  fastify.post("/", controller.getRowsByColumnValue)
+  fastify.post("/", controller.chat)
 }
 
 export default fp(chatRoutes)

@@ -1,42 +1,20 @@
-import { type FastifyReply, type FastifyRequest } from "fastify";
-import { llm } from "../services/llm.services.js";
-import z from "zod";
-import { messageStore } from "../services/message-store.js";
-import path from "node:path";
-import { loadCsv } from "../services/model-spec.services.js";
-
-type RequestBody = {
-  message: string
-}
-const inventoryPath = path.join(process.cwd(),"data/inventory.csv")
-const modelLookup = await loadCsv(inventoryPath)
-const modelNumbers = modelLookup.getColumnValues("model")
-
-const specSheetPath = path.join(process.cwd(), "data/modelSpec.csv")
-const specLookup = await loadCsv(specSheetPath)
-
-const confirmedModelNumbers = modelNumbers
-
-type ConfirmedModelNumbers = typeof confirmedModelNumbers[number]
-
-const MessageSchema = z.object({
-  message: z.object({
-    model: z.string().trim().min(1, "Model cannot be empty").max(200, "Maximum message length exceeded"),
-  }),
-}).strict()
+import { type FastifyRequest } from "fastify";
+import { MessageSchema } from "../schemas/schemas.js"
 
 export function buildChatController(service:ReturnType<typeof import("../services/chat.services.js").buildChatService>) {
 
-  async function getRowsByColumnValue(request: FastifyRequest) {
+  async function chat(request: FastifyRequest) {
     const body = MessageSchema.parse(request.body)
     const { message } = body
-    const modelNumber = message.model
-    return service.getRowsByColumnValue("model",modelNumber)
+    const modelNumber = message
+    return service.generateResponse(message)
   }
   return{
-    getRowsByColumnValue
+    chat
   }
 }
+
+// 
 
 // export async function extractModelNumber(request: FastifyRequest, reply: FastifyReply) {
 //   try {

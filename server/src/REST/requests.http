@@ -4,5 +4,7 @@ POST http://localhost:3000/
 Content-Type: application/json
 
 {
-  "message": "fire rating of my SP25SA-5240 safe?"
+  "message": {
+    "model": "SA4829"
+  }
 }

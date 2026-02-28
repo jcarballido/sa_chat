@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { buildStore, type CsvQuery } from "../store/buildStore.js";
+import { buildStore, type CsvQuery } from "../infrastructure/buildStore.js";
 import path from "node:path";
 import fp from "fastify-plugin"
 

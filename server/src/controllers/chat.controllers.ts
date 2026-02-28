@@ -3,14 +3,13 @@ import { MessageSchema } from "../schemas/schemas.js"
 
 export function buildChatController(service:ReturnType<typeof import("../services/chat.services.js").buildChatService>) {
 
-  async function chat(request: FastifyRequest) {
+  async function processMessage(request: FastifyRequest) {
     const body = MessageSchema.parse(request.body)
     const { message } = body
-    const modelNumber = message
-    return service.generateResponse(message)
+    return service.processMessage(message)
   }
   return{
-    chat
+    processMessage
   }
 }
 

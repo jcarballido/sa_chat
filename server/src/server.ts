@@ -3,6 +3,8 @@ import { checkModelAvailble, checkOllamaReachable } from "./services/llm.service
 import chatRoutes from "./routes/chat.routes.js"
 import inventoryStorePlugin from "./plugins/inventoryStore.plugin.js"
 import specificationStorePlugin from "./plugins/specificationStore.plugin.js"
+import llmPlugin from "./plugins/chat.plugin.js"
+import messageStorePlugin from "./plugins/messageStore.plugin.js"
 
 const fastify: FastifyInstance = Fastify({
   logger: true
@@ -10,6 +12,8 @@ const fastify: FastifyInstance = Fastify({
 
 fastify.register(inventoryStorePlugin)
 fastify.register(specificationStorePlugin)
+fastify.register(llmPlugin)
+fastify.register(messageStorePlugin)
 fastify.register(chatRoutes, { prefix: "/chat"})
 
 const checkDependencies = async() => {

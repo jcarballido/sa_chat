@@ -1,13 +1,21 @@
 import type { FastifyInstance } from "fastify";
+import { buildLlmCall, type LLMcall } from "../infrastructure/buildLlmCall.js";
+import fp from "fastify-plugin"
 
-export async function chatPlugin(fastify: FastifyInstance) {
-  fastify.post("/", async (req, reply) => {
-    const { message } = req.body as { message: string }
+async function llmPlugin(fastify: FastifyInstance) {
+  
+  const llm = await buildLlmCall()
 
-    // use the decorator
-    const response = await fastify.runLLM(message)
-    console.log("Message Recieved:"," ",message )
-    console.log("LLM response:"," ",response)
-    return {}
-  })
+  fastify.decorate("llm",llm)
 }
+
+export default fp(llmPlugin)
+
+declare module "fastify"{
+  interface FastifyInstance{
+    llm: LLMcall
+  }
+}
+  
+
+

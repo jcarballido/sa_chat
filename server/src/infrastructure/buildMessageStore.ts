@@ -8,8 +8,14 @@ const SYSTEM_PROMPT = `
   3. Provide helpful, safe responses only.
 `
 
+export type MessageStore = {
+  getMessages: () => Message[],
+  addUserMessage: (newPrompt: string) => number,
+  addAssistantMessage: (newPrompt: string) => number,
+  clearMessages: () => Message[]
+}
 
-const createMessageStorage = () => {
+export const buildMessageStore = (): MessageStore => {
 
   const initialMessage: Message = {
     role:"SYSTEM",
@@ -26,4 +32,3 @@ const createMessageStorage = () => {
   }
 }
 
-export const messageStore = createMessageStorage()

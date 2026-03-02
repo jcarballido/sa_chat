@@ -8,41 +8,46 @@ export function buildChatService(inventoryStore: CsvQuery, specificationStore:Cs
   async function processMessage(prompt: string){
       
     // Classify intent: focused, adjacent, out_of_scope, malicious
-    const classification = await llm.classificationLLM(prompt)
-    const extraction = await llm.extractionLLM(prompt)
-    console.log("Raw Classification: ")
-    console.log(classification)
+    // const classification = await llm.classification(prompt)
+    // const extraction = await llm.extractObjectives(prompt)
+    const extractModel = await llm.extractModel(prompt)
     console.log("---")
-    console.log("Raw extraction:")
-    console.log(extraction)
-    const parsedClassificaiton = JSON.parse(classification)
+    console.log("Raw extracted Model:")
+    console.log(extractModel)
+    console.log("---")
+    // console.log("Raw Classification: ")
+    // console.log(classification)
+    // console.log("---")
+    // console.log("Raw extraction:")
+    // console.log(extraction)
+    // const parsedClassificaiton = JSON.parse(classification)
     // console.log("---")
     // console.log("Parsed:")
     // console.log(parsedClassificaiton)
     // console.log("---")
     // Branch
-    const { intent } = parsedClassificaiton
+    // const { intent } = parsedClassificaiton
 
     let response
-    switch(intent){
-      case "malicious":
-        // return message: "Not allowed to continue with request."
-        return "Malicious"
-        //break
-      case "out_of_scope":
-        // return message: "This is outside the scope of my abilities. Is there anything about our safes I can help you determine?"
-        //break
-        return "Out of Scope"
-      case "adjacent":
-        // answer the question but do not store any messages with this classification
-        // break
-        response = classification
-        break
-      case "focused":
-        // answer the question and store the data
-        response= classification
-        break
-    }
+    // switch(intent){
+    //   case "malicious":
+    //     // return message: "Not allowed to continue with request."
+    //     return "Malicious"
+    //     //break
+    //   case "out_of_scope":
+    //     // return message: "This is outside the scope of my abilities. Is there anything about our safes I can help you determine?"
+    //     //break
+    //     return "Out of Scope"
+    //   case "adjacent":
+    //     // answer the question but do not store any messages with this classification
+    //     // break
+    //     response = classification
+    //     break
+    //   case "focused":
+    //     // answer the question and store the data
+    //     response= classification
+    //     break
+    // }
     // Store new message
     // Build prompt with chat history
     // Get domain knowledge

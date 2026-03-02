@@ -1,12 +1,18 @@
 import type { FastifyInstance } from "fastify";
 import { buildLlmCall, type LLMcall } from "../infrastructure/buildLlmCall.js";
 import fp from "fastify-plugin"
+import { string } from "zod";
 
 async function llmPlugin(fastify: FastifyInstance) {
-  
-  const llm = await buildLlmCall()
+  try {
+    const inventoryModels = fastify.inventoryStore.getColumnValues("model")
+    const filteredModels = inventoryModels.filter((x)=>x !== undefined)
+    const llm = await buildLlmCall(filteredModels)
+    fastify.decorate("llm",llm)    
+  } catch (error) {
+    throw error
+  }
 
-  fastify.decorate("llm",llm)
 }
 
 export default fp(llmPlugin)

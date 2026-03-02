@@ -1,13 +1,14 @@
 import ollama, { type Message } from "ollama"
 import { MODEL } from "../constants/constants.js"
-import { CLASSIFICATION_SYSTEM_PROMPT, EXTRACTION_SYSTEM_PROMPT } from "../constants/system_prompts.js"
+import { CLASSIFICATION_SYSTEM_PROMPT, EXTRACT_MODEL_SYSTEM_PROMPT, EXTRACT_OBJECTIVES_SYSTEM_PROMPT } from "../constants/system_prompts.js"
+
 export type LLMcall = {
-  chatLLM: (messageHistory: Message[]) => Promise<string>,
-  classificationLLM: (prompt: string) => Promise<string>,
-  extractionLLM: (prompt: string) => Promise<string>
+  classification: (prompt: string) => Promise<string>,
+  extractObjectives: (prompt: string) => Promise<string>,
+  extractModel: (prompt:string) => Promise<string>
 }
 
-export async function buildLlmCall(): Promise<LLMcall>{  
+export async function buildLlmCall(inventoryModels:string[]): Promise<LLMcall>{  
   async function chatLLM(messageHistory: Message[]){
     try {
       const res = await ollama.chat({
@@ -22,39 +23,26 @@ export async function buildLlmCall(): Promise<LLMcall>{
       throw error
    }
   }
-  async function classificationLLM(initialPrompt:string) {
-    try {
-      const res = await ollama.chat({
-        model: MODEL,
-        stream: false,
-        messages:[{role:"SYSTEM",content:CLASSIFICATION_SYSTEM_PROMPT},{role:"USER",content:initialPrompt}],
-        format: "json"
 
-      })  
-      return res.message.content    
-    } catch (error) {
-      throw error
-   }    
-  }
-    async function extractionLLM(initialPrompt:string) {
-    try {
-      const res = await ollama.chat({
-        model: MODEL,
-        stream: false,
-        messages:[{role:"SYSTEM",content:EXTRACTION_SYSTEM_PROMPT},{role:"USER",content:initialPrompt}],
-        format: "json"
-
-      })  
-      return res.message.content    
-    } catch (error) {
-      throw error
-   }    
+  function extractModel(prompt: string){
+    if(!inventoryModels){
+      throw new Error("Inventory models undefined.")
+    }
+    return chatLLM([{role:"SYSTEM",content:EXTRACT_MODEL_SYSTEM_PROMPT(inventoryModels)},{role:"USER",content:prompt}])    
   }
 
+  function extractObjectives(prompt: string){
+    return chatLLM([{role:"SYSTEM",content:EXTRACT_OBJECTIVES_SYSTEM_PROMPT},{role:"USER",content:prompt}])    
+  }
 
+  function classification(prompt: string) {
+    return chatLLM([{role:"SYSTEM",content:CLASSIFICATION_SYSTEM_PROMPT},{role:"USER",content:prompt}])
+  }
+  
   return {
-    chatLLM,
-    classificationLLM,
-    extractionLLM
+    classification,
+    extractObjectives,
+    extractModel
   }
 }
+

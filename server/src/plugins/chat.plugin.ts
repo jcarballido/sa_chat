@@ -1,7 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { buildLlmCall, type LLMcall } from "../infrastructure/buildLlmCall.js";
 import fp from "fastify-plugin"
-import { string } from "zod";
 
 async function llmPlugin(fastify: FastifyInstance) {
   try {

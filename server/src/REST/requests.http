@@ -4,5 +4,5 @@ POST http://localhost:3000/
 Content-Type: application/json
 
 {
-  "message": "What safe is like SP25SA-?"
+  "message": "3*28"
 }

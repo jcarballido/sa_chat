@@ -1,8 +1,9 @@
 import ollama, { type Message } from "ollama"
 import { MODEL } from "../constants/constants.js"
-import { CLASSIFICATION_SYSTEM_PROMPT, EXTRACT_MODEL_SYSTEM_PROMPT, EXTRACT_OBJECTIVES_SYSTEM_PROMPT } from "../constants/system_prompts.js"
+import { CLASSIFICATION_SYSTEM_PROMPT, EXTRACT_MODEL_SYSTEM_PROMPT, EXTRACT_OBJECTIVES_SYSTEM_PROMPT, GENERAL_CHAT_PROMPT } from "../constants/system_prompts.js"
 
 export type LLMcall = {
+  generalChat: (prompt: string) => Promise<string>,
   classification: (prompt: string) => Promise<string>,
   extractObjectives: (prompt: string) => Promise<string>,
   extractModel: (prompt:string) => Promise<string>
@@ -24,6 +25,9 @@ export async function buildLlmCall(inventoryModels:string[]): Promise<LLMcall>{
    }
   }
 
+  function generalChat(prompt:string){
+    return chatLLM([{role:"SYSTEM",content:GENERAL_CHAT_PROMPT},{role:"USER",content:prompt}])
+  }
   function extractModel(prompt: string){
     if(!inventoryModels){
       throw new Error("Inventory models undefined.")
@@ -40,6 +44,7 @@ export async function buildLlmCall(inventoryModels:string[]): Promise<LLMcall>{
   }
   
   return {
+    generalChat,
     classification,
     extractObjectives,
     extractModel

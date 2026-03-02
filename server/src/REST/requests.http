@@ -4,7 +4,5 @@ POST http://localhost:3000/
 Content-Type: application/json
 
 {
-  "message": {
-    "model": "SA4829"
-  }
+  "message": "How many kgs in a pound?"
 }

@@ -5,8 +5,9 @@ import { buildChatService } from "../services/chat.services.js";
 
 const chatRoutes: FastifyPluginAsync = async function (fastify: FastifyInstance) {
 
-  const service = buildChatService(fastify.inventoryStore, fastify.specificationStore, fastify.llm, fastify.messageStore)
-  const controller = buildChatController(service)
+  const domainExecutionService = buildDomainExecutionService(fastify.inventoryStore, fastify.specificationStore, fastify.messageStore )
+  const chatService = buildChatService(fastify.llm)
+  const controller = buildChatController(chatService)
 
   fastify.post("/", controller.processMessage)
 }

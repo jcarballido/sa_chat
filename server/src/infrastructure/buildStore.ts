@@ -3,7 +3,8 @@ import fs from "node:fs"
 import type { Defined, SpecCriteria } from "../types/types.js";
 
 export type CsvQuery = {
-  headers: string[];
+  headers: string[],
+  rows: Record<string, string> []
   getColumnValues: (column: string) => (string|undefined)[];
   getRowsByColumnValue: (
     column: string,
@@ -52,30 +53,9 @@ export async function buildStore(filePath: string): Promise<CsvQuery> {
     return rows.filter(row => row[column] === value);
   };
 
-  const buildConditional = () => {
-
-    const conditional = 
-
-    return conditional
-  }
-
-  const getByCriteria = (specCriteria: Defined<SpecCriteria>) => {
-    // Look at every row in the parsed file and return objects that match the passed in criteria.
-    // Example criteria:
-    // {fire_rating:{time: [35,60]}}, gun_count:{45}, depth:[20, 88]
-    // Build conditional to pass into filter
-
-    // Fiter based on listed conditional
-    const result = rows.filter(row => {
-      const {fire_rating_time, fire_rating_temp, waterpoof, gun_count, height,width,depth} = row
-      if(/*Conditional defined by the specCriteria*/true) return row 
-    })
-
-    return result
-  }
-
   return {
     headers,
+    rows,
     getColumnValues,
     getRowsByColumnValue,
   };

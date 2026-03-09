@@ -1,11 +1,17 @@
 import type { FastifyInstance } from "fastify";
-import { buildStore, type CsvQuery } from "../infrastructure/buildStore.js";
+import { buildStoreGeneric } from "../infrastructure/buildStore.js";
 import path from "node:path";
 import fp from "fastify-plugin"
+import type { CsvQuery } from "../types/types.js";
 
 async function inventoryStorePlugin(fastify:FastifyInstance) {
   const filePath = path.join(process.cwd(),"data/inventory.csv")
-  const inventoryStore = await buildStore(filePath)
+  const schema = {
+    "model": (t: string) => t,
+    "origin": (t: string) => t,
+    "height": (t: string) => Number(t),
+  }
+  const inventoryStore = await buildStoreGeneric(filePath,schema)
   fastify.decorate("inventoryStore", inventoryStore)
 }
 

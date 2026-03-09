@@ -1,27 +1,23 @@
 import { parse } from "csv-parse"
 import fs from "node:fs"
+import type { ConversionSchema, CsvQuery, InferRows } from "../types/types.js";
 
-export type CsvQuery = {
-  headers: string[],
-  rows: Record<string, unknown> []
-  getColumnValues: (column: string) => (string|undefined)[];
-  getRowsByColumnValue: (
-    column: string,
-    value: string
-  ) => Record<string, string>[];
+function convertRows<S extends Record<string,(t: string) => any>>(
+  data: Record<string,string>,
+  schema: S
+): InferRows<S>{
+  const result = {} as InferRows<S>
+  for (const key in schema){
+    result[key] = schema[key]!(data[key]!)
+  }
+  return result
 }
 
-type SpecTableShape = {
-  "fire_rating_time": number,
-  "fire_rating_temp": number,
-  "height": number,
-  "width": number,
-  "depth": number,
-  "gun_count": number,
-  "waterproof": boolean
-}
-
-async function buildStoreGeneric<T extends Record<string,unknown>>(filePath:string): Promise<CsvQuery> {
+export async function buildStoreGeneric<T extends ConversionSchema>(filePath:string, schema: T): Promise<CsvQuery> {
+  
+  let headers: string[] = [];
+  const rows: Array<Record<string,string>> = []
+  
   const parser = fs
     .createReadStream(filePath)
     .pipe(
@@ -31,9 +27,6 @@ async function buildStoreGeneric<T extends Record<string,unknown>>(filePath:stri
         skip_empty_lines: true,
       })
     );
-  let headers: string[] = [];
-  const rows: Array<Record<string,string>> = []
-  
   for await (const row of parser) {
     if (headers.length === 0) {
       headers = Object.keys(row);
@@ -41,47 +34,19 @@ async function buildStoreGeneric<T extends Record<string,unknown>>(filePath:stri
     rows.push(row);
   }
 
-  type InferRows<S extends Record<string,(v:string)=> any>> = {
-    -readonly [K in keyof S]: ReturnType<S[K]>
-  } 
-
-  function convertRows<S extends Record<string,(t: string) => any>>(
-    data: Record<string,string>,
-    schema: S
-  ): InferRows<S>{
-
-    const result = {} as InferRows<S>
-
-    for (const key in schema){
-
-      result[key] = schema[key]!(data[key]!)
-    }
-
-    return result
-  }
-
-  const schema = {
-    "fire_rating_time": (t: string) => Number(t),
-    "fire_rating_temp": (t: string) => Number(t),
-    "height": (t: string) => Number(t),
-    "depth": (t: string) => Number(t),
-    "width": (t: string) => Number(t),
-    "gun_count": (t: string) => Number(t),
-    "waterproof": (t: string) => t === "true"
-  } as const
-
   const convertedRows = rows.map(row => convertRows(row, schema))
-  const getColumnValues = (column: string): (string|undefined)[] => {
+
+  function getColumnValues<K extends keyof InferRows<T> &  string>(column: K): InferRows<T>[K][] {
     if (!headers.includes(column)) {
       throw new Error(`Column "${column}" does not exist`);
     }
-    return rows.map(row => row[column]) ;
+    return convertedRows.map(row => row[column]) ;
   };
 
-  const getRowsByColumnValue = (
+  function getRowsByColumnValue(
     column: string,
-    value: string
-  ): Record<string, string>[] => {
+    value: unknown
+  ): Record<string, unknown>[] {
     if (!headers.includes(column)) {
       throw new Error(`Column "${column}" does not exist`);
     }

@@ -1,7 +1,5 @@
 import type { MessageStore } from "./buildMessageStore.js";
-import type { CsvQuery } from "./buildStore.js";
-import type { Defined, Filter, Operators, SpecCriteria } from "../types/types.js";
-import type { object } from "zod";
+import type { CsvQuery, Filter, Operators, SpecCriteria } from "../types/types.js";
 
 export function buildDomainExecutionServices(inventoryStore: CsvQuery, specificationStore: CsvQuery, messageStore: MessageStore){
   async function getModelSpecs(model:string) {

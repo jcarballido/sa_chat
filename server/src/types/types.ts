@@ -1,3 +1,7 @@
+import type { buildStoreGeneric } from "../infrastructure/buildStore.js"
+import type { inventorySchema } from "../plugins/inventoryStore.plugin.js"
+import type { specificationSchema } from "../plugins/specificationStore.plugin.js"
+
 export type ChatMessage = {
   message: string
 }
@@ -33,19 +37,17 @@ export type Filter<T> = {
   [K in keyof T]?: Operators<T[K]>
 }
 
-export type CsvQuery = {
-  headers: string[],
-  rows: Record<string, unknown> []
-  getColumnValues: (column: string) => unknown[];
-  getRowsByColumnValue: (
-    column: string,
-    value: string
-  ) => Record<string, unknown>[];
-}
-
 export type ConversionSchema = {
   [k:string]: (t: string) => unknown  
 }
+
+export type SpecificationStore = Awaited<
+  ReturnType<typeof buildStoreGeneric<typeof specificationSchema>>
+>
+
+export type InventoryStore = Awaited<
+  ReturnType<typeof buildStoreGeneric<typeof inventorySchema>>
+>
 
 
 export type InferRows<S extends Record<string,(v:string)=> any>> = {

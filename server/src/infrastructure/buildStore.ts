@@ -1,6 +1,6 @@
 import { parse } from "csv-parse"
 import fs from "node:fs"
-import type { ConversionSchema, CsvQuery, InferRows } from "../types/types.js";
+import type { ConversionSchema, InferRows } from "../types/types.js";
 
 function convertRows<S extends Record<string,(t: string) => any>>(
   data: Record<string,string>,
@@ -13,7 +13,7 @@ function convertRows<S extends Record<string,(t: string) => any>>(
   return result
 }
 
-export async function buildStoreGeneric<T extends ConversionSchema>(filePath:string, schema: T): Promise<CsvQuery> {
+export async function buildStoreGeneric<T extends ConversionSchema>(filePath:string, schema: T) {
   
   let headers: string[] = [];
   const rows: Array<Record<string,string>> = []
@@ -36,16 +36,16 @@ export async function buildStoreGeneric<T extends ConversionSchema>(filePath:str
 
   const convertedRows = rows.map(row => convertRows(row, schema))
 
-  function getColumnValues<K extends keyof InferRows<T> &  string>(column: K): InferRows<T>[K][] {
+  function getColumnValues<K extends keyof InferRows<T> & string>(column: K): InferRows<T>[K][] {
     if (!headers.includes(column)) {
       throw new Error(`Column "${column}" does not exist`);
     }
     return convertedRows.map(row => row[column]) ;
   };
 
-  function getRowsByColumnValue(
-    column: string,
-    value: unknown
+  function getRowsByColumnValue<K extends keyof InferRows<T> & string>(
+    column: K,
+    value: InferRows<T>[K]
   ): Record<string, unknown>[] {
     if (!headers.includes(column)) {
       throw new Error(`Column "${column}" does not exist`);

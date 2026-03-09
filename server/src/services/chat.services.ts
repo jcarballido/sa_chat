@@ -11,7 +11,15 @@ const logOut = (logs: string[]) => {
 export function buildServices(llm: LLMcall, executionService: ReturnType<typeof import("../infrastructure/buildDomainExecutionService.js").buildDomainExecutionServices>){
 
   async function processMessage() {
-    return executionService.getAllData()    
+    const result = await executionService.getSimilarModels("model",{
+      "fire_rating":{
+        "time":60,
+        "temp":1400
+      },
+      "gun_count":30
+    })
+    console.log("RESULT:")
+    console.log(result)
   }
 
   // async function processMessage(prompt: string){

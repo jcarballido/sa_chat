@@ -35,23 +35,29 @@ export function buildDomainExecutionServices(inventoryStore: CsvQuery, specifica
     const allData = specificationStore.rows
     // Get original model specs
     const referenceModel = await getModelSpecs(model)
+    const rating_time = referenceModel.specs
     // Check if there are specific specs that must be focused on
     const {fire_rating, waterpoof, gun_count, external_dimensions} = criteria ?? {}
+    // Build search criteria.
+    const requirements = {}
     if(fire_rating){
-      // Get all fire ratings
       const {time,temp} = fire_rating
-    }
-    if(waterpoof){
-      if(waterpoof){} //get all waterproof safes
-      else {} //get nonwaterproof 
+      if(time) {
+        const fire_rating_time = specificationStore.getColumnValues("fire_rating_time")
+      }
+      if(temp) {
+        const fire_rating_temp = specificationStore.getColumnValues("fire_rating_temp")
+      }
     }
     if(gun_count){
-      // Get all gun count values
+      const gun_count_values = specificationStore.getColumnValues("gun_count") 
     }
     if(external_dimensions){
       const {height,width,depth} = external_dimensions
+      if(height) { const heights = specificationStore.getColumnValues("height") }
+      if(width){ const widths = specificationStore.getColumnValues("width") }
+      if(depth){ const depth = specificationStore.getColumnValues("depths") }
     }
-    // Build search criteria.
 
     // Search
     // const similarModels = filterBy(allSpecs,)

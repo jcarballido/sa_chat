@@ -16,7 +16,8 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
         "time":60,
         "temp":1400
       },
-      "gun_count":30
+      "gun_count":30,
+      
     })
     console.log("RESULT:")
     console.log(result)

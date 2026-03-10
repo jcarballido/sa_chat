@@ -46,11 +46,11 @@ export async function buildStoreGeneric<T extends ConversionSchema>(filePath:str
   function getRowsByColumnValue<K extends keyof InferRows<T> & string>(
     column: K,
     value: InferRows<T>[K]
-  ): Record<string, unknown>[] {
+  ): InferRows<T>[] {
     if (!headers.includes(column)) {
       throw new Error(`Column "${column}" does not exist`);
     }
-    return rows.filter(row => row[column] === value);
+    return convertedRows.filter(row => row[column] === value);
   };
 
   return {

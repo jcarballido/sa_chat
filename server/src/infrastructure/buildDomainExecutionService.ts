@@ -1,5 +1,5 @@
 import type { MessageStore } from "./buildMessageStore.js";
-import type { Filter, InventoryStore, Operators, SpecCriteria, SpecificationRow, SpecificationStore } from "../types/types.js";
+import type { Filter, InferRows, InventoryStore, Operators, SpecCriteria, SpecificationRow, SpecificationStore } from "../types/types.js";
 
 export function buildDomainExecutionServices(inventoryStore: InventoryStore, specificationStore: SpecificationStore, messageStore: MessageStore){
   async function getModelSpecs(model: SpecificationRow["model"]) {
@@ -7,14 +7,14 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     return specs 
   }
 
-  function filterBy<T extends object>(
-    rows: T[],
-    requirements: Filter<T>
-  ): T[]{
+  function filterBy(
+    rows: SpecificationRow[],
+    requirements: Filter<Omit<SpecificationRow, "waterproof">>
+  ): SpecificationRow[]{
     const results = rows.filter((row) => {      
       Object.entries(requirements).every(([key, requirement]) => {
-        const value = row[key as keyof T]
-        const req = requirement as Operators<T[keyof T]>
+        const value = row[key as keyof SpecificationRow]
+        const req = requirement as Operators<SpecificationRow[keyof SpecificationRow]>
         if(req?.eq !== undefined && value !== req.eq) return false
         if(req?.neq !==undefined && value == req.neq) return false
         if(req?.gt !== undefined && req?.gt !== null && value <= req.gt) return false
@@ -24,8 +24,18 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
         return true
       }) 
     })
-
     return results
+  }
+
+  function getOneBeforeAndAfter(values: number[], referenceValue: number):number[]{
+
+    const sortedValues = [...new Set(values)].toSorted((a,b) => a-b) 
+    const indexOfRefValue = sortedValues.indexOf(referenceValue)
+    const oneValueBefore = indexOfRefValue == 0 ? undefined : indexOfRefValue - 1
+    const oneValueAfter = indexOfRefValue == sortedValues.length - 1 ? undefined : indexOfRefValue + 1 
+    const capturedIndexes = Array.from([oneValueBefore, indexOfRefValue, oneValueAfter]).filter(val => val !== undefined)
+
+    return sortedValues.slice(capturedIndexes[0], capturedIndexes[capturedIndexes.length - 1]! + 1)
   }
 
   async function getSimilarModels(model:SpecificationRow["model"], criteria:SpecCriteria) {
@@ -43,6 +53,7 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
         const referenceTime = referenceModel?.fire_rating_time
         const fire_rating_times = specificationStore.getColumnValues("fire_rating_time")
         const referenceIndex = fire_rating_times.indexOf(referenceTime!)
+
         
       }
       if(temp) {

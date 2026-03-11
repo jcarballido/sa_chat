@@ -10,8 +10,8 @@ export type ChatModels = {
 }
 export type SpecCriteria = {
   fire_rating?:{
-    time:number,
-    temp:number
+    time?:number,
+    temp?:number
   },
   waterpoof?:boolean,
   gun_count?:number,

@@ -3,12 +3,10 @@ import type { Filter, InventoryStore, Operators, SpecCriteria, SpecificationRow,
 
 export function buildDomainExecutionServices(inventoryStore: InventoryStore, specificationStore: SpecificationStore, messageStore: MessageStore){
 
-  // Merge inventory store with specification store, left join
-  function mergeStores(inventoryModels: SpecificationRow["model"][], allSpecs: SpecificationRow[]): {matches:SpecificationRow[],missing:{model:SpecificationRow["model"]}[]}{
-    // inventoryModel:["model1", "model2", "model3"]
-    // allSpecs: [{model:"model1", gun_count: 24,...},{model:"model2", gun_count: 32,...},{model:"model3", gun_count: 48,...}]
-    
-    //Create a map from allSpecs
+  function mergeStores(
+    inventoryModels: SpecificationRow["model"][], 
+    allSpecs: SpecificationRow[]): {matches:SpecificationRow[],missing:{model:SpecificationRow["model"]}[]
+  }{
     const specMap = new Map(allSpecs.map(modelSpec => [modelSpec.model, modelSpec]))
     const matches: SpecificationRow[] = []
     const missing: {"model":SpecificationRow["model"]}[] = []
@@ -52,7 +50,6 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   }
 
   function getOneBeforeAndAfter(values: number[], referenceValue: number):number[]{
-
     const sortedValues = [...new Set(values)].toSorted((a,b) => a-b) 
     const indexOfRefValue = sortedValues.indexOf(referenceValue)
     const oneValueBefore = indexOfRefValue == 0 ? undefined : sortedValues[indexOfRefValue - 1]
@@ -65,7 +62,7 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     const referenceModel = match[0] // Reference model
     const {fire_rating, gun_count, waterpoof, external_dimensions} = criteria ?? {} // Check if there are specific specs that must be focused on
     
-    const requirements:Filter<SpecificationRow> = {}
+    const requirements:Filter<Omit<SpecificationRow,"waterproof">> = {}
     
     if(fire_rating){
       const {time,temp} = fire_rating
@@ -83,22 +80,23 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
       }
     }
     if(gun_count){
-      const gun_count_values = specificationStore.getColumnValues("gun_count")
+        const referenceGunCount = referenceModel?.gun_count!
+        const gun_counts = specificationStore.getColumnValues("gun_count")    
+        const valueWindow = getOneBeforeAndAfter(gun_counts,referenceGunCount)
+        requirements["gun_count"] = {gte:valueWindow[0]!, lte:valueWindow[valueWindow.length-1]!}    
     }
     if(external_dimensions){
       const {height,width,depth} = external_dimensions
       if(height) { 
-        const heights = specificationStore.getColumnValues("height")
+        // const heights = specificationStore.getColumnValues("height")
       }
       if(width){ 
-        const widths = specificationStore.getColumnValues("width")
+        // const widths = specificationStore.getColumnValues("width")
       }
       if(depth){
-         const depths = specificationStore.getColumnValues("depth")
+        //  const depths = specificationStore.getColumnValues("depth")
       }
     }
-
-    requirements["waterproof"] = {eq:false}
 
     return requirements
 

@@ -16,6 +16,8 @@ export const agent = new StateGraph(agentState)
   .addNode("initializeSystemPrompt",initializeSystemPrompt)
   .addNode("classifyInitialMessageNode", classifyInitialMessageNode)
   .addNode("verifyClassificationNode", verifyClassificationNode)
+  .addNode("maliciousIntentNode", maliciousIntent)
+
   .addNode("processInitialIntentNode", processInitialIntentNode)
   .addNode("refineIntentNode", refineIntentNode)
   .addNode("generateSpecNode",generateSpecNode)
@@ -35,7 +37,7 @@ export const agent = new StateGraph(agentState)
     if(agentState.classification == "focused") return "FOCUSED"
   },{
     "TOO_MANY_RETRIES": "__end__",
-    "MALICIOUS_INTENT":,
+    "MALICIOUS_INTENT":"maliciousIntentNode",
     "OUT_OF_SCOPE_INTENT":,
     "FOCUSED":
   })

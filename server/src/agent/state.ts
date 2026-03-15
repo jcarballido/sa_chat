@@ -19,8 +19,8 @@ export const agentState = new StateSchema({
   lastLLMResponse: z.string().nullable().default(null),
   initialMessage: z.string(),
   classification: z.enum(["malicious","out_of_scope","adjacent","focused"]).nullable().default(null),
-  retries: z.number().default(0)
-
+  retries: z.number().default(0),
+  maliciousIntent: z.boolean().default(false)
 })
 
 export type State = typeof agentState.State

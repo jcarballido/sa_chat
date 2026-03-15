@@ -2,7 +2,7 @@ export default function stringExists(llmResponse: string, regex: RegExp): {resul
 
   const match = llmResponse.match(regex)
 
-  if(match) return {result: true, match: JSON.stringify(match[0])}
+  if(match) return {result: true, match: match[0]}
 
   return {result: false}
 }

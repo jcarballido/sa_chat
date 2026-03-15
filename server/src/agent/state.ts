@@ -20,7 +20,10 @@ export const agentState = new StateSchema({
   initialMessage: z.string(),
   classification: z.enum(["malicious","out_of_scope","adjacent","focused"]).nullable().default(null),
   retries: z.number().default(0),
-  maliciousIntent: z.boolean().default(false)
+  maliciousIntent: z.boolean().default(false),
+  outOfScopeIntent: z.boolean().default(false),
+  adjacentIntent: z.boolean().default(false),
+  focusedIntent: z.boolean().default(false)
 })
 
 export type State = typeof agentState.State

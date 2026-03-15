@@ -6,17 +6,27 @@ import z from "zod"
 
 export async function classifyInitialMessageNode(state: State): Promise<Update>{
 
-  const response = await ollama.chat({
-    model:MODEL,
-    stream: false,
-    messages:[
-      {role: "system", content: CLASSIFICATION_SYSTEM_PROMPT},
-      {role: "user", content: state.initialMessage}
-    ],
-    format:"json"
-  })
-  
-  return{
-    lastLLMResponse: response.message.content
+  console.log("Classifying Initial Message")
+
+  try {
+    const response = await ollama.chat({
+      model:MODEL,
+      stream: false,
+      messages:[
+        {role: "system", content: CLASSIFICATION_SYSTEM_PROMPT},
+        {role: "user", content: state.initialMessage}
+      ],
+      format:"json"
+    })
+
+    console.log("RESPONSE FROM OLLAMA:")
+    console.log(JSON.parse(response.message.content))
+    
+    return{
+      lastLLMResponse: response.message.content
+    }    
+  } catch (error) {
+    throw error
   }
+
 }

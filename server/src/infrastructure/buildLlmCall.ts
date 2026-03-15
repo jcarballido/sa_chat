@@ -10,12 +10,13 @@ export type LLMcall = {
 export async function buildLlmCall(inventoryModels: string[]): Promise<LLMcall> {
   async function invokeAgent(message: string) {
     try {
-      const response = agent.invoke({
+      const response = await agent.invoke({
         initialMessage: message
       })
       console.log("LLM RESPONSE")
       console.log(response)
     } catch (error) {
+      console.log("ERROR DURING INVOCATION")
       throw error
     }
   }

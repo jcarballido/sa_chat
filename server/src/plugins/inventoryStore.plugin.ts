@@ -6,11 +6,10 @@ import type { InventoryStore } from "../types/types.js";
 
 export const inventorySchema = {
   "model": (t: string) => t,
-
 }
 
 async function inventoryStorePlugin(fastify:FastifyInstance) {
-  const filePath = path.join(process.cwd(),"data/model_number.csv")
+  const filePath = path.join(process.cwd(),"data/inventory.csv")
   const inventoryStore = await buildStoreGeneric(filePath,inventorySchema)
   fastify.decorate("inventoryStore", inventoryStore)
 }

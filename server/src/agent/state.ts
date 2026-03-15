@@ -23,7 +23,8 @@ export const agentState = new StateSchema({
   maliciousIntent: z.boolean().default(false),
   outOfScopeIntent: z.boolean().default(false),
   adjacentIntent: z.boolean().default(false),
-  focusedIntent: z.boolean().default(false)
+  focusedIntent: z.boolean().default(false),
+  finalResponse: z.string()
 })
 
 export type State = typeof agentState.State

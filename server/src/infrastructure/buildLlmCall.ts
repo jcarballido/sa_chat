@@ -2,9 +2,6 @@ import { agent } from "../agent/agent.js"
 
 export type LLMcall = {
   generalChat: (message: string) => Promise<unknown>,
-  // classification: (prompt: string) => Promise<string>,
-  // extractObjectives: (prompt: string) => Promise<string>,
-  // extractModel: (prompt: string) => Promise<string>
 }
 
 export async function buildLlmCall(inventoryModels: string[]): Promise<LLMcall> {
@@ -15,6 +12,15 @@ export async function buildLlmCall(inventoryModels: string[]): Promise<LLMcall> 
       })
       console.log("LLM RESPONSE")
       console.log(response)
+      if(response.maliciousIntent){
+        return "I am unable to continue with your message. Please remember I am only able to answer questions about our product specificaitons or general questions about secure storage."
+      }
+      if(response.outOfScopeIntent){
+        return "Sorry, your message is outside of my abilities as an assistant. I am only able to answer questions about our product specifications or general questions about the secure storage."
+      }
+      if(response.finalResponse){
+        return `${response.finalResponse}`
+      }
     } catch (error) {
       console.log("ERROR DURING INVOCATION")
       throw error
@@ -26,11 +32,4 @@ export async function buildLlmCall(inventoryModels: string[]): Promise<LLMcall> 
   }
 }
 
-  // const res = await ollama.chat({
-  //   model: MODEL,
-  //   stream: false,
-  //   messages: [],
-  //   format: "json"
-  // })
-  // return res.message.content
 

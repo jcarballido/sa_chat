@@ -7,17 +7,20 @@ import { outOfScopeIntentNode } from "./nodes/outOfScopeIntentNode.js"
 import { adjacentIntentNode } from "./nodes/adjacentIntentNode.js"
 import { focusedIntentNode } from "./nodes/focusedIntentNode.js"
 import { maliciousIntentNode } from "./nodes/maliciousIntentNode.js"
+import { verifyAdjacentIntentNode } from "./nodes/verifyAdjacentResponseNode.js"
+import { verifyFocusedIntentNode } from "./nodes/verifyFocusedIntentNode.js"
 
 export const agent = new StateGraph(agentState)
-  .addNode("initializeSystemPrompt",initializeSystemPrompt)
+  // .addNode("initializeSystemPrompt",initializeSystemPrompt)
   .addNode("classifyInitialMessageNode", classifyInitialMessageNode)
   .addNode("verifyClassificationNode", verifyClassificationNode)
   .addNode("maliciousIntentNode", maliciousIntentNode)
   .addNode("outOfScopeIntentNode", outOfScopeIntentNode)
   .addNode("adjacentIntentNode", adjacentIntentNode)
   .addNode("focusedIntentNode", focusedIntentNode)
-  .addEdge("__start__","initializeSystemPrompt")
-  .addEdge("initializeSystemPrompt","classifyInitialMessageNode")
+  .addNode("verifyAdjacentResponseNode", verifyAdjacentIntentNode)
+  .addNode("verifyFocusedIntentNode", verifyFocusedIntentNode)
+  .addEdge("__start__","classifyInitialMessageNode")
   .addEdge("classifyInitialMessageNode","verifyClassificationNode")
   .addConditionalEdges("verifyClassificationNode", (agentState) => {
     const classification = agentState.classification
@@ -37,7 +40,21 @@ export const agent = new StateGraph(agentState)
   })
   .addEdge("maliciousIntentNode","__end__")
   .addEdge("outOfScopeIntentNode","__end__")
-  .addEdge("adjacentIntentNode","__end__")
-  .addEdge("focusedIntentNode","__end__")
+  .addEdge("adjacentIntentNode","verifyAdjacentResponseNode")
+  .addConditionalEdges("verifyAdjacentResponseNode",(agentState)=>{
+    if(agentState.finalResponse) return "FINAL_RESPONSE"
+    if(!agentState.finalResponse && agentState.retries <= 5) return "RETRY"
+    return "TOO_MANY_RETRIES"
+  },{
+    "FINAL_RESPONSE": "__end__",
+    "RETRY" : "adjacentIntentNode",
+    "TOO_MANY_RETRIES":"__end__"
+  })
+  .addEdge("focusedIntentNode","verifyFocusedIntentNode")
+  .addConditionalEdges("verifyFocusedIntentNode",(agentState)=> {
+    return "END"
+  },{
+    "END": "__end__"
+  })
   .compile()
     

@@ -16,9 +16,9 @@ export const agentState = new StateSchema({
       reducer: (arr: MessageType[], newVal: MessageType) => [...arr, newVal]
     }
   ),
-
+  lastLLMResponse: z.string().nullable().default(null),
   initialMessage: z.string(),
-  intent: z.string().nullable().default(null),
+  classification: z.enum(["malicious","out_of_scope","adjacent","focused"]).nullable().default(null),
   retries: z.number().default(0)
 
 })

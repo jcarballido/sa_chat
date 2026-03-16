@@ -1,22 +1,36 @@
+import z from "zod";
 import type { State, Update } from "../state.js";
-import { askLLM } from "../util/askLLM.js";
+import stringExists from "../util/seekString.js";
+
+const FocusedIntentResponse = z.object({
+  intent: z.enum(["similar_products","product_comparison","product_lookup","other"])
+})
 
 export async function verifyFocusedIntentNode(state: State): Promise<Update> {
   
-  console.log("FOCUSED INTENT NODE running.")
-
-  try {
-    const response = await askLLM(state.initialMessage,{systemPrompt: ""})
-    console.log("FOCUSED RESPONSE:")
-    console.log(response.message.content)
+  console.log("VERIFY FOCUSED INTENT running.")
+  if(!state.lastLLMResponse) throw new Error("LLM response is missing in state passed to verifyFocusedIntentNode.")
+  const responseRegex = /(\{\s*"intent"\s*\:\s*(?:.*)\s*\})/
+  const regexTest = stringExists(state.lastLLMResponse, responseRegex)
+  if(!regexTest.result) {
+    console.log("RESPONSE NOT FOUND IN VERIFICATION NODE")
     return {
-      lastLLMResponse: response.message.content,
-      adjacentIntent: false,
-      maliciousIntent: true,
-      outOfScopeIntent: false,
-      focusedIntent: false
+      retries: state.retries + 1
     }
-  } catch (error) {
-    throw error
-  }  
+  }
+  const parsedResponse = JSON.parse(regexTest.match.trim())
+  const safeParseResult = FocusedIntentResponse.safeParse(parsedResponse)
+  if(safeParseResult.error){
+    console.log("SAFE PARSE RESULT ERROR")
+    console.log(safeParseResult)
+    return {
+      retries: state.retries + 1
+    }
+  }
+  const focusedIntentResult = safeParseResult.data?.intent
+  console.log("CLASSIFICATION IN VERIFICATION NODE:")
+  console.log(focusedIntentResult)
+  return {
+    focusedIntentResult
+  }
 }

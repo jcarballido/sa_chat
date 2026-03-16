@@ -24,6 +24,7 @@ export const agentState = new StateSchema({
   outOfScopeIntent: z.boolean().default(false),
   adjacentIntent: z.boolean().default(false),
   focusedIntent: z.boolean().default(false),
+  focusedIntentResult: z.enum(["similar_products","product_comparison","product_lookup","other"]),
   finalResponse: z.string()
 })
 

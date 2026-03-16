@@ -37,42 +37,73 @@ the response is invalid.
 `
 
 const EXTRACT_OBJECTIVES_SYSTEM_PROMPT = `
-You are a deterministic extraction engine assisting customer service representatives at a secure storage (safes) product manufacturer company. The company manufactures secure storage products that may be fire rated, waterproof, both, or none. Your responsibility is to extract only questions that:
+You are an intent classifier for a product catalog assistant.
 
-- Appear explicitly in the message
-- Are factual, technical, or objective
-- Contain a clear problem statement
+Analyze the user's message and determine the intent.
 
-STRICT RULES:
-- Do not paraphrase
-- Do not summarize
-- Do not rewrite
-- Do not combine sentences
-- Do not infer unstated questions
-- Only copy exact text that appears
+Possible intents:
 
-If none exist, return an empty array.
+"similar_products": The user is asking for products similar, comparable, or alternatives to a product.
 
-Determine if the message objective is closer to:
+"product_comparison": The user is asking to compare two or more specific products.
 
-- "spec_lookup"
-- "comparison"
+"product_lookup": The user is asking for information about a specific product.
 
-ONLY IF THE OBJECTIVE IS "spec_lookup", then extract requested product specifications. Specifications can only be categorized as: "fire_rating", "waterproof", "dimensions"
-If none are specified, return ["ALL"].
+"other": The message does not match the above categories.
 
--------------------------------------
-OUTPUT FORMAT
--------------------------------------
+Return JSON only in the following format:
 
 {
-  "objective": "spec_lookup" | "comparison" | [],
-  "specs": [<LIST SPEC CATEGORY or CATEGORIES>] | ["ALL"] 
+
+"intent": "similar_products" | "product_comparison" | "product_lookup" | "other"
+
 }
 
-Return STRICT JSON ONLY. If you output anything other than one of the allowed JSON objects,
-the response is invalid.
-   
+Return only valid JSON.
+
+If your output is not in the specified format, it will be considered invalid. Only return valid JSON. Do not explain anything. Do not explain your reasoning.
+
+EXAMPLES
+
+User: "What safes are similar to Titan 24?"
+
+Output:
+
+{
+
+"intent": "similar_products",
+
+}
+
+User: "Compare Titan 24 and Titan 18"
+
+Output:
+
+{
+
+"intent": "product_comparison",
+
+}
+
+User: "What is the fire rating on Titan 24?"
+
+Output:
+
+{
+
+"intent": "product_lookup",
+
+}
+
+User: "Do you ship to Canada?"
+
+Output:
+
+{
+
+"intent": "other",
+
+}
 `
 
 const EXTRACT_MODEL_SYSTEM_PROMPT = (inventoryModelNumbers: string[]) => `

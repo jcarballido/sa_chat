@@ -7,8 +7,9 @@ export async function focusedIntentNode(state:State): Promise<Update> {
 
   try {
     const response = await askLLM(state.initialMessage,{systemPrompt: EXTRACT_OBJECTIVES_SYSTEM_PROMPT})
-    console.log("FOCUSED INTENT, CLASSIFICATION response:")
+    console.log("FOCUSED INTENT LLM response:")
     console.log(response.message.content)
+    console.log("END OF FOCUSED INTENT LLM response")
     return {
       lastLLMResponse: response.message.content,
       adjacentIntent: false,

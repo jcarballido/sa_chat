@@ -3,6 +3,8 @@ import type { Filter, InventoryStore, Operators, SpecCriteria, SpecificationRow,
 
 export function buildDomainExecutionServices(inventoryStore: InventoryStore, specificationStore: SpecificationStore, messageStore: MessageStore){
 
+  function getInventoriedModelNumbers(){ return inventoryStore.getColumnValues("model") }
+
   function mergeStores(
     inventoryModels: SpecificationRow["model"][], 
     allSpecs: SpecificationRow[]): {matches:SpecificationRow[],missing:{model:SpecificationRow["model"]}[]
@@ -111,5 +113,6 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   return{
     getModelSpecs,
     getSimilarModels,
+    getInventoriedModelNumbers
   }
 }

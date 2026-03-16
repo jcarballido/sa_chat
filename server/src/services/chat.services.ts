@@ -11,7 +11,8 @@ const logOut = (logs: string[]) => {
 export function buildServices(llm: LLMcall, executionService: ReturnType<typeof import("../infrastructure/buildDomainExecutionService.js").buildDomainExecutionServices>){
 
   async function processMessage(message:string) {
-    return await llm.generalChat(message)
+    const confirmedInventoryModelNumbers = executionService.getInventoriedModelNumbers()
+    return await llm.generalChat(message,confirmedInventoryModelNumbers)
     
   }
 

@@ -10,10 +10,10 @@ export async function verifyFocusedIntentNode(state: State): Promise<Update> {
   
   console.log("VERIFY FOCUSED INTENT running.")
   if(!state.lastLLMResponse) throw new Error("LLM response is missing in state passed to verifyFocusedIntentNode.")
-  const responseRegex = /(\{\s*"intent"\s*\:\s*(?:.*)\s*\})/
-  const regexTest = stringExists(state.lastLLMResponse, responseRegex)
+  const intentRegex = /(\{\s*"intent"\s*\:\s*(?:.*)\s*\})/
+  const regexTest = stringExists(state.lastLLMResponse, intentRegex)
   if(!regexTest.result) {
-    console.log("RESPONSE NOT FOUND IN VERIFICATION NODE")
+    console.log("RESPONSE NOT FOUND IN FOCUSED INTENT VERIFICATION NODE")
     return {
       retries: state.retries + 1
     }
@@ -28,7 +28,7 @@ export async function verifyFocusedIntentNode(state: State): Promise<Update> {
     }
   }
   const focusedIntentResult = safeParseResult.data?.intent
-  console.log("CLASSIFICATION IN VERIFICATION NODE:")
+  console.log("CLASSIFICATION IN VERIFY FOCUSED INTENT NODE:")
   console.log(focusedIntentResult)
   return {
     focusedIntentResult

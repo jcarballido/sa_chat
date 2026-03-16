@@ -4,5 +4,5 @@ POST http://localhost:3000/
 Content-Type: application/json
 
 {
-  "message": "What is 180 minutes in hours"
+  "message": "Fire rating of SA4829P"
 }

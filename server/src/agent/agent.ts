@@ -1,7 +1,7 @@
 import { StateGraph } from "@langchain/langgraph"
 import { agentState } from "./state.js"
 import { classifyInitialMessageNode } from "./nodes/classifyInitialMessageNode.js"
-import { initializeSystemPrompt } from "./nodes/initializeSystemPrompt.js"
+// import { initializeSystemPrompt } from "./nodes/initializeSystemPrompt.js"
 import { verifyClassificationNode } from "./nodes/verifyClassificationNode.js"
 import { outOfScopeIntentNode } from "./nodes/outOfScopeIntentNode.js"
 import { adjacentIntentNode } from "./nodes/adjacentIntentNode.js"
@@ -9,6 +9,8 @@ import { focusedIntentNode } from "./nodes/focusedIntentNode.js"
 import { maliciousIntentNode } from "./nodes/maliciousIntentNode.js"
 import { verifyAdjacentIntentNode } from "./nodes/verifyAdjacentResponseNode.js"
 import { verifyFocusedIntentNode } from "./nodes/verifyFocusedIntentNode.js"
+import { modelExtractionNode } from "./nodes/modelExtractionNode.js"
+import { verifyModelExtractionNode } from "./nodes/verifyModelExtractionNode.js"
 
 export const agent = new StateGraph(agentState)
   // .addNode("initializeSystemPrompt",initializeSystemPrompt)
@@ -20,6 +22,8 @@ export const agent = new StateGraph(agentState)
   .addNode("focusedIntentNode", focusedIntentNode)
   .addNode("verifyAdjacentResponseNode", verifyAdjacentIntentNode)
   .addNode("verifyFocusedIntentNode", verifyFocusedIntentNode)
+  .addNode("modelExtractionNode", modelExtractionNode)
+  .addNode("verifyModelExtractionNode",verifyModelExtractionNode)
   .addEdge("__start__","classifyInitialMessageNode")
   .addEdge("classifyInitialMessageNode","verifyClassificationNode")
   .addConditionalEdges("verifyClassificationNode", (agentState) => {
@@ -52,9 +56,27 @@ export const agent = new StateGraph(agentState)
   })
   .addEdge("focusedIntentNode","verifyFocusedIntentNode")
   .addConditionalEdges("verifyFocusedIntentNode",(agentState)=> {
-    return "END"
+    if(agentState.focusedIntentResult) return "FOCUSED_INTENT"
+    if(!agentState.focusedIntentResult && agentState.retries <= 5) {
+      console.log("RETRY ATTEMPTING...")
+      return "RETRY"
+    }
+    return "TOO_MANY_RETRIES"
   },{
-    "END": "__end__"
+    "FOCUSED_INTENT": "__end__",
+    "RETRY" : "focusedIntentNode",
+    "TOO_MANY_RETRIES":"__end__"
+  })
+  .addEdge("verifyFocusedIntentNode", "modelExtractionNode")
+  .addEdge("modelExtractionNode","verifyModelExtractionNode")
+  .addConditionalEdges("verifyModelExtractionNode",(agentState) => {
+    if(agentState.modelsExtracted) return "MODELS_EXTRACTED"
+    if(!agentState.modelsExtracted && agentState.retries <= 5) return "RETRY"
+    return "TOO_MANY_RETRIES"
+  },{
+    "MODELS_EXTRACTED":"__end__",
+    "RETRY":"modelExtractionNode",
+    "TOO_MANY_RETRIES":"__end__"
   })
   .compile()
     

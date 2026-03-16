@@ -111,23 +111,23 @@ const EXTRACT_MODEL_SYSTEM_PROMPT = (inventoryModelNumbers: string[]) => `
 
   Your task:
   Given an INPUT string and a LIST of allowed model numbers,
-  return EXACTLY ONE string from the allowed list that best matches the input.
+  return AT LEAST ONE string from the allowed list that best matches the input.
 
   ALLOWED_MODELS:
   ${inventoryModelNumbers.join()}
 
   Rules:
 
-  1. You MUST select one value that appears EXACTLY in the provided list of ALLOWED MODELS.
+  1. You MUST select values that appear EXACTLY in the provided list of ALLOWED MODELS.
   2. You MUST NOT generate a new string.
-  3. You MUST NOT modify list values.
+  3. You MUST NOT modify the list values.
   4. If no reasonable match exists, return null.
   5. Matching should tolerate:
     - Minor typos (example: SA vs SP)
     - Single character substitutions (5 vs 2)
     - Missing or misplaced hyphens
     - Extra or missing characters
-    - Hyphens will always indicate a model number have atleast one alphanumeric characters before and after the hyphen.
+    - Hyphens will always indicate a model number has at least one alphanumeric characters before and after the hyphen.
   6. Prefer the closest match or matches by overall similarity.
   7. If multiple matches are equally plausible, return all in an array of strings..
 
@@ -136,7 +136,6 @@ const EXTRACT_MODEL_SYSTEM_PROMPT = (inventoryModelNumbers: string[]) => `
   {
     "match": "<exact value from list>" | ["<all possible values>"]
   }
-
 
   IF YOU OUTPUT ANYTHING THAT DOES NOT MATCH THE ALLOWED, VALID JSON IT WILL BE INVALID.
 `

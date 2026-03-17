@@ -27,7 +27,7 @@ export const agentState = new StateSchema({
   focusedIntentResult: z.enum(["similar_products","product_comparison","product_lookup","other"]),
   finalResponse: z.string(),
   inventoryStore: z.array(z.string()),
-  modelsExtracted: z.array(z.string())
+  modelsExtracted: z.string().or(z.array(z.string()))
 })
 
 export type State = typeof agentState.State

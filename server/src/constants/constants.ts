@@ -1,4 +1,4 @@
-const MODEL = "llama3.1"
+const MODEL = "llama3.2:3b"
 
 export {
   MODEL

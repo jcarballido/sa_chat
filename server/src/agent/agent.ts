@@ -63,11 +63,10 @@ export const agent = new StateGraph(agentState)
     }
     return "TOO_MANY_RETRIES"
   },{
-    "FOCUSED_INTENT": "__end__",
+    "FOCUSED_INTENT": "modelExtractionNode",
     "RETRY" : "focusedIntentNode",
     "TOO_MANY_RETRIES":"__end__"
   })
-  .addEdge("verifyFocusedIntentNode", "modelExtractionNode")
   .addEdge("modelExtractionNode","verifyModelExtractionNode")
   .addConditionalEdges("verifyModelExtractionNode",(agentState) => {
     if(agentState.modelsExtracted) return "MODELS_EXTRACTED"

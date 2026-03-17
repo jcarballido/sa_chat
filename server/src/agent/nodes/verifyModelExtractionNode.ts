@@ -3,7 +3,7 @@ import type { State, Update } from "../state.js";
 import stringExists from "../util/seekString.js";
 
 const ModelExtractionResponse = z.object({
-  match: z.array(z.string())
+  match: z.string().or(z.array(z.string()))
 })
 
 

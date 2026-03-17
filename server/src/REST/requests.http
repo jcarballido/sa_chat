@@ -4,5 +4,5 @@ POST http://localhost:3000/
 Content-Type: application/json
 
 {
-  "message": "Fire rating of SA4829P"
+  "message": "SA5940P"
 }

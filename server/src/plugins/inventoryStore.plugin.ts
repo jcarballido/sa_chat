@@ -9,7 +9,7 @@ export const inventorySchema = {
 }
 
 async function inventoryStorePlugin(fastify:FastifyInstance) {
-  const filePath = path.join(process.cwd(),"data/inventory.csv")
+  const filePath = path.join(process.cwd(),"data/model_number.csv")
   const inventoryStore = await buildStoreGeneric(filePath,inventorySchema)
   fastify.decorate("inventoryStore", inventoryStore)
 }

@@ -4,6 +4,6 @@ export async function maliciousIntentNode(state:State): Promise<Update> {
   return{
     maliciousIntent: true,
     outOfScopeIntent: false,
-    adjacentIntent: false,
+    relatedIntent: false,
   }
 }

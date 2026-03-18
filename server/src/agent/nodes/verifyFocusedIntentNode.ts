@@ -1,6 +1,6 @@
 import z from "zod";
 import type { State, Update } from "../state.js";
-import stringExists from "../util/seekString.js";
+import stringExists from "../util/stringExists.js";
 
 const FocusedIntentResponse = z.object({
   intent: z.enum(["similar_products","product_comparison","product_lookup","other"])
@@ -9,9 +9,9 @@ const FocusedIntentResponse = z.object({
 export async function verifyFocusedIntentNode(state: State): Promise<Update> {
   
   console.log("VERIFY FOCUSED INTENT running.")
-  if(!state.lastLLMResponse) throw new Error("LLM response is missing in state passed to verifyFocusedIntentNode.")
+  if(!state.latestLLMResponse) throw new Error("LLM response is missing in state passed to verifyFocusedIntentNode.")
   const intentRegex = /(\{\s*"intent"\s*\:\s*(?:.*)\s*\})/
-  const regexTest = stringExists(state.lastLLMResponse, intentRegex)
+  const regexTest = stringExists(state.latestLLMResponse, intentRegex)
   if(!regexTest.result) {
     console.log("RESPONSE NOT FOUND IN FOCUSED INTENT VERIFICATION NODE")
     return {
@@ -27,10 +27,10 @@ export async function verifyFocusedIntentNode(state: State): Promise<Update> {
       retries: state.retries + 1
     }
   }
-  const focusedIntentResult = safeParseResult.data?.intent
+  const focusedIntentClassification = safeParseResult.data?.intent
   console.log("CLASSIFICATION IN VERIFY FOCUSED INTENT NODE:")
-  console.log(focusedIntentResult)
+  console.log(focusedIntentClassification)
   return {
-    focusedIntentResult
+    focusedIntentClassification
   }
 }

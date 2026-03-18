@@ -1,6 +1,6 @@
 import z from "zod";
 import type { State, Update } from "../state.js";
-import stringExists from "../util/seekString.js";
+import stringExists from "../util/stringExists.js";
 
 const AdjacentIntentResponse = z.object({
   response: z.string()
@@ -9,9 +9,9 @@ const AdjacentIntentResponse = z.object({
 export async function verifyAdjacentIntentNode(state: State) : Promise<Update> {
 
   console.log("VERIFY ADJACENT INTENT running.")
-  if(!state.lastLLMResponse) throw new Error("LLM response is missing in state passed to verifyAdjacentIntentNode.")
+  if(!state.latestLLMResponse) throw new Error("LLM response is missing in state passed to verifyAdjacentIntentNode.")
   const responseRegex = /(\{\s*"response"\s*\:\s*(?:.*)\s*\})/
-  const regexTest = stringExists(state.lastLLMResponse, responseRegex)
+  const regexTest = stringExists(state.latestLLMResponse, responseRegex)
   if(!regexTest.result) {
     console.log("RESPONSE NOT FOUND IN VERIFICATION NODE")
     return {
@@ -31,6 +31,6 @@ export async function verifyAdjacentIntentNode(state: State) : Promise<Update> {
   console.log("CLASSIFICATION IN VERIFICATION NODE:")
   console.log(generalResponse)
   return {
-    finalResponse: generalResponse
+    relatedIntentLLMResponse: generalResponse
   }
 }

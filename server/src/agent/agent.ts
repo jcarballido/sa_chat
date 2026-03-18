@@ -1,7 +1,6 @@
 import { StateGraph } from "@langchain/langgraph"
 import { agentState } from "./state.js"
 import { classifyInitialMessageNode } from "./nodes/classifyInitialMessageNode.js"
-// import { initializeSystemPrompt } from "./nodes/initializeSystemPrompt.js"
 import { verifyClassificationNode } from "./nodes/verifyClassificationNode.js"
 import { outOfScopeIntentNode } from "./nodes/outOfScopeIntentNode.js"
 import { adjacentIntentNode } from "./nodes/adjacentIntentNode.js"
@@ -11,9 +10,10 @@ import { verifyAdjacentIntentNode } from "./nodes/verifyAdjacentResponseNode.js"
 import { verifyFocusedIntentNode } from "./nodes/verifyFocusedIntentNode.js"
 import { modelExtractionNode } from "./nodes/modelExtractionNode.js"
 import { verifyModelExtractionNode } from "./nodes/verifyModelExtractionNode.js"
+import { specExtractionNode } from "./nodes/specExtractionNode.js"
+import { verifySpecExtractionNode } from "./nodes/verifySpecExtractionNode.js"
 
 export const agent = new StateGraph(agentState)
-  // .addNode("initializeSystemPrompt",initializeSystemPrompt)
   .addNode("classifyInitialMessageNode", classifyInitialMessageNode)
   .addNode("verifyClassificationNode", verifyClassificationNode)
   .addNode("maliciousIntentNode", maliciousIntentNode)
@@ -24,10 +24,12 @@ export const agent = new StateGraph(agentState)
   .addNode("verifyFocusedIntentNode", verifyFocusedIntentNode)
   .addNode("modelExtractionNode", modelExtractionNode)
   .addNode("verifyModelExtractionNode",verifyModelExtractionNode)
+  .addNode("specExtractionNode", specExtractionNode)
+  .addNode("verifySpecExtractionNode",verifySpecExtractionNode)
   .addEdge("__start__","classifyInitialMessageNode")
   .addEdge("classifyInitialMessageNode","verifyClassificationNode")
   .addConditionalEdges("verifyClassificationNode", (agentState) => {
-    const classification = agentState.classification
+    const classification = agentState.initialMessageClassification
     if(classification == "malicious") return "MALICIOUS_INTENT"
     if(classification == "out_of_scope") return "OUT_OF_SCOPE_INTENT"
     if(classification == "adjacent") return "ADJACENT_INTENT"
@@ -46,8 +48,8 @@ export const agent = new StateGraph(agentState)
   .addEdge("outOfScopeIntentNode","__end__")
   .addEdge("adjacentIntentNode","verifyAdjacentResponseNode")
   .addConditionalEdges("verifyAdjacentResponseNode",(agentState)=>{
-    if(agentState.finalResponse) return "FINAL_RESPONSE"
-    if(!agentState.finalResponse && agentState.retries <= 5) return "RETRY"
+    if(agentState.relatedIntentLLMResponse) return "FINAL_RESPONSE"
+    if(!agentState.relatedIntentLLMResponse && agentState.retries <= 5) return "RETRY"
     return "TOO_MANY_RETRIES"
   },{
     "FINAL_RESPONSE": "__end__",
@@ -56,8 +58,8 @@ export const agent = new StateGraph(agentState)
   })
   .addEdge("focusedIntentNode","verifyFocusedIntentNode")
   .addConditionalEdges("verifyFocusedIntentNode",(agentState)=> {
-    if(agentState.focusedIntentResult) return "FOCUSED_INTENT"
-    if(!agentState.focusedIntentResult && agentState.retries <= 5) {
+    if(agentState.focusedIntent) return "FOCUSED_INTENT"
+    if(!agentState.focusedIntent && agentState.retries <= 5) {
       console.log("RETRY ATTEMPTING...")
       return "RETRY"
     }
@@ -73,8 +75,18 @@ export const agent = new StateGraph(agentState)
     if(!agentState.modelsExtracted && agentState.retries <= 5) return "RETRY"
     return "TOO_MANY_RETRIES"
   },{
-    "MODELS_EXTRACTED":"__end__",
+    "MODELS_EXTRACTED":"specExtractionNode",
     "RETRY":"modelExtractionNode",
+    "TOO_MANY_RETRIES":"__end__"
+  })
+  .addEdge("specExtractionNode","verifySpecExtractionNode")
+  .addConditionalEdges("verifySpecExtractionNode", (agentState) => {
+    if(agentState.focusedIntentSpecsExtracted) return "SPECS_EXTRACTED"
+    if(!agentState.focusedIntentSpecsExtracted && agentState.retries <5) return "RETRY"
+    return "TOO_MANY_RETRIES" 
+  },{
+    "SPECS_EXTRACTED": "__end__",
+    "RETRY": "specExtractionNode",
     "TOO_MANY_RETRIES":"__end__"
   })
   .compile()

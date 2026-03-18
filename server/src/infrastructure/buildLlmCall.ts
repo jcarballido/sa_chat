@@ -17,10 +17,9 @@ export async function buildLlmCall(inventoryModels: string[]): Promise<LLMcall> 
       if(response.outOfScopeIntent){
         return "Sorry, your message is outside of my abilities as an assistant. I am only able to answer questions about our product specifications or general questions about the secure storage."
       }
-      if(response.modelsExtracted){
-        return `${response.modelsExtracted}`
+      if(response.focusedIntentSpecsExtracted){
+        return response.focusedIntentSpecsExtracted
       }
-      console.log("No models extracted")
       return "Error somewhere."
     } catch (error) {
       console.log("ERROR DURING INVOCATION")

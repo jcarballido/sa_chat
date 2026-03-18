@@ -11,8 +11,8 @@ export async function adjacentIntentNode(state:State): Promise<Update> {
     console.log("GENERAL CHAT RESPONSE:")
     console.log(response.message.content)
     return {
-      lastLLMResponse: response.message.content,
-      adjacentIntent: true,
+      latestLLMResponse: response.message.content,
+      relatedIntent: true,
       maliciousIntent:false,
       outOfScopeIntent: false,
       focusedIntent: false

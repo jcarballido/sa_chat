@@ -1,6 +1,6 @@
 import z from "zod";
 import type { State, Update } from "../state.js";
-import stringExists from "../util/seekString.js";
+import stringExists from "../util/stringExists.js";
 
 const IntentResponse = z.object({
   intent: z.enum(["malicious","out_of_scope","adjacent","focused"])
@@ -10,9 +10,9 @@ export async function verifyClassificationNode(state:State): Promise<Update> {
   
   console.log("VERIFYING CLASSIFICATION NODE")
   
-  if(!state.lastLLMResponse) throw new Error("LLM response is missing in state passed to verifyClassificationNode.")
+  if(!state.latestLLMResponse) throw new Error("LLM response is missing in state passed to verifyClassificationNode.")
   const intentRegex = /(\{\s*"intent"\s*\:\s*(?:"malicious"|"out_of_scope"|"adjacent"|"focused")\s*\})/
-  const regexTest = stringExists(state.lastLLMResponse, intentRegex)
+  const regexTest = stringExists(state.latestLLMResponse, intentRegex)
   if(!regexTest.result) {
     console.log("INTENT NOT FOUND IN VERIFICATION NODE")
     return {
@@ -33,7 +33,7 @@ export async function verifyClassificationNode(state:State): Promise<Update> {
   console.log("CLASSIFICATION IN VERIFICATION NODE:")
   console.log(classification)
   return {
-    lastLLMResponse: null,
-    classification
+    latestLLMResponse: null,
+    initialMessageClassification: classification
   }
 }

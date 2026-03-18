@@ -13,7 +13,7 @@ export async function modelExtractionNode(state:State): Promise<Update> {
     console.log("MODEL EXTRACTION response:")
     console.log(response.message.content)
     return {
-      lastLLMResponse: response.message.content,
+      latestLLMResponse: response.message.content,
     }
   } catch (error) {
     console.log("Error thrown in MODEL EXTRACTION NODE")

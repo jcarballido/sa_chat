@@ -171,9 +171,115 @@ const GENERAL_CHAT_PROMPT = `
   If your output is not valid JSON it is INVALID.
 `
 
+const EXTRACT_SPECS = `
+You are a product specification extractor.
+
+The user message has been classified as "product_lookup".
+
+Your job is to extract all specification categories the user is asking about.
+
+Valid specification categories:
+
+- fire_rating_time
+- fire_rating_temp
+- gun count
+- height
+- width
+- depth
+
+Rules:
+
+1. If the user mentions "fire rating" without specifying time or temp, include both:
+
+"fire_rating_time" and "fire_rating_temp".
+
+2. Include all categories clearly or implicitly referenced.
+
+3. Return JSON only in the following format:
+
+{
+
+"specCategories": ["<category1>", "<category2>", ...]
+
+}
+
+4. If no valid categories are mentioned, return:
+
+{
+
+"specCategories": []
+
+}
+
+Do not include anything else. Do not explain your answer. Return only valid JSON.
+
+# Examples
+
+User: "What is the fire rating of Titan 24?"
+Output:
+{
+  "specCategories": ["fire_rating_time", "fire_rating_temp"]
+}
+
+User: "Tell me the Titan 24's fire rating."
+Output:
+{
+  "specCategories": ["fire_rating_time", "fire_rating_temp"]
+}
+
+User: "How many guns does the Titan 24 hold and what is its fire rating?"
+Output:
+{
+  "specCategories": ["gun_count", "fire_rating_time", "fire_rating_temp"]
+}
+
+User: "Can you give me the height, width, and depth of the Titan 24?"
+Output:
+{
+  "specCategories": ["height", "width", "depth"]
+}
+
+User: "Is the Titan 24 waterproof?"
+Output:
+{
+  "specCategories": ["waterproof"]
+}
+
+User: "Show me safes like Titan 24 that are waterproof, can hold many guns, and have a high fire rating."
+Output:
+{
+  "specCategories": ["waterproof", "gun_count", "fire_rating_time", "fire_rating_temp"]
+}
+
+User: "Tell me about the Titan 24."
+Output:
+{
+  "specCategories": []
+}
+
+User: "Compare Titan 24 and Titan 18 in height, width, and fire rating."
+Output:
+{
+  "specCategories": ["height", "width", "fire_rating_time", "fire_rating_temp"]
+}
+
+User: "What is the fire rating at 1400°F and gun count for Titan 24?"
+Output:
+{
+  "specCategories": ["fire_rating_time", "fire_rating_temp", "gun_count"]
+}
+
+User: "I want safes similar to Titan 24 with a high gun count and good fire rating."
+Output:
+{
+  "specCategories": ["gun_count", "fire_rating_time", "fire_rating_temp"]
+}
+`
+
 export {
   CLASSIFICATION_SYSTEM_PROMPT,
   EXTRACT_OBJECTIVES_SYSTEM_PROMPT,
   EXTRACT_MODEL_SYSTEM_PROMPT,
-  GENERAL_CHAT_PROMPT
+  GENERAL_CHAT_PROMPT, 
+  EXTRACT_SPECS
 }

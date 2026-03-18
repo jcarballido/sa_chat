@@ -1,5 +1,11 @@
 import z from "zod"
+
 export const MessageSchema = z.object({
+  role: z.enum(["user","system","assistant"]),
+  content: z.string() 
+})
+
+export const PromptSchema = z.object({
   message: z
     .string()
     .trim()

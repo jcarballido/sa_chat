@@ -11,8 +11,8 @@ export async function focusedIntentNode(state:State): Promise<Update> {
     console.log(response.message.content)
     console.log("END OF FOCUSED INTENT LLM response")
     return {
-      lastLLMResponse: response.message.content,
-      adjacentIntent: false,
+      latestLLMResponse: response.message.content,
+      relatedIntent: false,
       maliciousIntent:false,
       outOfScopeIntent: false,
       focusedIntent: true

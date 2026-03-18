@@ -6,7 +6,7 @@ export function buildChatController(service:ReturnType<typeof import("../service
   async function processMessage(request: FastifyRequest) {
     const body = MessageSchema.parse(request.body)
     const { message } = body
-    return service.processMessage(message)
+    return await service.processMessage(message)
 
     // return service.processMessage(message)
   }

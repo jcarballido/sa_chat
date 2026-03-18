@@ -13,10 +13,12 @@ function convertRows<S extends Record<string,(t: string) => any>>(
   return result
 }
 
-export async function buildStoreGeneric<T extends ConversionSchema>(filePath:string, schema: T) {
+export async function buildStoreGeneric<T extends ConversionSchema>(filePath:string, schema: T, requiredHeaders: (keyof T)[]) {
   
   let headers: string[] = [];
   const rows: Array<Record<string,string>> = []
+  const fileNameRegex = /([^\/]+.csv)$/
+  const fileName = filePath.match(fileNameRegex)![0] 
   
   const parser = fs
     .createReadStream(filePath)
@@ -29,7 +31,13 @@ export async function buildStoreGeneric<T extends ConversionSchema>(filePath:str
     );
   for await (const row of parser) {
     if (headers.length === 0) {
+      if(Object.keys(row) !== requiredHeaders){
+        console.log(`HEADERS IN ${fileName}:  `, Object.keys(row))
+        console.log("SCHEMA HEADERS:  ", requiredHeaders)
+        throw new Error(`MISMATCH BETWEEN HEADERS IN ${fileName} AND REQUIRED HEADERS IN SCHEMA`)
+      }  
       headers = Object.keys(row);
+
     }
     rows.push(row);
   }
@@ -60,44 +68,3 @@ export async function buildStoreGeneric<T extends ConversionSchema>(filePath:str
     getRowsByColumnValue,
   };
 }
-
-// export async function buildStore(filePath: string): Promise<CsvQuery> {
-//   const rows: Record<string, string>[] = [];
-//   let headers: string[] = [];
-
-
-//   for await (const row of parser) {
-//     if (headers.length === 0) {
-//       headers = Object.keys(row);
-//     }
-//     rows.push(row);
-//   }
-
-//   const getColumnValues = (column: string): (string|undefined)[] => {
-//     if (!headers.includes(column)) {
-//       throw new Error(`Column "${column}" does not exist`);
-//     }
-//     return rows.map(row => row[column]) ;
-//   };
-
-//   const getRowsByColumnValue = (
-//     column: string,
-//     value: string
-//   ): Record<string, string>[] => {
-//     if (!headers.includes(column)) {
-//       throw new Error(`Column "${column}" does not exist`);
-//     }
-//     console.log("HEADERS: ")
-//     console.log("Column name passed in: ",column)
-//     console.log("Value passed in: ", value)
-//     return rows.filter(row => row[column] === value);
-//   };
-
-//   return {
-//     headers,
-//     rows,
-//     getColumnValues,
-//     getRowsByColumnValue,
-//   };
-// }
-

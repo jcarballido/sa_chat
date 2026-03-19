@@ -31,17 +31,14 @@ export async function buildStoreGeneric<T extends ConversionSchema>(filePath:str
     );
   for await (const row of parser) {
     if (headers.length === 0) {
-
-      // for(const key in Object.keys(row)){
-      //   if(!requiredHeaders.includes(row[key])) throw new Error(`Key "${row[key]}" is not in SCHEMA headers`)
-      // }
-      if(JSON.stringify(Object.keys(row)) != JSON.stringify(requiredHeaders)){
+      requiredHeaders.sort()
+      const sortedKeySchema = Object.keys(row).sort()
+      if(JSON.stringify(sortedKeySchema) != JSON.stringify(requiredHeaders)){
         console.log(`HEADERS IN ${fileName}:  `, Object.keys(row))
         console.log("SCHEMA HEADERS:  ", requiredHeaders)
         throw new Error(`MISMATCH BETWEEN HEADERS IN ${fileName} AND REQUIRED HEADERS IN SCHEMA`)
       }
       headers = Object.keys(row);
-
     }
     rows.push(row);
   }

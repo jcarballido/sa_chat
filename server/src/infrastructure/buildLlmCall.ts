@@ -1,8 +1,5 @@
 import { agent } from "../agent/agent.js"
-
-export type LLMcall = {
-  generalChat: (message: string, inventoriedModelNumbers: string[]) => Promise<unknown>,
-}
+import type { LLMcall } from "../types/types.js"
 
 export async function buildLlmCall(inventoryModels: string[]): Promise<LLMcall> {
   async function invokeAgent(message: string, inventoriedModelNumbers: string[]) {
@@ -11,16 +8,7 @@ export async function buildLlmCall(inventoryModels: string[]): Promise<LLMcall> 
         initialMessage: message,
         inventoryStore: inventoriedModelNumbers
       })
-      if(response.maliciousIntent){
-        return "I am unable to continue with your message. Please remember I am only able to answer questions about our product specificaitons or general questions about secure storage."
-      }
-      if(response.outOfScopeIntent){
-        return "Sorry, your message is outside of my abilities as an assistant. I am only able to answer questions about our product specifications or general questions about the secure storage."
-      }
-      if(response.focusedIntentSpecsExtracted){
-        return response.focusedIntentSpecsExtracted
-      }
-      return "Error somewhere."
+      return response
     } catch (error) {
       console.log("ERROR DURING INVOCATION")
       throw error
@@ -28,7 +16,7 @@ export async function buildLlmCall(inventoryModels: string[]): Promise<LLMcall> 
   }
 
   return {
-    generalChat: invokeAgent
+    invokeAgent
   }
 }
 

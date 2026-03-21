@@ -1,3 +1,4 @@
+import type { State } from "../agent/state.js"
 import type { buildStoreGeneric } from "../infrastructure/buildStore.js"
 import type { inventorySchema } from "../plugins/inventoryStore.plugin.js"
 import type { specificationSchema } from "../plugins/specificationStore.plugin.js"
@@ -55,3 +56,7 @@ export type InventoryStore = Awaited<
 export type InferRows<S extends Record<string,(v:string)=> any>> = {
   -readonly [K in keyof S]: ReturnType<S[K]>
 } 
+
+export type LLMcall = {
+  invokeAgent: (message: string, inventoriedModelNumbers: string[]) => Promise<State>,
+}

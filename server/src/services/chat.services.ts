@@ -13,7 +13,7 @@ const logOut = (logs: string[]) => {
 export function buildServices(llm: LLMcall, executionService: ReturnType<typeof import("../infrastructure/buildDomainExecutionService.js").buildDomainExecutionServices>){
 
   async function determineIntent(message:string) {
-    const confirmedInventoryModelNumbers = executionService.getInventoriedModelNumbers()
+    const confirmedInventoryModelNumbers = executionService.strippedModelNumbersInInventory
     return await llm.invokeAgent(message,confirmedInventoryModelNumbers)
   }
 

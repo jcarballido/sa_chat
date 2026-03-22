@@ -4,5 +4,5 @@ POST http://localhost:3000/
 Content-Type: application/json
 
 {
-  "message": "What other models are like A24SA-5572P"
+  "message": "What other models are like SP25SA-7240P"
 }

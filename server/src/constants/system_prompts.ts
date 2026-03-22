@@ -111,7 +111,7 @@ const EXTRACT_MODEL_SYSTEM_PROMPT = (inventoryModelNumbers: string[]) => `
 
   Your task:
   Given an INPUT string and a LIST of allowed model numbers,
-  return an array of strings from the allowed list that best matches the input. If none match, return an empty array.
+  return an array of strings from the allowed list that best matches the input based on the number of character matches AND character length. If none match, return an empty array. Only return values where you have high confidence in a match with the goal of returning the least amount of possible matches.
 
   ALLOWED_MODELS:
   ${inventoryModelNumbers.join()}

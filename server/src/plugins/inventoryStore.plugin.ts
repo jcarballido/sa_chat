@@ -7,12 +7,12 @@ import { keyof } from "zod";
 
 export const inventorySchema = {
   "model": (t: string) => t,
-  // "origin": (t: string) => t,
-  // "height": (t: string) => Number(t),
+  "origin": (t: string) => t,
+  "height": (t: string) => Number(t),
 } as const
 
 async function inventoryStorePlugin(fastify:FastifyInstance) {
-  const filePath = path.join(process.cwd(),"data/model_number.csv")
+  const filePath = path.join(process.cwd(),"data/inventory.csv")
   const REQUIRED_HEADERS = Object.keys(inventorySchema) as (keyof typeof inventorySchema)[]
   const inventoryStore = await buildStoreGeneric(filePath,inventorySchema, REQUIRED_HEADERS)
   fastify.decorate("inventoryStore", inventoryStore)

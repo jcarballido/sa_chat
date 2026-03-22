@@ -4,6 +4,31 @@ import type { Filter, InferRows, InventoryStore, Operators, SpecCriteria, Specif
 export function buildDomainExecutionServices(inventoryStore: InventoryStore, specificationStore: SpecificationStore, messageStore: MessageStore){
 
   function getInventoriedModelNumbers(){ return inventoryStore.getColumnValues("model") }
+  function transformModelNumbersNoHyphens(officialModelNumbers: string[]): Map<string,string>{
+    const map = new Map<string,string>()
+    officialModelNumbers.map((modelNumber) =>{
+      const strippedDashModelNumber = modelNumber.replace('-','')
+      map.set(strippedDashModelNumber, modelNumber)
+    })
+    return map
+  }
+
+  const strippedModelNumbersInventoryMap = transformModelNumbersNoHyphens(getInventoriedModelNumbers())
+  const strippedModelNumbersInInventory = [...strippedModelNumbersInventoryMap.keys()]
+
+  function transformSpecificationStore(specificationStore: SpecificationStore): SpecificationStore{
+    const rows = specificationStore.rows
+    const transformedRows = rows.map(row => {
+      row["model"] = row.model.replace("-","")
+      return row
+    })
+    return {
+      ...specificationStore,
+      rows: transformedRows
+    }
+  }
+
+  const transformedSpecificationStore = transformSpecificationStore(specificationStore)
 
   function mergeStores(
     inventoryModels: SpecificationRow["model"][], 
@@ -24,10 +49,10 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     }
   } 
 
-  const mergedInventoryAndSpecStore = mergeStores(inventoryStore.getColumnValues("model"), specificationStore.rows)
+  const mergedInventoryAndSpecStore = mergeStores([... strippedModelNumbersInventoryMap.keys()], transformedSpecificationStore.rows)
 
   async function getModelSpecs(model: SpecificationRow["model"]) {
-    const specs = specificationStore.getRowsByColumnValue("model",model)
+    const specs = transformedSpecificationStore.getRowsByColumnValue("model",model)
     return specs 
   }
 
@@ -62,54 +87,54 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   }
 
   // CHORE: Build for the situation where only desired specs are passed in with NO reference model
-  async function buildRequirements(model:SpecificationRow["model"], criteria: SpecCriteria){
-    const match = await getModelSpecs(model)
-    const referenceModel = match[0] // Reference model
-    const {fire_rating, gun_count, waterpoof, external_dimensions} = criteria ?? {} // Check if there are specific specs that must be focused on
+  // async function buildRequirements(model:SpecificationRow["model"], criteria: SpecCriteria){
+  //   const match = await getModelSpecs(model)
+  //   const referenceModel = match[0] // Reference model
+  //   const {fire_rating, gun_count, waterpoof, external_dimensions} = criteria ?? {} // Check if there are specific specs that must be focused on
     
-    const requirements:Filter<Omit<SpecificationRow,"waterproof">> = {}
+  //   const requirements:Filter<Omit<SpecificationRow,"waterproof">> = {}
     
-    if(fire_rating){
-      const {time,temp} = fire_rating
-      if(time) {  
-        const referenceTime = referenceModel?.fire_rating_time!
-        const fire_rating_times = specificationStore.getColumnValues("fire_rating_time")
-        const valueWindow = getOneBeforeAndAfter(fire_rating_times,referenceTime)
-        requirements["fire_rating_time"] = {gte:valueWindow[0]!, lte:valueWindow[valueWindow.length-1]!}
-      }
-      if(temp) {
-        const referenceTemp = referenceModel?.fire_rating_temp!
-        const fire_rating_temps = specificationStore.getColumnValues("fire_rating_temp")    
-        const valueWindow = getOneBeforeAndAfter(fire_rating_temps,referenceTemp)
-        requirements["fire_rating_temp"] = {gte:valueWindow[0]!, lte:valueWindow[valueWindow.length-1]!}    
-      }
-    }
-    if(gun_count){
-        const referenceGunCount = referenceModel?.gun_count!
-        const gun_counts = specificationStore.getColumnValues("gun_count")    
-        const valueWindow = getOneBeforeAndAfter(gun_counts,referenceGunCount)
-        requirements["gun_count"] = {gte:valueWindow[0]!, lte:valueWindow[valueWindow.length-1]!}    
-    }
-    if(external_dimensions){
-      const {height,width,depth} = external_dimensions
-      if(height) { 
-        // const heights = specificationStore.getColumnValues("height")
-      }
-      if(width){ 
-        // const widths = specificationStore.getColumnValues("width")
-      }
-      if(depth){
-        //  const depths = specificationStore.getColumnValues("depth")
-      }
-    }
+  //   if(fire_rating){
+  //     const {time,temp} = fire_rating
+  //     if(time) {  
+  //       const referenceTime = referenceModel?.fire_rating_time!
+  //       const fire_rating_times = specificationStore.getColumnValues("fire_rating_time")
+  //       const valueWindow = getOneBeforeAndAfter(fire_rating_times,referenceTime)
+  //       requirements["fire_rating_time"] = {gte:valueWindow[0]!, lte:valueWindow[valueWindow.length-1]!}
+  //     }
+  //     if(temp) {
+  //       const referenceTemp = referenceModel?.fire_rating_temp!
+  //       const fire_rating_temps = specificationStore.getColumnValues("fire_rating_temp")    
+  //       const valueWindow = getOneBeforeAndAfter(fire_rating_temps,referenceTemp)
+  //       requirements["fire_rating_temp"] = {gte:valueWindow[0]!, lte:valueWindow[valueWindow.length-1]!}    
+  //     }
+  //   }
+  //   if(gun_count){
+  //       const referenceGunCount = referenceModel?.gun_count!
+  //       const gun_counts = specificationStore.getColumnValues("gun_count")    
+  //       const valueWindow = getOneBeforeAndAfter(gun_counts,referenceGunCount)
+  //       requirements["gun_count"] = {gte:valueWindow[0]!, lte:valueWindow[valueWindow.length-1]!}    
+  //   }
+  //   if(external_dimensions){
+  //     const {height,width,depth} = external_dimensions
+  //     if(height) { 
+  //       // const heights = specificationStore.getColumnValues("height")
+  //     }
+  //     if(width){ 
+  //       // const widths = specificationStore.getColumnValues("width")
+  //     }
+  //     if(depth){
+  //       //  const depths = specificationStore.getColumnValues("depth")
+  //     }
+  //   }
 
-    return requirements
+  //   return requirements
 
-  }
+  // }
 
   async function findNearProducts(allInventoriedSpecifications: SpecificationRow[], modelSpecs: SpecificationRow) {
     const {fire_rating_temp, fire_rating_time, gun_count, height, width, depth, waterproof} = modelSpecs
-    const fire_rating_times = specificationStore.getColumnValues("fire_rating_time")
+    const fire_rating_times = transformedSpecificationStore.getColumnValues("fire_rating_time")
     const valueWindow = getOneBeforeAndAfter(fire_rating_times,fire_rating_time)
 
     const requirements:Filter<SpecificationRow>= {}
@@ -134,6 +159,7 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   return{
     getModelSpecs,
     getSimilarModels,
-    getInventoriedModelNumbers
+    getInventoriedModelNumbers,
+    strippedModelNumbersInInventory
   }
 }

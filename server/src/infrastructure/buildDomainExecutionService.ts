@@ -104,7 +104,7 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
 
   }
 
-  async function getSimilarModels(model:SpecificationRow["model"], criteria:SpecCriteria) {
+  async function getSimilarModels(model:SpecificationRow["model"], criteria?:SpecCriteria) {
     const requirements = await buildRequirements(model,criteria)
     const allInventorySpecs = mergedInventoryAndSpecStore.matches
     return filterBy(allInventorySpecs, requirements)

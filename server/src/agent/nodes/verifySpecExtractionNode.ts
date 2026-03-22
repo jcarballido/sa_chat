@@ -32,6 +32,7 @@ export async function verifySpecExtractionNode(state: State) : Promise<Update> {
   console.log("CLASSIFICATION IN VERIFICATION NODE:")
   console.log(specCategories)
   return {
-    focusedIntentSpecsExtracted: specCategories
+    focusedIntentSpecsExtracted: specCategories,
+    retries: 0
   }
 }

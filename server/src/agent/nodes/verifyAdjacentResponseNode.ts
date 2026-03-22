@@ -31,6 +31,7 @@ export async function verifyAdjacentIntentNode(state: State) : Promise<Update> {
   console.log("CLASSIFICATION IN VERIFICATION NODE:")
   console.log(generalResponse)
   return {
-    relatedIntentLLMResponse: generalResponse
+    relatedIntentLLMResponse: generalResponse,
+    retries: 0
   }
 }

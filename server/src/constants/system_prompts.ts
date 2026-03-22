@@ -111,7 +111,7 @@ const EXTRACT_MODEL_SYSTEM_PROMPT = (inventoryModelNumbers: string[]) => `
 
   Your task:
   Given an INPUT string and a LIST of allowed model numbers,
-  return AT LEAST ONE string from the allowed list that best matches the input.
+  return the string from the allowed list that best matches the input. If none match, return an empty array.
 
   ALLOWED_MODELS:
   ${inventoryModelNumbers.join()}
@@ -134,7 +134,7 @@ const EXTRACT_MODEL_SYSTEM_PROMPT = (inventoryModelNumbers: string[]) => `
   Return ONLY valid JSON:
 
   {
-    "match": "<exact value from list>" | ["<all possible values>"]
+    "match": "<exact value from list>" | ["<all possible values>"] | []
   }
 
   IF YOU OUTPUT ANYTHING THAT DOES NOT MATCH THE ALLOWED, VALID JSON IT WILL BE INVALID.

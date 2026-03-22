@@ -31,6 +31,6 @@ export async function verifyModelExtractionNode(state:State): Promise<Update> {
   console.log("VERIFY MODEL EXTRACTED NODE:")
   console.log(matchResult)
   return {
-    modelsExtracted: matchResult
+    focusedIntentModelsExtracted: matchResult
   }
 }

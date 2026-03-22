@@ -34,6 +34,7 @@ export async function verifyClassificationNode(state:State): Promise<Update> {
   console.log(classification)
   return {
     latestLLMResponse: null,
-    initialMessageClassification: classification
+    initialMessageClassification: classification,
+    retries: 0
   }
 }

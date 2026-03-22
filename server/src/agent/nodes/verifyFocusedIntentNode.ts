@@ -31,6 +31,7 @@ export async function verifyFocusedIntentNode(state: State): Promise<Update> {
   console.log("CLASSIFICATION IN VERIFY FOCUSED INTENT NODE:")
   console.log(focusedIntentClassification)
   return {
-    focusedIntentClassification
+    focusedIntentClassification,
+    retries: 0
   }
 }

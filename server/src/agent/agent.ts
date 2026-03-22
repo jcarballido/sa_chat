@@ -58,11 +58,12 @@ export const agent = new StateGraph(agentState)
   })
   .addEdge("focusedIntentNode","verifyFocusedIntentNode")
   .addConditionalEdges("verifyFocusedIntentNode",(agentState)=> {
-    if(agentState.focusedIntent) return "FOCUSED_INTENT"
     if(!agentState.focusedIntent && agentState.retries <= 5) {
       console.log("RETRY ATTEMPTING...")
       return "RETRY"
     }
+    if(agentState.focusedIntentClassification == "other" && agentState.retries < 5) return "RETRY"
+    if(agentState.focusedIntent) return "FOCUSED_INTENT"
     return "TOO_MANY_RETRIES"
   },{
     "FOCUSED_INTENT": "modelExtractionNode",
@@ -71,8 +72,8 @@ export const agent = new StateGraph(agentState)
   })
   .addEdge("modelExtractionNode","verifyModelExtractionNode")
   .addConditionalEdges("verifyModelExtractionNode",(agentState) => {
-    if(agentState.modelsExtracted) return "MODELS_EXTRACTED"
-    if(!agentState.modelsExtracted && agentState.retries <= 5) return "RETRY"
+    if(agentState.focusedIntentModelsExtracted) return "MODELS_EXTRACTED"
+    if(!agentState.focusedIntentModelsExtracted && agentState.retries <= 5) return "RETRY"
     return "TOO_MANY_RETRIES"
   },{
     "MODELS_EXTRACTED":"specExtractionNode",

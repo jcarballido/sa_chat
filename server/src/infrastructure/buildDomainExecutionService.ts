@@ -1,5 +1,5 @@
 import type { MessageStore } from "./buildMessageStore.js";
-import type { Filter, InventoryStore, Operators, SpecCriteria, SpecificationRow, SpecificationStore } from "../types/types.js";
+import type { Filter, InferRows, InventoryStore, Operators, SpecCriteria, SpecificationRow, SpecificationStore } from "../types/types.js";
 
 export function buildDomainExecutionServices(inventoryStore: InventoryStore, specificationStore: SpecificationStore, messageStore: MessageStore){
 
@@ -56,9 +56,12 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     const indexOfRefValue = sortedValues.indexOf(referenceValue)
     const oneValueBefore = indexOfRefValue == 0 ? undefined : sortedValues[indexOfRefValue - 1]
     const oneValueAfter = indexOfRefValue == sortedValues.length - 1 ? undefined : sortedValues[indexOfRefValue + 1] 
-    return [oneValueBefore, referenceValue, oneValueAfter].filter(val => val !== undefined)
+    const capturedValues = [oneValueBefore, referenceValue, oneValueAfter].filter(val => val !== undefined)
+
+    return [capturedValues[0]!, capturedValues[-1]!]
   }
 
+  // CHORE: Build for the situation where only desired specs are passed in with NO reference model
   async function buildRequirements(model:SpecificationRow["model"], criteria: SpecCriteria){
     const match = await getModelSpecs(model)
     const referenceModel = match[0] // Reference model
@@ -104,10 +107,28 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
 
   }
 
-  async function getSimilarModels(model:SpecificationRow["model"], criteria?:SpecCriteria) {
-    const requirements = await buildRequirements(model,criteria)
+  async function findNearProducts(allInventoriedSpecifications: SpecificationRow[], modelSpecs: SpecificationRow) {
+    const {fire_rating_temp, fire_rating_time, gun_count, height, width, depth, waterproof} = modelSpecs
+    const fire_rating_times = specificationStore.getColumnValues("fire_rating_time")
+    const valueWindow = getOneBeforeAndAfter(fire_rating_times,fire_rating_time)
+
+    const requirements:Filter<SpecificationRow>= {}
+    requirements["fire_rating_time"] = {gte:valueWindow[0]!, lte:valueWindow[1]!}
+
+    const result = filterBy(allInventoriedSpecifications,requirements)
+
+    return result
+    
+  }
+
+  async function getSimilarModels(model:SpecificationRow["model"]) {
+    // const requirements = await buildRequirements(model)
+    const modelSpecs = await getModelSpecs(model)
+    console.log
     const allInventorySpecs = mergedInventoryAndSpecStore.matches
-    return filterBy(allInventorySpecs, requirements)
+    const res = await findNearProducts(allInventorySpecs, modelSpecs[0]!)
+    return res
+    // return filterBy(allInventorySpecs, model)
   }
 
   return{

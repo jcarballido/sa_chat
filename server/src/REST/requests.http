@@ -4,5 +4,5 @@ POST http://localhost:3000/
 Content-Type: application/json
 
 {
-  "message": "What is the fir rtng of SP25SA-6046 and waterprof"
+  "message": "What other models are like A24SA-5572P"
 }

@@ -7,7 +7,7 @@ export function buildChatController(service:ReturnType<typeof import("../service
     const body = PromptSchema.safeParse(request.body)
     if(!body.error){
       const { message } = body.data
-      return await service.processMessage(message)
+      return await service.generateRespone(message)
     }
     console.log("ERROR in caht.controller")
     throw new Error(body.error.message)

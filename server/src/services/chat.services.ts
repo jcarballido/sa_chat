@@ -24,31 +24,24 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
     if(outOfScopeIntent) return 'Out of Scope intent'
     if(relatedIntent) return relatedIntentLLMResponse
     if(focusedIntent){
-      const isModelsArray = Array.isArray(focusedIntentModelsExtracted)
-      if(focusedIntentModelsExtracted.length == 0) return 'Must provide at least one existing model number.'
+      if(focusedIntentModelsExtracted.length < 1) return 'Must provide at least one existing model number.'
+      const extractedModelNumber = focusedIntentModelsExtracted[0]
+      if(extractedModelNumber == undefined) return 'Must provide at least one existing model number.'
+
       if(focusedIntentClassification == "similar_products"){
-        if(isModelsArray && focusedIntentModelsExtracted.length > 0){
-          const res = await executionService.getSimilarModels(focusedIntentModelsExtracted[0]!)
-          return `Similar models found: \n
-          ${res}
-          `
-        }else if(typeof(focusedIntentModelsExtracted) == "string"){
-          const res = await executionService.getSimilarModels(focusedIntentModelsExtracted)
-          return JSON.stringify(res)
-        }
+        console.log("EXTRACTED MODEL NUMBER: ", extractedModelNumber)
+        const res = await executionService.getSimilarModels(extractedModelNumber)
+        return `Similar models found: \n
+        ${JSON.stringify(res)}
+        `
       }
       if(focusedIntentClassification == "product_comparison"){
         // if: "product_comparison" -> require: (2) model numbers, pull specs, use LLM to compare, use LLM to generate a response -> end
         return 'Classified as "product_comparison"'
       }
       if(focusedIntentClassification == "product_lookup"){
-        // if: "product_lookup" -> require: (1) model number',pull all specs -> end
-        if(isModelsArray){
-          const res = await executionService.getModelSpecs(focusedIntentModelsExtracted[0]!)
+          const res = await executionService.getModelSpecs(extractedModelNumber)
           return JSON.stringify(res)
-        }
-        const res = await executionService.getModelSpecs(focusedIntentModelsExtracted)
-        return JSON.stringify(res)
       }
     }
     return "Error determining INTENT"

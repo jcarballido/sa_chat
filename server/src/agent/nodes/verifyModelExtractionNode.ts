@@ -3,14 +3,14 @@ import type { State, Update } from "../state.js";
 import stringExists from "../util/stringExists.js";
 
 const ModelExtractionResponse = z.object({
-  match: z.string().or(z.array(z.string()))
+  match: z.array(z.string())
 })
 
 
 export async function verifyModelExtractionNode(state:State): Promise<Update> {
   console.log("VERIFY MODEL EXTRACTION running.")
   if(!state.latestLLMResponse) throw new Error("LLM response is missing in state passed to verifyModelExtractionNode.")
-  const matchRegex = /(\{\s*"match"\s*\:\s*(?:.*)\s*\})/
+  const matchRegex =/\{\s*"?match"?\s*:\s*\[[^\]]*\]\s*\}/
   const regexTest = stringExists(state.latestLLMResponse, matchRegex)
   if(!regexTest.result) {
     console.log("RESPONSE NOT FOUND IN MODEL EXTRACTION NODE")
@@ -28,9 +28,13 @@ export async function verifyModelExtractionNode(state:State): Promise<Update> {
     }
   }
   const matchResult = safeParseResult.data?.match
+  const inventoryTransformation = new Set(state.inventoryStore)
+  const filter = matchResult.filter(model => inventoryTransformation.has(model))
   console.log("VERIFY MODEL EXTRACTED NODE:")
   console.log(matchResult)
+  console.log("FILTERED MATCH RESULT:")
+  console.log(filter)
   return {
-    focusedIntentModelsExtracted: matchResult
+    focusedIntentModelsExtracted: filter
   }
 }

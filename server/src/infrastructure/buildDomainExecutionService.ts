@@ -7,7 +7,7 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   function transformModelNumbersNoHyphens(officialModelNumbers: string[]): Map<string,string>{
     const map = new Map<string,string>()
     officialModelNumbers.map((modelNumber) =>{
-      const strippedDashModelNumber = modelNumber.replace('-','')
+      const strippedDashModelNumber = modelNumber.replace(/-/g,'')
       map.set(strippedDashModelNumber, modelNumber)
     })
     return map
@@ -19,7 +19,7 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   function transformSpecificationStore(specificationStore: SpecificationStore): SpecificationStore{
     const rows = specificationStore.rows
     const transformedRows = rows.map(row => {
-      row["model"] = row.model.replace("-","")
+      row["model"] = row.model.replace(/-/g,"")
       return row
     })
     return {
@@ -29,6 +29,8 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   }
 
   const transformedSpecificationStore = transformSpecificationStore(specificationStore)
+  console.log("TRANSFORMED STORE")
+  console.log(transformedSpecificationStore.rows)
 
   function mergeStores(
     inventoryModels: SpecificationRow["model"][], 
@@ -50,6 +52,8 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   } 
 
   const mergedInventoryAndSpecStore = mergeStores([... strippedModelNumbersInventoryMap.keys()], transformedSpecificationStore.rows)
+
+  console.log("")
 
   async function getModelSpecs(model: SpecificationRow["model"]) {
     const specs = transformedSpecificationStore.getRowsByColumnValue("model",model)
@@ -147,10 +151,12 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   }
 
   async function getSimilarModels(model:SpecificationRow["model"]) {
+    // console.log("MODEL PASSED INTO GET SIMILARMODELS FUNCTION")
+    // console.log(model)
     // const requirements = await buildRequirements(model)
     const modelSpecs = await getModelSpecs(model)
-    console.log
     const allInventorySpecs = mergedInventoryAndSpecStore.matches
+    
     const res = await findNearProducts(allInventorySpecs, modelSpecs[0]!)
     return res
     // return filterBy(allInventorySpecs, model)

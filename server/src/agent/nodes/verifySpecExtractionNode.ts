@@ -19,6 +19,7 @@ export async function verifySpecExtractionNode(state: State) : Promise<Update> {
       retries: state.retries + 1
     }
   }
+
   const parsedResponse = JSON.parse(regexTest.match.trim())
   const safeParseResult = SpecCategoriesResponse.safeParse(parsedResponse)
   if(safeParseResult.error){
@@ -28,8 +29,9 @@ export async function verifySpecExtractionNode(state: State) : Promise<Update> {
       retries: state.retries + 1
     }
   }
+  
   const specCategories = safeParseResult.data?.specCategories
-  console.log("CLASSIFICATION IN VERIFICATION NODE:")
+  console.log("VERIFICATION OF SPEC CATEGORIES NODE:")
   console.log(specCategories)
   return {
     focusedIntentSpecsExtracted: specCategories,

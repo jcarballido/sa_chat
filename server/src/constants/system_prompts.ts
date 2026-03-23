@@ -107,37 +107,53 @@ Output:
 `
 
 const EXTRACT_MODEL_SYSTEM_PROMPT = (inventoryModelNumbers: string[]) => `
-  You are a strict string matcher.
+You are a strict model number matcher.
 
-  Your task:
-  Given an INPUT string and a LIST of allowed model numbers,
-  return an array of strings from the allowed list that best matches the input based on the number of character matches AND character length. If none match, return an empty array. Only return values where you have high confidence in a match with the goal of returning the least amount of possible matches.
+Your task:
+Given an INPUT string and a LIST of allowed model numbers,
+return ONLY the closest matching model number(s) from the allowed list.
 
-  ALLOWED_MODELS:
-  ${inventoryModelNumbers.join()}
+ALLOWED_MODELS:
+${inventoryModelNumbers.join()}
 
-  Rules:
+Rules:
 
-  1. You MUST select values that appear EXACTLY in the provided list of ALLOWED MODELS.
-  2. You MUST NOT generate a new string.
-  3. You MUST NOT modify the list values.
-  4. If no reasonable match exists, return null.
-  5. Matching should tolerate:
-    - Minor typos (example: SA vs SP)
-    - Single character substitutions (5 vs 2)
-    - Missing or misplaced hyphens
-    - Extra or missing characters
-    - Hyphens will always indicate a model number has at least one alphanumeric characters before and after the hyphen.
-  6. Prefer the closest match or matches by overall similarity.
-  7. If multiple matches are equally plausible, return all in an array of strings..
+1. You MUST select values that appear EXACTLY in the provided list.
+2. You MUST NOT generate or modify any values.
+3. First, internally evaluate similarity for ALL candidates.
+4. Then, SELECT ONLY the BEST match or matches.
 
-  Return ONLY valid JSON:
+Selection Rules:
+- Prefer exact matches if present → return ONLY that match.
+- If no exact match:
+  - Select the model(s) with the highest similarity score.
+  - Do NOT include lower-ranked matches.
+- Only return multiple values if they are nearly identical in similarity AND you are genuinely uncertain.
 
-  {
-    "match": ["<all possible values>"] | []
-  }
+Strict Filtering Rules:
+- Do NOT return multiple matches just because they are similar.
+- Do NOT include “close enough” matches if one is clearly better.
+- Be conservative: returning fewer matches is better than returning too many.
 
-  IF YOU OUTPUT ANYTHING THAT DOES NOT MATCH THE ALLOWED, VALID JSON IT WILL BE INVALID.
+Matching can tolerate:
+- Minor typos
+- Single character differences
+- Missing or extra characters
+
+Return ONLY valid JSON:
+
+{
+  "match": ["<best_match>"] 
+}
+
+If no high-confidence match exists:
+
+{
+  "match": []
+}
+
+IF YOU OUTPUT ANYTHING THAT DOES NOT MATCH THE REQUIRED JSON FORMAT, IT IS INVALID.
+
 `
 
 const GENERAL_CHAT_PROMPT = `

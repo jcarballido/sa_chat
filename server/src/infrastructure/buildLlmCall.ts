@@ -4,9 +4,9 @@ import type { LLMcall } from "../types/types.js"
 export async function buildLlmCall(inventoryModels: string[]): Promise<LLMcall> {
   
   function sanitizeUserPrompt(originalString: string): string{
-    const targetRegex = /\b(?=[A-Za-z0-9-]*-)[A-Za-z0-9-]+\b/g;
+    const targetRegex =  /[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*/g;
     const updatedString = originalString.replace(targetRegex, (match) => {
-      return match.replace("-","")
+      return match.replace(/-/g,"")
     })
     return updatedString
   } 

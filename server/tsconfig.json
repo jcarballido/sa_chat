@@ -44,5 +44,5 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
   },
-  "include": ["src"]
+  "include": ["src","env.d.ts"]
 }

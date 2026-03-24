@@ -1,9 +1,6 @@
 import ollama, { type Message} from "ollama"
 import type { ChatModels } from "../types/types.js"
 
-const MODEL = "llama3.1"
-
-
 export const checkOllamaReachable = async () => {
   try {
     const res = await fetch("http://localhost:11434")

@@ -29,8 +29,6 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   }
 
   const transformedSpecificationStore = transformSpecificationStore(specificationStore)
-  console.log("TRANSFORMED STORE")
-  console.log(transformedSpecificationStore.rows)
 
   function mergeStores(
     inventoryModels: SpecificationRow["model"][], 
@@ -87,7 +85,7 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     const oneValueAfter = indexOfRefValue == sortedValues.length - 1 ? undefined : sortedValues[indexOfRefValue + 1] 
     const capturedValues = [oneValueBefore, referenceValue, oneValueAfter].filter(val => val !== undefined)
 
-    return [capturedValues[0]!, capturedValues[-1]!]
+    return [capturedValues[0]!, capturedValues[capturedValues.length - 1]!]
   }
 
   // CHORE: Build for the situation where only desired specs are passed in with NO reference model

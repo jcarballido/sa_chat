@@ -117,14 +117,16 @@ ALLOWED_MODELS:
 ${inventoryModelNumbers.join()}
 
 Rules:
-
-1. You MUST select values that appear EXACTLY in the provided list.
-2. You MUST NOT generate or modify any values.
-3. First, internally evaluate similarity for ALL candidates.
-4. Then, SELECT ONLY the BEST match or matches.
+1.If the INPUT exactly matches any value in ALLOWED_MODELS, you MUST return that value and nothing else. Do not consider any other matches.
+2. You MUST select values that appear EXACTLY in the provided list.
+3. You MUST NOT generate or modify any values.
+4. You MUST search the whole ALLOWED_MODELS list before coming to any conclusion.
+5. First check for an EXACT match. Only if none exists, then perform fuzzy matching.
+6. Then, SELECT ONLY the BEST match or matches.
 
 Selection Rules:
 - Prefer exact matches if present → return ONLY that match.
+- Prefer matches with as many matching characters, in order, as possible.
 - If no exact match:
   - Select the model(s) with the highest similarity score.
   - Do NOT include lower-ranked matches.

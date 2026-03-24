@@ -16,7 +16,7 @@ export const specificationSchema = {
 } as const
 
 async function specificationStorePlugin(fastify:FastifyInstance) {
-  const filePath = path.join(process.cwd(), "data/modelSpec.csv")
+  const filePath = path.join(process.cwd(), process.env.SPEC_SHEET)
   const REQUIRED_HEADERS = Object.keys(specificationSchema) as (keyof typeof specificationSchema)[]
   const specificationStore = await buildStoreGeneric(filePath, specificationSchema, REQUIRED_HEADERS)
   // const thing = specificationStore.getColumnValues("depth")

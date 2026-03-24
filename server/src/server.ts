@@ -5,6 +5,7 @@ import inventoryStorePlugin from "./plugins/inventoryStore.plugin.js"
 import specificationStorePlugin from "./plugins/specificationStore.plugin.js"
 import llmPlugin from "./plugins/chat.plugin.js"
 import messageStorePlugin from "./plugins/messageStore.plugin.js"
+import "dotenv/config"
 
 const fastify: FastifyInstance = Fastify({
   logger: true

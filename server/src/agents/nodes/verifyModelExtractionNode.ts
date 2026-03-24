@@ -1,5 +1,5 @@
 import z from "zod";
-import type { State, Update } from "../state.js";
+import type { State, Update } from "../intentAgentState.js";
 import stringExists from "../util/stringExists.js";
 
 const ModelExtractionResponse = z.object({

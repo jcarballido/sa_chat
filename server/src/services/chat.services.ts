@@ -1,5 +1,4 @@
-import { array } from "zod"
-import type { State } from "../agent/state.js"
+import type { State } from "../agents/intentAgentState.js"
 import type { LLMcall } from "../types/types.js"
 
 const logOut = (logs: string[]) => {
@@ -14,7 +13,7 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
 
   async function determineIntent(message:string) {
     const confirmedInventoryModelNumbers = executionService.strippedModelNumbersInInventory
-    return await llm.invokeAgent(message,confirmedInventoryModelNumbers)
+    return await llm.invokeIntentAgent(message,confirmedInventoryModelNumbers)
   }
 
   async function executeIntent(agentState:State): Promise<string> {
@@ -37,6 +36,14 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
       }
       if(focusedIntentClassification == "product_comparison"){
         // if: "product_comparison" -> require: (2) model numbers, pull specs, use LLM to compare, use LLM to generate a response -> end
+        if(focusedIntentModelsExtracted.length < 2) return "At least 2 model numbers required. Not enough were extracted."
+        const [model1,model2] = focusedIntentModelsExtracted
+        if(model1 !== undefined && model2 !== undefined){
+          const model1Specs = await executionService.getModelSpecs(model1)
+          const model2Specs = await executionService.getModelSpecs(model2)
+          const res = await llm.invokeGeneralLLMAgent()
+        }
+
         return 'Classified as "product_comparison"'
       }
       if(focusedIntentClassification == "product_lookup"){

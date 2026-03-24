@@ -1,7 +1,9 @@
-import type { State } from "../agent/state.js"
+import type { GeneralLLMState } from "../agents/generalAgentState.js"
+import type { State } from "../agents/intentAgentState.js"
 import type { buildStoreGeneric } from "../infrastructure/buildStore.js"
 import type { inventorySchema } from "../plugins/inventoryStore.plugin.js"
 import type { specificationSchema } from "../plugins/specificationStore.plugin.js"
+import * as prompts from "../constants/system_prompts.js"
 
 export type ChatMessage = {
   message: string
@@ -58,5 +60,9 @@ export type InferRows<S extends Record<string,(v:string)=> any>> = {
 } 
 
 export type LLMcall = {
-  invokeAgent: (message: string, inventoriedModelNumbers: string[]) => Promise<State>,
+  invokeIntentAgent: (message: string, inventoriedModelNumbers: string[]) => Promise<State>,
+  invokeGeneralLLMAgent: (message: string, systemPrompt: Prompts) => Promise<GeneralLLMState>,
 }
+
+export type Prompts = keyof typeof prompts
+

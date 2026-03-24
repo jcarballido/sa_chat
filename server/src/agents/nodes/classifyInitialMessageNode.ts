@@ -1,4 +1,4 @@
-import type { State, Update } from "../state.js"
+import type { State, Update } from "../intentAgentState.js"
 import { CLASSIFICATION_SYSTEM_PROMPT } from "../../constants/system_prompts.js"
 import { askLLM } from "../util/askLLM.js"
 

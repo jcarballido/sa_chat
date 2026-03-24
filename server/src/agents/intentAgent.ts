@@ -1,5 +1,5 @@
 import { StateGraph } from "@langchain/langgraph"
-import { agentState } from "./state.js"
+import { agentState } from "./intentAgentState.js"
 import { classifyInitialMessageNode } from "./nodes/classifyInitialMessageNode.js"
 import { verifyClassificationNode } from "./nodes/verifyClassificationNode.js"
 import { outOfScopeIntentNode } from "./nodes/outOfScopeIntentNode.js"
@@ -13,7 +13,7 @@ import { verifyModelExtractionNode } from "./nodes/verifyModelExtractionNode.js"
 import { specExtractionNode } from "./nodes/specExtractionNode.js"
 import { verifySpecExtractionNode } from "./nodes/verifySpecExtractionNode.js"
 
-export const agent = new StateGraph(agentState)
+export const intentAgent = new StateGraph(agentState)
   .addNode("classifyInitialMessageNode", classifyInitialMessageNode)
   .addNode("verifyClassificationNode", verifyClassificationNode)
   .addNode("maliciousIntentNode", maliciousIntentNode)

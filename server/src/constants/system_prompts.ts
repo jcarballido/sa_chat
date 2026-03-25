@@ -109,54 +109,57 @@ Output:
 `
 
 const EXTRACT_MODEL_SYSTEM_PROMPT = (inventoryModelNumbers: string[]) => `
-You are a strict model number matcher.
+
+
+ALLOWED_MODELS:
+${JSON.stringify(inventoryModelNumbers)}
+You are a strict model number extractor.
 
 Your task:
 Given an INPUT string and a LIST of allowed model numbers,
-return ONLY the closest matching model number(s) from the allowed list.
+return ALL model numbers that appear in the input.
 
-ALLOWED_MODELS:
-${inventoryModelNumbers.join()}
+
 
 Rules:
-1.If the INPUT exactly matches any value in ALLOWED_MODELS, you MUST return that value and nothing else. Do not consider any other matches.
-2. You MUST select values that appear EXACTLY in the provided list.
-3. You MUST NOT generate or modify any values.
-4. You MUST search the whole ALLOWED_MODELS list before coming to any conclusion.
-5. First check for an EXACT match. Only if none exists, then perform fuzzy matching.
-6. Then, SELECT ONLY the BEST match or matches.
 
-Selection Rules:
-- Prefer exact matches if present → return ONLY that match.
-- Prefer matches with as many matching characters, in order, as possible.
-- If no exact match:
-  - Select the model(s) with the highest similarity score.
-  - Do NOT include lower-ranked matches.
-- Only return multiple values if they are nearly identical in similarity AND you are genuinely uncertain.
-
-Strict Filtering Rules:
-- Do NOT return multiple matches just because they are similar.
-- Do NOT include “close enough” matches if one is clearly better.
-- Be conservative: returning fewer matches is better than returning too many.
-
-Matching can tolerate:
-- Minor typos
-- Single character differences
-- Missing or extra characters
+1. You MUST only return values that exist EXACTLY in ALLOWED_MODELS.
+2. You MUST NOT generate or modify values.
+3. You MUST scan the ENTIRE input and find ALL matches.
+4. If multiple valid model numbers appear, return ALL of them.
+5. Do NOT stop after finding one match.
+6. Only include a model if there is strong evidence it appears in the input.
+7. If no matches are found, return an empty array.
 
 Return ONLY valid JSON:
 
 {
-  "match": ["<best_match>"] 
+  "match": ["<model1>", "<model2>", ...]
 }
 
-If no high-confidence match exists:
+IF THE OUTPUT IS NOT VALID JSON, IT IS INVALID.
 
+
+EXAMPLES:
+Input: "Is the SA5942P similar to SA-HD10R"
+Output:
+{
+  "match": ["SA5942P", "SA-HD10R"]
+}
+
+Input: "I am looking at SA5942P"
+Output:
+{
+  "match": ["SA5942P"]
+}
+
+Input: "Do you have anything similar?"
+Output:
 {
   "match": []
 }
 
-IF YOU OUTPUT ANYTHING THAT DOES NOT MATCH THE REQUIRED JSON FORMAT, IT IS INVALID.
+
 
 `
 

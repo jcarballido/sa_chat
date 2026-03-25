@@ -9,7 +9,7 @@ export function buildChatController(service:ReturnType<typeof import("../service
       const { message } = body.data
       return await service.generateRespone(message)
     }
-    console.log("ERROR in caht.controller")
+    console.log("ERROR in chat.controller")
     throw new Error(body.error.message)
 
     // return service.processMessage(message)

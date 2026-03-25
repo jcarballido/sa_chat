@@ -1,4 +1,5 @@
 import type { State } from "../agents/intentAgentState.js"
+import * as prompts from "../constants/system_prompts.js"
 import type { LLMcall } from "../types/types.js"
 
 const logOut = (logs: string[]) => {
@@ -40,8 +41,11 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
         const [model1,model2] = focusedIntentModelsExtracted
         if(model1 !== undefined && model2 !== undefined){
           const model1Specs = await executionService.getModelSpecs(model1)
+          const mod1 = model1Specs[0]!
           const model2Specs = await executionService.getModelSpecs(model2)
-          const res = await llm.invokeGeneralLLMAgent()
+          const mod2 = model2Specs[0]!
+          const comparisonPrompt = prompts.COMPARSION_SYSTEM_PROMPT([mod1,mod2])
+          const res = await llm.invokeGeneralLLMAgent([mod1,mod2], comparisonPrompt)
         }
 
         return 'Classified as "product_comparison"'

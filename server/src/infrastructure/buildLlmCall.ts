@@ -1,6 +1,7 @@
 import { generalLLMAgent } from "../agents/generalAgent.js";
 import { intentAgent } from "../agents/intentAgent.js"
-import type { LLMcall, Prompts } from "../types/types.js"
+import type { LLMcall, Prompts, SpecificationRow } from "../types/types.js"
+import * as prompt from "../constants/system_prompts.js"
 
 
 export async function buildLlmCall(): Promise<LLMcall> {
@@ -27,10 +28,9 @@ export async function buildLlmCall(): Promise<LLMcall> {
     }
   }
   
-  async function invokeGeneralLLMAgent(message:string, systemPrompt: Prompts ) {
+  async function invokeGeneralLLMAgent(models: SpecificationRow[], systemPrompt: string ) {
     try {
       const res = await generalLLMAgent.invoke({
-        message: message,
         systemPrompt
       })
       return res

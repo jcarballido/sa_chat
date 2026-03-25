@@ -58,11 +58,11 @@ export type InventoryStore = Awaited<
 export type InferRows<S extends Record<string,(v:string)=> any>> = {
   -readonly [K in keyof S]: ReturnType<S[K]>
 } 
+export type Prompts = keyof typeof prompts
 
 export type LLMcall = {
   invokeIntentAgent: (message: string, inventoriedModelNumbers: string[]) => Promise<State>,
-  invokeGeneralLLMAgent: (message: string, systemPrompt: Prompts) => Promise<GeneralLLMState>,
+  invokeGeneralLLMAgent: (models: SpecificationRow[], systemPrompt: string) => Promise<GeneralLLMState>,
 }
 
-export type Prompts = keyof typeof prompts
 

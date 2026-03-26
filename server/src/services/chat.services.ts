@@ -18,7 +18,8 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
   }
 
   async function executeIntent(agentState:State): Promise<string> {
-    const {maliciousIntent, outOfScopeIntent, relatedIntent, relatedIntentLLMResponse, focusedIntent, focusedIntentClassification, focusedIntentSpecsExtracted, focusedIntentModelsExtracted} = agentState
+    const {latestLLMResponse,maliciousIntent, outOfScopeIntent, relatedIntent, relatedIntentLLMResponse, focusedIntent, focusedIntentClassification, focusedIntentSpecsExtracted, focusedIntentModelsExtracted} = agentState
+    if(latestLLMResponse) return latestLLMResponse
 
     if(maliciousIntent) return 'Malicious intent detected'
     if(outOfScopeIntent) return 'Out of Scope intent'
@@ -56,7 +57,7 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
     //       return JSON.stringify(res)
     //   }
     // }
-    return "Error determining INTENT"
+    return "Latest LLM response not found"
   }
 
   async function generateRespone(userPrompt:string): Promise<string> {

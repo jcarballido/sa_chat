@@ -109,17 +109,14 @@ Output:
 `
 
 const EXTRACT_MODEL_SYSTEM_PROMPT = (inventoryModelNumbers: string[]) => `
-
-
 ALLOWED_MODELS:
 ${JSON.stringify(inventoryModelNumbers)}
+
 You are a strict model number extractor.
 
 Your task:
 Given an INPUT string and a LIST of allowed model numbers,
 return ALL model numbers that appear in the input.
-
-
 
 Rules:
 
@@ -347,6 +344,70 @@ Rules for output:
 IF THE OUTPUT IS NOT VALID JSON, IT IS INVALID.
 `
 
+const NONENGLISH_MODEL_NUMBERS = `
+You are a strict token extractor.
+
+Your task:
+From the input text, extract all substrings that appear to be model numbers or product codes.
+
+Model numbers typically:
+- contain a mix of uppercase letters and numbers
+- are not normal English words
+- may include dashes or no spaces
+- may look like codes (e.g., TITAN24, XG-550, AB1234)
+
+Rules:
+
+1. Extract ALL candidate substrings that could be model numbers.
+2. Do NOT extract normal English words.
+3. Do NOT modify the extracted text.
+4. Preserve exact casing and characters.
+5. Extract multiple values if present.
+6. If none are found, return an empty array.
+
+Return ONLY valid JSON:
+
+{
+  "candidates": ["<value1>", "<value2>", ...]
+}
+
+Do not include explanations or extra text.
+`
+const MATCH_CANDIDATES = (candidates:string[],inventoryModelNumbers: string[]) => ` 
+You are a strict model number matcher.
+
+CANDIDATES:
+${JSON.stringify(candidates)}
+
+ALLOWED_MODELS:
+${JSON.stringify(inventoryModelNumbers)}
+
+TASK:
+For each candidate, find the single best matching value from ALLOWED_MODELS.
+
+MATCHING RULES:
+1. Return ONLY values that exist EXACTLY as-is in ALLOWED_MODELS. Never invent or alter values.
+2. For each candidate, pick the ONE best match using this priority:
+   a. Exact match → always use it
+   b. Prefix/suffix match → prefer longer overlap
+   c. Fuzzy match → allow for separators (hyphens, spaces, dots), casing, or minor character differences
+3. Only match if confidence is MODERATE or higher.
+4. The output array should be the same length as CANDIDATES — unless a candidate has no reasonable match in ALLOWED_MODELS, in which case omit it entirely.
+5. No duplicates — each ALLOWED_MODELS value may appear at most once across all matches.
+
+OUTPUT:
+Return a single JSON object. No explanation, no markdown, no extra text.
+
+{
+  "matches": ["<exact_value_from_ALLOWED_MODELS>", ...]
+}
+
+Example — if all 3 candidates match: { "matches": ["MODEL-A", "MODEL-B", "MODEL-C"] }
+Example — if candidate 2 has no match: { "matches": ["MODEL-A", "MODEL-C"] }
+ 
+IF THE OUTPUT IS NOT VALID JSON, IT IS INVALID.
+
+`
 
 export {
   CLASSIFICATION_SYSTEM_PROMPT,
@@ -354,5 +415,7 @@ export {
   EXTRACT_MODEL_SYSTEM_PROMPT,
   GENERAL_CHAT_PROMPT, 
   EXTRACT_SPECS,
-  COMPARSION_SYSTEM_PROMPT
+  COMPARSION_SYSTEM_PROMPT,
+  NONENGLISH_MODEL_NUMBERS,
+  MATCH_CANDIDATES
 }

@@ -12,6 +12,9 @@ import { modelExtractionNode } from "./nodes/modelExtractionNode.js"
 import { verifyModelExtractionNode } from "./nodes/verifyModelExtractionNode.js"
 import { specExtractionNode } from "./nodes/specExtractionNode.js"
 import { verifySpecExtractionNode } from "./nodes/verifySpecExtractionNode.js"
+import { modelTokenExtractorNode } from "./nodes/modelTokenExtractorNode.js"
+import { modelMatchingNode } from "./nodes/modelMatchingNode.js"
+import { verifyModelTokenExtractorNode } from "./nodes/verifyModelTokenExtractorNode.js"
 
 export const intentAgent = new StateGraph(agentState)
   // .addNode("classifyInitialMessageNode", classifyInitialMessageNode)
@@ -22,9 +25,22 @@ export const intentAgent = new StateGraph(agentState)
   // .addNode("focusedIntentNode", focusedIntentNode)
   // .addNode("verifyAdjacentResponseNode", verifyAdjacentIntentNode)
   // .addNode("verifyFocusedIntentNode", verifyFocusedIntentNode)
-  .addNode("modelExtractionNode", modelExtractionNode)
-  .addNode("verifyModelExtractionNode",verifyModelExtractionNode)
-  .addEdge("__start__","modelExtractionNode")
+  .addNode("nonEnglishToknenNode", modelTokenExtractorNode)
+  .addNode("verifyTokenNode", verifyModelTokenExtractorNode)
+  .addNode("modelMatchingNode", modelMatchingNode)
+  .addEdge("__start__","nonEnglishToknenNode")
+  .addEdge("nonEnglishToknenNode","verifyTokenNode")
+  .addConditionalEdges("verifyTokenNode",(agentState) => {
+    if(!agentState.candidates && agentState.retries < 5) return "RETRY"
+    return "CONTINUE"
+  },{
+    "RETRY":"nonEnglishToknenNode",
+    "CONTINUE":"modelMatchingNode" 
+  })
+  .addEdge("modelMatchingNode","__end__")
+  // .addNode("modelExtractionNode", modelExtractionNode)
+  // .addNode("verifyModelExtractionNode",verifyModelExtractionNode)
+  // .addEdge("__start__","modelExtractionNode")
   
   // .addNode("specExtractionNode", specExtractionNode)
   // .addNode("verifySpecExtractionNode",verifySpecExtractionNode)
@@ -72,17 +88,17 @@ export const intentAgent = new StateGraph(agentState)
   //   "RETRY" : "focusedIntentNode",
   //   "TOO_MANY_RETRIES":"__end__"
   // })
-  .addEdge("modelExtractionNode","verifyModelExtractionNode")
-  .addConditionalEdges("verifyModelExtractionNode",(agentState) => {
-    if(agentState.focusedIntentModelsExtracted) return "MODELS_EXTRACTED"
-    if(!agentState.focusedIntentModelsExtracted && agentState.retries <= 5) return "RETRY"
-    return "TOO_MANY_RETRIES"
-  },{
-    "MODELS_EXTRACTED":"__end__",
-    // "MODELS_EXTRACTED":"specExtractionNode",
-    "RETRY":"modelExtractionNode",
-    "TOO_MANY_RETRIES":"__end__"
-  })
+  // .addEdge("modelExtractionNode","verifyModelExtractionNode")
+  // .addConditionalEdges("verifyModelExtractionNode",(agentState) => {
+  //   if(agentState.focusedIntentModelsExtracted) return "MODELS_EXTRACTED"
+  //   if(!agentState.focusedIntentModelsExtracted && agentState.retries <= 5) return "RETRY"
+  //   return "TOO_MANY_RETRIES"
+  // },{
+  //   "MODELS_EXTRACTED":"__end__",
+  //   // "MODELS_EXTRACTED":"specExtractionNode",
+  //   "RETRY":"modelExtractionNode",
+  //   "TOO_MANY_RETRIES":"__end__"
+  // })
   // .addEdge("specExtractionNode","verifySpecExtractionNode")
   // .addConditionalEdges("verifySpecExtractionNode", (agentState) => {
   //   if(agentState.focusedIntentSpecsExtracted) return "SPECS_EXTRACTED"

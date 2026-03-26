@@ -9,10 +9,10 @@ export const specificationSchema = {
   "fire_rating_time": (t: string) => Number(t),
   "fire_rating_temp": (t: string) => Number(t),
   "height": (t: string) => Number(t),
-  // "width": (t: string) => Number(t),
-  // "depth": (t: string) => Number(t),
+  "width": (t: string) => Number(t),
+  "depth": (t: string) => Number(t),
   "gun_count": (t: string) => Number(t),
-  // "waterproof": (t: string) => t === "TRUE"
+  "waterproof": (t: string) => t === "TRUE"
 } as const
 
 async function specificationStorePlugin(fastify:FastifyInstance) {

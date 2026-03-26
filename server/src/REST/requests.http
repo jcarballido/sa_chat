@@ -4,5 +4,5 @@ POST http://localhost:3000/
 Content-Type: application/json
 
 {
-  "message": "Is the model SA4830 or like SP25SA-7239P?"
+  "message": "Is the model 24sa5942 or like 7239P?"
 }

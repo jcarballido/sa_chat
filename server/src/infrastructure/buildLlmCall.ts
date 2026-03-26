@@ -9,7 +9,7 @@ export async function buildLlmCall(): Promise<LLMcall> {
 
     function sanitizeUserPrompt(originalString: string): string{
       const targetRegex =  /[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*/g;
-      const updatedString = originalString.replace(targetRegex, (match) => {
+      const updatedString = originalString.toUpperCase().replace(targetRegex, (match) => {
         return match.replace(/-/g,"")
       })
       return updatedString

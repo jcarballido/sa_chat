@@ -17,97 +17,80 @@ import { modelMatchingNode } from "./nodes/modelMatchingNode.js"
 import { verifyModelTokenExtractorNode } from "./nodes/verifyModelTokenExtractorNode.js"
 
 export const intentAgent = new StateGraph(agentState)
-  // .addNode("classifyInitialMessageNode", classifyInitialMessageNode)
-  // .addNode("verifyClassificationNode", verifyClassificationNode)
-  // .addNode("maliciousIntentNode", maliciousIntentNode)
-  // .addNode("outOfScopeIntentNode", outOfScopeIntentNode)
-  // .addNode("adjacentIntentNode", adjacentIntentNode)
-  // .addNode("focusedIntentNode", focusedIntentNode)
-  // .addNode("verifyAdjacentResponseNode", verifyAdjacentIntentNode)
-  // .addNode("verifyFocusedIntentNode", verifyFocusedIntentNode)
-  .addNode("nonEnglishToknenNode", modelTokenExtractorNode)
+  .addNode("classifyInitialMessageNode", classifyInitialMessageNode)
+  .addNode("verifyClassificationNode", verifyClassificationNode)
+  .addNode("maliciousIntentNode", maliciousIntentNode)
+  .addNode("outOfScopeIntentNode", outOfScopeIntentNode)
+  .addNode("adjacentIntentNode", adjacentIntentNode)
+  .addNode("verifyAdjacentResponseNode", verifyAdjacentIntentNode)
+  .addNode("focusedIntentNode", focusedIntentNode)
+  .addNode("verifyFocusedIntentNode", verifyFocusedIntentNode)
+  .addNode("modelTokenExtractorNode", modelTokenExtractorNode)
   .addNode("verifyTokenNode", verifyModelTokenExtractorNode)
   .addNode("modelMatchingNode", modelMatchingNode)
-  .addEdge("__start__","nonEnglishToknenNode")
-  .addEdge("nonEnglishToknenNode","verifyTokenNode")
-  .addConditionalEdges("verifyTokenNode",(agentState) => {
-    if(!agentState.candidates && agentState.retries < 5) return "RETRY"
-    return "CONTINUE"
-  },{
-    "RETRY":"nonEnglishToknenNode",
-    "CONTINUE":"modelMatchingNode" 
+  .addNode("specExtractionNode", specExtractionNode)
+  .addNode("verifySpecExtractionNode",verifySpecExtractionNode)
+
+  .addEdge("__start__", "classifyInitialMessageNode")
+  .addEdge("classifyInitialMessageNode", "verifyClassificationNode")
+  .addConditionalEdges("verifyClassificationNode", (agentState) => {
+    const classification = agentState.initialMessageClassification
+    if (classification == "malicious") return "MALICIOUS_INTENT"
+    if (classification == "out_of_scope") return "OUT_OF_SCOPE_INTENT"
+    if (classification == "adjacent") return "ADJACENT_INTENT"
+    if (classification == "focused") return "FOCUSED"
+    if (!classification && agentState.retries < 5) return "RETRY"
+    return "TOO_MANY_RETRIES"
+  }, {
+    "RETRY": "classifyInitialMessageNode",
+    "TOO_MANY_RETRIES": "__end__",
+    "MALICIOUS_INTENT": "__end__",
+    "OUT_OF_SCOPE_INTENT": "__end__",
+    "ADJACENT_INTENT": "adjacentIntentNode",
+    "FOCUSED": "focusedIntentNode",
   })
-  .addEdge("modelMatchingNode","__end__")
-  // .addNode("modelExtractionNode", modelExtractionNode)
-  // .addNode("verifyModelExtractionNode",verifyModelExtractionNode)
-  // .addEdge("__start__","modelExtractionNode")
-  
-  // .addNode("specExtractionNode", specExtractionNode)
-  // .addNode("verifySpecExtractionNode",verifySpecExtractionNode)
-  // .addEdge("__start__","classifyInitialMessageNode")
-  // .addEdge("classifyInitialMessageNode","verifyClassificationNode")
-  // .addConditionalEdges("verifyClassificationNode", (agentState) => {
-  //   const classification = agentState.initialMessageClassification
-  //   if(classification == "malicious") return "MALICIOUS_INTENT"
-  //   if(classification == "out_of_scope") return "OUT_OF_SCOPE_INTENT"
-  //   if(classification == "adjacent") return "ADJACENT_INTENT"
-  //   if(classification =="focused") return "FOCUSED"    
-  //   if(!classification && agentState.retries < 5) return "RETRY"
-  //   return "TOO_MANY_RETRIES"
-  // },{
-  //   "RETRY":"classifyInitialMessageNode",
-  //   "TOO_MANY_RETRIES": "__end__",
-  //   "MALICIOUS_INTENT":"maliciousIntentNode",
-  //   "OUT_OF_SCOPE_INTENT":"outOfScopeIntentNode",
-  //   "ADJACENT_INTENT": "adjacentIntentNode",
-  //   "FOCUSED":"focusedIntentNode",
-  // })
-  // .addEdge("maliciousIntentNode","__end__")
-  // .addEdge("outOfScopeIntentNode","__end__")
-  // .addEdge("adjacentIntentNode","verifyAdjacentResponseNode")
-  // .addConditionalEdges("verifyAdjacentResponseNode",(agentState)=>{
-  //   if(agentState.relatedIntentLLMResponse) return "FINAL_RESPONSE"
-  //   if(!agentState.relatedIntentLLMResponse && agentState.retries <= 5) return "RETRY"
-  //   return "TOO_MANY_RETRIES"
-  // },{
-  //   "FINAL_RESPONSE": "__end__",
-  //   "RETRY" : "adjacentIntentNode",
-  //   "TOO_MANY_RETRIES":"__end__"
-  // })
-  // .addEdge("focusedIntentNode","verifyFocusedIntentNode")
-  // .addConditionalEdges("verifyFocusedIntentNode",(agentState)=> {
-  //   if(!agentState.focusedIntent && agentState.retries <= 5) {
-  //     console.log("RETRY ATTEMPTING...")
-  //     return "RETRY"
-  //   }
-  //   if(agentState.focusedIntentClassification == "other" && agentState.retries < 5) return "RETRY"
-  //   if(agentState.focusedIntent) return "FOCUSED_INTENT"
-  //   return "TOO_MANY_RETRIES"
-  // },{
-  //   "FOCUSED_INTENT": "modelExtractionNode",
-  //   "RETRY" : "focusedIntentNode",
-  //   "TOO_MANY_RETRIES":"__end__"
-  // })
-  // .addEdge("modelExtractionNode","verifyModelExtractionNode")
-  // .addConditionalEdges("verifyModelExtractionNode",(agentState) => {
-  //   if(agentState.focusedIntentModelsExtracted) return "MODELS_EXTRACTED"
-  //   if(!agentState.focusedIntentModelsExtracted && agentState.retries <= 5) return "RETRY"
-  //   return "TOO_MANY_RETRIES"
-  // },{
-  //   "MODELS_EXTRACTED":"__end__",
-  //   // "MODELS_EXTRACTED":"specExtractionNode",
-  //   "RETRY":"modelExtractionNode",
-  //   "TOO_MANY_RETRIES":"__end__"
-  // })
-  // .addEdge("specExtractionNode","verifySpecExtractionNode")
-  // .addConditionalEdges("verifySpecExtractionNode", (agentState) => {
-  //   if(agentState.focusedIntentSpecsExtracted) return "SPECS_EXTRACTED"
-  //   if(!agentState.focusedIntentSpecsExtracted && agentState.retries <5) return "RETRY"
-  //   return "TOO_MANY_RETRIES" 
-  // },{
-  //   "SPECS_EXTRACTED": "__end__",
-  //   "RETRY": "specExtractionNode",
-  //   "TOO_MANY_RETRIES":"__end__"
-  // })
+  .addEdge("adjacentIntentNode","verifyAdjacentResponseNode")
+  .addConditionalEdges("verifyAdjacentResponseNode",(agentState)=>{
+    if(agentState.relatedIntentLLMResponse) return "FINAL_RESPONSE"
+    if(!agentState.relatedIntentLLMResponse && agentState.retries <= 5) return "RETRY"
+    return "TOO_MANY_RETRIES"
+  },{
+    "FINAL_RESPONSE": "__end__",
+    "RETRY" : "adjacentIntentNode",
+    "TOO_MANY_RETRIES":"__end__"
+  })
+  .addEdge("focusedIntentNode","verifyFocusedIntentNode")
+  .addConditionalEdges("verifyFocusedIntentNode",(agentState)=> {
+    if(!agentState.focusedIntent && agentState.retries <= 5) {
+      console.log("RETRY ATTEMPTING...")
+      return "RETRY"
+    }
+    if(agentState.focusedIntentClassification == "other" && agentState.retries < 5) return "RETRY"
+    if(agentState.focusedIntent) return "FOCUSED_INTENT"
+    return "TOO_MANY_RETRIES"
+  },{
+    "FOCUSED_INTENT": "modelTokenExtractorNode",
+    "RETRY" : "focusedIntentNode",
+    "TOO_MANY_RETRIES":"__end__"
+  })
+  .addEdge("modelTokenExtractorNode", "verifyTokenNode")
+  .addConditionalEdges("verifyTokenNode", (agentState) => {
+    if (!agentState.candidates && agentState.retries < 5) return "RETRY"
+    return "CONTINUE"
+  }, {
+    "RETRY": "modelTokenExtractorNode",
+    "CONTINUE": "modelMatchingNode"
+  })
+  .addEdge("modelMatchingNode", "specExtractionNode")
+  .addEdge("specExtractionNode","verifySpecExtractionNode")
+  .addConditionalEdges("verifySpecExtractionNode", (agentState) => {
+    if(agentState.focusedIntentSpecsExtracted) return "SPECS_EXTRACTED"
+    if(!agentState.focusedIntentSpecsExtracted && agentState.retries <5) return "RETRY"
+    return "TOO_MANY_RETRIES" 
+  },{
+    "SPECS_EXTRACTED": "__end__",
+    "RETRY": "specExtractionNode",
+    "TOO_MANY_RETRIES":"__end__"
+  })
   .compile()
-    
+

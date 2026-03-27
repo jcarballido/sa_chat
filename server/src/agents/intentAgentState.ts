@@ -23,9 +23,10 @@ export const agentState = new StateSchema({
   focusedIntent: z.boolean().default(false),
   focusedIntentClassification: z.enum(["similar_products","product_comparison","product_lookup","other"]),
   relatedIntentLLMResponse: z.string(),
-  focusedIntentModelsExtracted: z.array(z.string()),
+  // focusedIntentModelsExtracted: z.array(z.string()),
   focusedIntentSpecsExtracted: z.array(z.string()),
-  candidates: z.array(z.string())
+  candidates: z.array(z.string()),
+  filteredMatches: z.array(z.string())
 })
 
 export type State = typeof agentState.State

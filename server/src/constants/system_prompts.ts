@@ -47,9 +47,9 @@ Possible intents:
 
 "similar_products": The user is asking for products similar, comparable, or alternatives to a product.
 
-"product_comparison": The user is asking to compare two or more specific products.
+"product_comparison": The user is explicitly asking to compare two or more products, using words like "compare", "difference", "vs", "better", or asking how they differ. If multiple products are mentioned but the user is NOT asking to compare them, the intent is "product_lookup".
 
-"product_lookup": The user is asking for information about a specific product.
+"product_lookup": The user is asking for information about one or more specific products, without asking to compare them. 
 
 "other": The message does not match the above categories.
 
@@ -105,6 +105,24 @@ Output:
 
 "intent": "other",
 
+}
+
+User: "Give me specs for Titan 24 and Titan 18"
+Output:
+{
+  "intent": "product_lookup"
+}
+
+User: "What are the fire ratings for Titan 24 and Titan 18?"
+Output:
+{
+  "intent": "product_lookup"
+}
+
+User: "Tell me about Titan 24 and Titan 18"
+Output:
+{
+  "intent": "product_lookup"
 }
 `
 

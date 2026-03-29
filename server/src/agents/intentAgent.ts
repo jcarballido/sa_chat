@@ -2,14 +2,14 @@ import { StateGraph } from "@langchain/langgraph"
 import { agentState } from "./intentAgentState.js"
 import { classifyInitialMessageNode } from "./nodes/classifyInitialMessageNode.js"
 import { verifyClassificationNode } from "./nodes/verifyClassificationNode.js"
-import { outOfScopeIntentNode } from "./nodes/outOfScopeIntentNode.js"
+// import { outOfScopeIntentNode } from "./nodes/outOfScopeIntentNode.js"
 import { adjacentIntentNode } from "./nodes/adjacentIntentNode.js"
 import { focusedIntentNode } from "./nodes/focusedIntentNode.js"
-import { maliciousIntentNode } from "./nodes/maliciousIntentNode.js"
+// import { maliciousIntentNode } from "./nodes/maliciousIntentNode.js"
 import { verifyAdjacentIntentNode } from "./nodes/verifyAdjacentResponseNode.js"
 import { verifyFocusedIntentNode } from "./nodes/verifyFocusedIntentNode.js"
-import { modelExtractionNode } from "./nodes/modelExtractionNode.js"
-import { verifyModelExtractionNode } from "./nodes/verifyModelExtractionNode.js"
+// import { modelExtractionNode } from "./nodes/modelExtractionNode.js"
+// import { verifyModelExtractionNode } from "./nodes/verifyModelExtractionNode.js"
 import { specExtractionNode } from "./nodes/specExtractionNode.js"
 import { verifySpecExtractionNode } from "./nodes/verifySpecExtractionNode.js"
 import { modelTokenExtractorNode } from "./nodes/modelTokenExtractorNode.js"
@@ -19,8 +19,6 @@ import { verifyModelTokenExtractorNode } from "./nodes/verifyModelTokenExtractor
 export const intentAgent = new StateGraph(agentState)
   .addNode("classifyInitialMessageNode", classifyInitialMessageNode)
   .addNode("verifyClassificationNode", verifyClassificationNode)
-  .addNode("maliciousIntentNode", maliciousIntentNode)
-  .addNode("outOfScopeIntentNode", outOfScopeIntentNode)
   .addNode("adjacentIntentNode", adjacentIntentNode)
   .addNode("verifyAdjacentResponseNode", verifyAdjacentIntentNode)
   .addNode("focusedIntentNode", focusedIntentNode)
@@ -61,7 +59,7 @@ export const intentAgent = new StateGraph(agentState)
   })
   .addEdge("focusedIntentNode","verifyFocusedIntentNode")
   .addConditionalEdges("verifyFocusedIntentNode",(agentState)=> {
-    if(!agentState.focusedIntent && agentState.retries <= 5) {
+    if(!agentState.focusedIntentClassification && agentState.retries <= 5) {
       console.log("RETRY ATTEMPTING...")
       return "RETRY"
     }

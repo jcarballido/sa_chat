@@ -59,6 +59,7 @@ export async function buildStoreGeneric<T extends ConversionSchema>(filePath:str
     if (!headers.includes(column)) {
       throw new Error(`Column "${column}" does not exist`);
     }
+
     return convertedRows.filter(row => row[column] === value);
   };
 

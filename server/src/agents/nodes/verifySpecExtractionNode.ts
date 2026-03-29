@@ -20,7 +20,7 @@ export async function verifySpecExtractionNode(state: State) : Promise<Update> {
     }
   }
 
-  const parsedResponse = JSON.parse(regexTest.match.trim())
+  const parsedResponse = regexTest.match
   const safeParseResult = SpecCategoriesResponse.safeParse(parsedResponse)
   if(safeParseResult.error){
     console.log("SAFE PARSE RESULT ERROR")

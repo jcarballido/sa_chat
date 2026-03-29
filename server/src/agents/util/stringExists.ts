@@ -3,8 +3,8 @@ export default function stringExists(llmResponse: string, regex: RegExp): {resul
   const match = llmResponse.match(regex)
 
   if(match) {
-    const models = match[1]
-    if(models) return {result: true, "match": JSON.parse(models)}
+    const result = match[1]
+    if(result) return {result: true, "match": JSON.parse(result)}
   }
   return {result: false}
 }

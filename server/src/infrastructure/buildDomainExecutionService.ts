@@ -51,11 +51,13 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
 
   const mergedInventoryAndSpecStore = mergeStores([... strippedModelNumbersInventoryMap.keys()], transformedSpecificationStore.rows)
 
-  console.log("")
-
-  async function getModelSpecs(model: SpecificationRow["model"]) {
-    const specs = transformedSpecificationStore.getRowsByColumnValue("model",model)
-    return specs 
+  function getModelSpecs(models: SpecificationRow["model"][]): SpecificationRow[] {
+    const returnedSpecs = models.map(model => {
+      const returnedRows = transformedSpecificationStore.getRowsByColumnValue("model",model)
+      const modelSpecs = returnedRows[0] ?? null
+      return modelSpecs
+    })
+    return returnedSpecs.filter(specs => specs !== null)
   }
 
   function filterBy(
@@ -148,16 +150,11 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     
   }
 
-  async function getSimilarModels(model:SpecificationRow["model"]) {
-    // console.log("MODEL PASSED INTO GET SIMILARMODELS FUNCTION")
-    // console.log(model)
-    // const requirements = await buildRequirements(model)
-    const modelSpecs = await getModelSpecs(model)
+  async function getSimilarModels(models:SpecificationRow["model"][]):Promise<SpecificationRow[][]> {
+    const allModelSpecs = getModelSpecs(models)
     const allInventorySpecs = mergedInventoryAndSpecStore.matches
-    
-    const res = await findNearProducts(allInventorySpecs, modelSpecs[0]!)
-    return res
-    // return filterBy(allInventorySpecs, model)
+    const allNearProductMatches = await Promise.all( allModelSpecs.map(async(spec) => await findNearProducts(allInventorySpecs,spec)))
+    return allNearProductMatches
   }
 
   return{

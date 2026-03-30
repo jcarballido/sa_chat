@@ -62,7 +62,7 @@ export type Prompts = keyof typeof prompts
 
 export type LLMcall = {
   invokeIntentAgent: (message: string, inventoriedModelNumbers: string[]) => Promise<State>,
-  // invokeGeneralLLMAgent: (models: SpecificationRow[], systemPrompt: string) => Promise<GeneralLLMState>,
+  invokeGeneralLLMAgent: (systemPrompt: string) => Promise<GeneralLLMState>,
 }
 
 

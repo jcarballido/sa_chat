@@ -314,7 +314,7 @@ Output:
 }
 `
 
-const COMPARSION_SYSTEM_PROMPT = (modelsToCompare: SpecificationRow[]) => `
+const COMPARSION_SYSTEM_PROMPT = (formattedModels:string) => `
   You are a product comparison assistant.
 
 Your task:
@@ -322,9 +322,8 @@ Given two products with specifications in JSON format, analyze how similar they 
 
 Input will be structured as:
 
-{
-  "productA": ${JSON.stringify(modelsToCompare[0])},
-  "productB": ${JSON.stringify(modelsToCompare[1])}
+${
+  formattedModels
 }
 
 Rules:

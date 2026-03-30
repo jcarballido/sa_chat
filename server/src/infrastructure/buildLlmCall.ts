@@ -28,20 +28,21 @@ export async function buildLlmCall(): Promise<LLMcall> {
     }
   }
   
-  async function invokeGeneralLLMAgent(models: SpecificationRow[], systemPrompt: string ) {
-    // try {
-    //   const res = await generalLLMAgent.invoke({
-    //     systemPrompt
-    //   })
-    //   return res
-    // } catch (error) {
-    //   console.log("ERROR INVOKING generalAgent")
-    //   throw error
-    // }
+  async function invokeGeneralLLMAgent(systemPrompt: string ) {
+    try {
+      const res = await generalLLMAgent.invoke({
+        systemPrompt,
+      })
+      return res
+    } catch (error) {
+      console.log("ERROR INVOKING generalAgent")
+      throw error
+    }
   }
 
   return {
     invokeIntentAgent,
+    invokeGeneralLLMAgent
   }
 }
 

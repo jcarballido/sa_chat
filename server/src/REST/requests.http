@@ -4,5 +4,5 @@ POST http://localhost:3000/
 Content-Type: application/json
 
 {
-  "message": "Give me specifications for SA4829, and specifications for SP25SA-6040P?"
+  "message": "Is a SA4829 like SP25SA-6040P?"
 }

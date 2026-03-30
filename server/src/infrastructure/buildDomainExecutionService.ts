@@ -61,10 +61,12 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   }
 
   function filterBy(
+    model: SpecificationRow["model"],
     rows: SpecificationRow[],
     requirements: Filter<Omit<SpecificationRow, "waterproof">>
   ): SpecificationRow[]{
-    const results = rows.filter((row) => {      
+    const filteredRows = rows.filter((row) => row["model"] !== model)
+    const results = filteredRows.filter((row) => {      
       return Object.entries(requirements).every(([key, requirement]) => {
         const value = row[key as keyof SpecificationRow]
         const req = requirement as Operators<SpecificationRow[keyof SpecificationRow]>
@@ -86,7 +88,6 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     const oneValueBefore = indexOfRefValue == 0 ? undefined : sortedValues[indexOfRefValue - 1]
     const oneValueAfter = indexOfRefValue == sortedValues.length - 1 ? undefined : sortedValues[indexOfRefValue + 1] 
     const capturedValues = [oneValueBefore, referenceValue, oneValueAfter].filter(val => val !== undefined)
-
     return [capturedValues[0]!, capturedValues[capturedValues.length - 1]!]
   }
 
@@ -137,20 +138,18 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   // }
 
   async function findNearProducts(allInventoriedSpecifications: SpecificationRow[], modelSpecs: SpecificationRow) {
-    const {fire_rating_temp, fire_rating_time, gun_count, height, width, depth, waterproof} = modelSpecs
+    const {fire_rating_temp, fire_rating_time, gun_count, height, width, depth, waterproof, model} = modelSpecs
     const fire_rating_times = transformedSpecificationStore.getColumnValues("fire_rating_time")
     const valueWindow = getOneBeforeAndAfter(fire_rating_times,fire_rating_time)
-
     const requirements:Filter<SpecificationRow>= {}
     requirements["fire_rating_time"] = {gte:valueWindow[0]!, lte:valueWindow[1]!}
-
-    const result = filterBy(allInventoriedSpecifications,requirements)
-
-    return result
+    const result = filterBy(model,allInventoriedSpecifications,requirements)
+    const formattedResult = {[model]: result}
+    return formattedResult
     
   }
 
-  async function getSimilarModels(models:SpecificationRow["model"][]):Promise<SpecificationRow[][]> {
+  async function getSimilarModels(models:SpecificationRow["model"][]) {
     const allModelSpecs = getModelSpecs(models)
     const allInventorySpecs = mergedInventoryAndSpecStore.matches
     const allNearProductMatches = await Promise.all( allModelSpecs.map(async(spec) => await findNearProducts(allInventorySpecs,spec)))

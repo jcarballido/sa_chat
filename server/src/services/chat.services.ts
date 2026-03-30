@@ -1,15 +1,6 @@
-import type { keyof } from "zod"
 import type { State } from "../agents/intentAgentState.js"
 import * as prompts from "../constants/system_prompts.js"
 import type { LLMcall, SpecificationRow, SpecificationStore } from "../types/types.js"
-
-const logOut = (logs: string[]) => {
-  console.log("---")
-  for (const log of logs){
-    console.log(log)
-  }
-  console.log("---")
-}
 
 export function buildServices(llm: LLMcall, executionService: ReturnType<typeof import("../infrastructure/buildDomainExecutionService.js").buildDomainExecutionServices>){
 
@@ -25,14 +16,13 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
     if(initialMessageClassification === "out_of_scope") return 'Out of Scope intent'
     if(relatedIntent) return relatedIntentLLMResponse
     if(focusedIntent){
-      // if(focusedIntentClassification == "similar_products"){
-      //   console.log("EXTRACTED MODEL NUMBER: ", filteredMatches)
-      //   //CHORE: Update getSimilarModels to accept an array
-      //   const res = await executionService.getSimilarModels(filteredMatches)
-      //   return `Similar models found: 
-      //   ${JSON.stringify(res)}
-      //   `
-      // }
+      if(focusedIntentClassification == "similar_products"){
+        //CHORE: Update getSimilarModels to accept an array
+        const res = await executionService.getSimilarModels(filteredMatches)
+        return `Similar models found: 
+        ${JSON.stringify(res)}
+        `
+      }
       if(focusedIntentClassification == "product_comparison"){
         console.log('Classified as "product_comparison"')
         if(filteredMatches.length < 2) return "At least 2 model numbers required."

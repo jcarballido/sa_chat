@@ -1,6 +1,6 @@
 import { ReducedValue, StateSchema } from "@langchain/langgraph";
 import * as z from 'zod'
-import { MessageSchema } from "../schemas/schemas.js";
+import { MessageSchema, SpecValueSchema } from "../schemas/schemas.js";
 
 type MessageType = z.infer<typeof MessageSchema>
 
@@ -25,9 +25,7 @@ export const agentState = new StateSchema({
   relatedIntentLLMResponse: z.string(),
   // focusedIntentModelsExtracted: z.array(z.string()),
   focusedIntentSpecsExtracted: z.array(z.string()),
-  focusedIntentSpecValuesExtracted: z.object({
-    "specValues": z.array(z.object({category: z.string(),value: z.string()}))
-  }),
+  focusedIntentSpecValuesExtracted: SpecValueSchema,
   candidates: z.array(z.string()),
   filteredMatches: z.array(z.string())
 })

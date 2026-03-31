@@ -1,6 +1,7 @@
 import type { State } from "../agents/intentAgentState.js"
 import * as prompts from "../constants/system_prompts.js"
-import type { LLMcall, SpecificationRow, SpecificationStore } from "../types/types.js"
+import type { SpecificationMap } from "../schemas/schemas.js"
+import type { LLMcall, SpecificationRow } from "../types/types.js"
 
 export function buildServices(llm: LLMcall, executionService: ReturnType<typeof import("../infrastructure/buildDomainExecutionService.js").buildDomainExecutionServices>){
 
@@ -49,8 +50,27 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
           return JSON.stringify(res)
       }
       if(focusedIntentClassification == "product_lookup_by_specs"){
-        const requestedSpecs = agentState.focusedIntentSpecValuesExtracted
-        const res = await executionService.getSpecs(requestedSpecs.specValues)
+        const requestedSpecsAsStrings:{category: keyof typeof SpecificationMap,value:string}[] = agentState.focusedIntentSpecValuesExtracted.specValues
+        // Take specStrings and convert them to correct values based on types
+        const convertedRequestedSpecs = requestedSpecsAsStrings.map( spec => {
+          // let value: string | number | boolean
+          if(spec.category == "model") return {category:spec.category,value: spec.value}
+          if(spec.category == "waterproof"){
+            const waterproofValue = spec.value.toLowerCase()
+            if(waterproofValue === "true") return {category:spec.category,value: true}
+            return {category:spec.category,value: false}
+          }
+          const digitsExist = spec.value.match(/d+/) || []
+          const extractedDigits = digitsExist[0]
+          if(extractedDigits){
+            return { category:spec.category, value: Number(extractedDigits) }
+          }
+          return { category:spec.category, value: null }
+        })
+
+        const filteredRequestedSpecs = convertedRequestedSpecs.filter(spec => spec.value !== null)
+
+        const res = await executionService.getSpecs(filteredRequestedSpecs)
       }
     }
     console.log("Focused Intent Classification: ", focusedIntentClassification)

@@ -138,7 +138,7 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   // }
 
   async function findNearProducts(allInventoriedSpecifications: SpecificationRow[], modelSpecs: SpecificationRow) {
-    const {fire_rating_temp, fire_rating_time, gun_count, height, width, depth, waterproof, model} = modelSpecs
+    const {fire_rating_temp, fire_rating_time, gun_count, height, model} = modelSpecs
     const fire_rating_times = transformedSpecificationStore.getColumnValues("fire_rating_time")
     const valueWindow = getOneBeforeAndAfter(fire_rating_times,fire_rating_time)
     const requirements:Filter<SpecificationRow>= {}
@@ -162,10 +162,13 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     for(const req of requestedSpecs){
       const category = req.category
       const val = req.value
-      const modelsBySpec = transformedSpecificationStore.getRowsByColumnValue(category,val)
-      const model = modelsBySpec[0]!
-      requirements.push(model)
+      const modelsBySpec = transformedSpecificationStore.getRowsByColumnValue(category,val) || []
+      if(modelsBySpec.length === 0) return 
+      requirements.push(...modelsBySpec)
     }    
+
+    console.log("getSpecs RESULT:")
+    console.log(requirements)
     return requirements
   }
 

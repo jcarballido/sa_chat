@@ -50,6 +50,7 @@ export type SpecificationStore = Awaited<
 
 export type SpecificationRow = SpecificationStore["rows"][number]
 
+
 export type InventoryStore = Awaited<
   ReturnType<typeof buildStoreGeneric<typeof inventorySchema>>
 >

@@ -44,9 +44,13 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
 
         return res.res
       }
-      if(focusedIntentClassification == "product_lookup"){
+      if(focusedIntentClassification == "product_lookup_by_model"){
           const res = executionService.getModelSpecs(filteredMatches)
           return JSON.stringify(res)
+      }
+      if(focusedIntentClassification == "product_lookup_by_specs"){
+        const requestedSpecs = agentState.focusedIntentSpecsExtracted
+        const res = executionService.getSpecs(requestedSpecs)
       }
     }
     console.log("Focused Intent Classification: ", focusedIntentClassification)

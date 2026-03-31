@@ -156,6 +156,10 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     return allNearProductMatches
   }
 
+  async function getSpecs(requestedSpecs: string[]) {
+    // 
+  }
+
   return{
     getModelSpecs,
     getSimilarModels,

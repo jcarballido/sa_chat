@@ -35,6 +35,6 @@ export async function verifyModelExtractionNode(state:State): Promise<Update> {
   console.log("FILTERED MATCH RESULT:")
   console.log(filter)
   return {
-    focusedIntentModelsExtracted: filter
+    filteredMatches: filter
   }
 }

@@ -1,7 +1,4 @@
-import { MATCH_CANDIDATES, NONENGLISH_MODEL_NUMBERS } from "../../constants/system_prompts.js";
 import type { State, Update } from "../intentAgentState.js";
-import { askLLM } from "../util/askLLM.js";
-import { distance } from "fastest-levenshtein";
 import { findBestMatch } from "../util/findBestMatch.js";
 
 export async function modelMatchingNode(state:State): Promise<Update> {
@@ -18,6 +15,8 @@ export async function modelMatchingNode(state:State): Promise<Update> {
       return match
     })
 
+    console.log("MATCHES FROM findBestMatch RESULT")
+    console.log(matches)
     const filteredMatches = matches.filter((match) => match !== null)
     console.log("FILTERED MATCHES:")
     console.log(filteredMatches)

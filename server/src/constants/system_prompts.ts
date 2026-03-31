@@ -45,84 +45,85 @@ Analyze the user's message and determine the intent.
 
 Possible intents:
 
-"similar_products": The user is asking for products similar, comparable, or alternatives to a product.
+"similar_products":
+The user is asking for products similar, comparable, or alternatives to a specific product.
 
-"product_comparison": The user is explicitly asking to compare two or more products, using words like "compare", "difference", "vs", "better", or asking how they differ. If multiple products are mentioned but the user is NOT asking to compare them, the intent is "product_lookup".
+"product_comparison":
+The user is explicitly asking to compare two or more products using words like "compare", "difference", "vs", "better", or asking how they differ.
 
-"product_lookup": The user is asking for information about one or more specific products, without asking to compare them. 
+"product_lookup_by_model":
+The user is asking for information about one or more specific products.
 
-"other": The message does not match the above categories.
+"product_lookup_by_specs":
+The user is asking for products based ONLY on specifications or attributes, and NO model numbers are mentioned.
 
-Return JSON only in the following format:
+"other":
+The message does not match the above categories.
+
+Definitions:
+
+- Model numbers typically contain a mix of letters and numbers and may include spaces or hyphens (e.g., "Titan 24", "XG-550").
+
+Rules:
+
+1. If ANY model number is present, the intent MUST be "product_lookup_by_model" unless the user is explicitly asking for comparison or similar products.
+2. If NO model numbers are present and the user is asking based on attributes (e.g., waterproof, fire rating), the intent is "product_lookup_by_specs".
+3. Do NOT infer comparison unless explicitly requested.
+
+Return JSON only:
 
 {
-
-"intent": "similar_products" | "product_comparison" | "product_lookup" | "other"
-
+  "intent": "similar_products" | "product_comparison" | "product_lookup_by_model" | "product_lookup_by_specs" | "other"
 }
-
-Return only valid JSON.
-
-If your output is not in the specified format, it will be considered invalid. Only return valid JSON. Do not explain anything. Do not explain your reasoning.
 
 EXAMPLES
 
-User: "What safes are similar to Titan 24?"
-
+User: "What safes are waterproof?"
 Output:
-
 {
-
-"intent": "similar_products",
-
+  "intent": "product_lookup_by_specs"
 }
 
-User: "Compare Titan 24 and Titan 18"
-
+User: "What safes have a fire rating of 1400 degrees?"
 Output:
-
 {
-
-"intent": "product_comparison",
-
+  "intent": "product_lookup_by_specs"
 }
 
 User: "What is the fire rating on Titan 24?"
-
-Output:
-
-{
-
-"intent": "product_lookup",
-
-}
-
-User: "Do you ship to Canada?"
-
-Output:
-
-{
-
-"intent": "other",
-
-}
-
-User: "Give me specs for Titan 24 and Titan 18"
 Output:
 {
-  "intent": "product_lookup"
+  "intent": "product_lookup_by_model"
 }
 
 User: "What are the fire ratings for Titan 24 and Titan 18?"
 Output:
 {
-  "intent": "product_lookup"
+  "intent": "product_lookup_by_model"
 }
 
-User: "Tell me about Titan 24 and Titan 18"
+User: "Give me specs for Titan 24 and Titan 18"
 Output:
 {
-  "intent": "product_lookup"
+  "intent": "product_lookup_by_model"
+}
+
+User: "Compare Titan 24 and Titan 18"
+Output:
+{
+  "intent": "product_comparison"
+}
+
+User: "What safes are similar to Titan 24?"
+Output:
+{
+  "intent": "similar_products"
+}
+
+User: "Do you ship to Canada?"
+Output:
+{
+  "intent": "other"
 }
 `
 
@@ -209,6 +210,83 @@ const GENERAL_CHAT_PROMPT = `
   If your output is not valid JSON it is INVALID.
 `
 
+const EXTRACT_SPEC_VALUES = `
+You are a product specification value extractor.
+
+The user message has already been classified as a "product_lookup" and you are provided with the relevant specification categories to extract values for.
+
+Valid specification categories:
+- fire_rating_time
+- fire_rating_temp
+- gun_count
+- height
+- width
+- depth
+
+Your task:
+- Extract **values for only the provided categories** from the user message.
+- Ignore any specifications not listed above.
+- Return **exactly what the user provided** (including units if mentioned, e.g., "45@1400°F", "55in.", "12 guns").
+- If a category is mentioned but no value is provided, return null as the value.
+- If a category is not mentioned, **do not include it in the output**.
+
+Return JSON in the following format:
+
+{
+  "specValues": [
+    { "category": "<category1>", "value": "<value1>" },
+    { "category": "<category2>", "value": "<value2>" },
+    ...
+  ]
+}
+
+**Rules:**
+1. Only include categories provided in the input list.
+2. Return JSON exactly in the format above. Do not explain anything.
+3. If no values are found for any category, return an empty array:
+{
+  "specValues": []
+}
+
+**Examples**
+
+Input:
+User message: "What safes have a 45 @ 1400°F fire rating and 55in. tall?"
+Categories to extract: ["fire_rating_time", "fire_rating_temp", "height"]
+
+Output:
+{
+  "specValues": [
+    { "category": "fire_rating_time", "value": "45" },
+    { "category": "fire_rating_temp", "value": "1400°F" },
+    { "category": "height", "value": "55in." }
+  ]
+}
+
+Input:
+User message: "Which safes hold 12 guns?"
+Categories to extract: ["gun_count"]
+
+Output:
+{
+  "specValues": [
+    { "category": "gun_count", "value": "12" }
+  ]
+}
+
+Input:
+User message: "Tell me the Titan 24's height and width."
+Categories to extract: ["height", "width"]
+
+Output:
+{
+  "specValues": [
+    { "category": "height", "value": null },
+    { "category": "width", "value": null }
+  ]
+}
+`
+
 const EXTRACT_SPECS = `
 You are a product specification extractor.
 
@@ -220,7 +298,7 @@ Valid specification categories:
 
 - fire_rating_time
 - fire_rating_temp
-- gun count
+- gun_count
 - height
 - width
 - depth
@@ -237,7 +315,7 @@ Rules:
 
 {
 
-"specCategories": ["<category1>", "<category2>", ...]
+"specCategories": ["fire_rating_time", "fire_rating_temp", "gun_count", "height", "width","depth]
 
 }
 
@@ -432,6 +510,7 @@ export {
   EXTRACT_MODEL_SYSTEM_PROMPT,
   GENERAL_CHAT_PROMPT, 
   EXTRACT_SPECS,
+  EXTRACT_SPEC_VALUES,  
   COMPARSION_SYSTEM_PROMPT,
   NONENGLISH_MODEL_NUMBERS,
   MATCH_CANDIDATES

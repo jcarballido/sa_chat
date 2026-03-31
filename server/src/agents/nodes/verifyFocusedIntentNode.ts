@@ -3,14 +3,14 @@ import type { State, Update } from "../intentAgentState.js";
 import stringExists from "../util/stringExists.js";
 
 const FocusedIntentResponse = z.object({
-  intent: z.enum(["similar_products","product_comparison","product_lookup","other"])
+  intent: z.enum(["similar_products","product_comparison","product_lookup_by_model","product_lookup_by_specs","other"])
 })
 
 export async function verifyFocusedIntentNode(state: State): Promise<Update> {
   
   console.log("VERIFY FOCUSED INTENT running.")
   if(!state.latestLLMResponse) throw new Error("LLM response is missing in state passed to verifyFocusedIntentNode.")
-  const intentRegex = /(\{\s*"intent"\s*\:\s*(?:"similar_products"|"product_comparison"|"product_lookup")\s*(?:.*)\})/
+  const intentRegex = /(\{\s*"intent"\s*\:\s*(?:"similar_products"|"product_comparison"|"product_lookup_by_model"|"product_lookup_by_specs"|"other")\s*(?:.*)\})/
   const regexTest = stringExists(state.latestLLMResponse, intentRegex)
   if(!regexTest.result) {
     console.log("RESPONSE NOT FOUND IN FOCUSED INTENT VERIFICATION NODE")

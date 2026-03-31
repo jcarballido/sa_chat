@@ -1,8 +1,6 @@
 import ollama from "ollama"
 export async function askLLM(message:string,option?:{systemPrompt: string}) {
 
-  
-
   const messages = option ? [
     {role: "system", content: option.systemPrompt},
     {role: "user", content: message}

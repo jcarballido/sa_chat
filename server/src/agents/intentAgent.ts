@@ -15,6 +15,8 @@ import { verifySpecExtractionNode } from "./nodes/verifySpecExtractionNode.js"
 import { modelTokenExtractorNode } from "./nodes/modelTokenExtractorNode.js"
 import { modelMatchingNode } from "./nodes/modelMatchingNode.js"
 import { verifyModelTokenExtractorNode } from "./nodes/verifyModelTokenExtractorNode.js"
+import { specValueExtractionNode } from "./nodes/specValueExtractionNode.js"
+import { verifySpecValueExtractionNode } from "./nodes/verifySpecValueExtractionNode.js"
 
 export const intentAgent = new StateGraph(agentState)
   .addNode("classifyInitialMessageNode", classifyInitialMessageNode)
@@ -28,7 +30,8 @@ export const intentAgent = new StateGraph(agentState)
   .addNode("modelMatchingNode", modelMatchingNode)
   .addNode("specExtractionNode", specExtractionNode)
   .addNode("verifySpecExtractionNode",verifySpecExtractionNode)
-
+  .addNode("specValueExtraction",specValueExtractionNode)
+  .addNode("verifySpecValueExtraction", verifySpecValueExtractionNode)
   .addEdge("__start__", "classifyInitialMessageNode")
   .addEdge("classifyInitialMessageNode", "verifyClassificationNode")
   .addConditionalEdges("verifyClassificationNode", (agentState) => {
@@ -64,10 +67,12 @@ export const intentAgent = new StateGraph(agentState)
       return "RETRY"
     }
     if(agentState.focusedIntentClassification == "other" && agentState.retries < 5) return "RETRY"
+    if(agentState.focusedIntentClassification == "product_lookup_by_specs") return "SPEC_LOOKUP"
     if(agentState.focusedIntent) return "FOCUSED_INTENT"
     return "TOO_MANY_RETRIES"
   },{
     "FOCUSED_INTENT": "modelTokenExtractorNode",
+    "SPEC_LOOKUP":"specExtractionNode",
     "RETRY" : "focusedIntentNode",
     "TOO_MANY_RETRIES":"__end__"
   })
@@ -86,9 +91,20 @@ export const intentAgent = new StateGraph(agentState)
     if(!agentState.focusedIntentSpecsExtracted && agentState.retries <5) return "RETRY"
     return "TOO_MANY_RETRIES" 
   },{
-    "SPECS_EXTRACTED": "__end__",
+    "SPECS_EXTRACTED": "specValueExtraction",
     "RETRY": "specExtractionNode",
     "TOO_MANY_RETRIES":"__end__"
   })
+  .addEdge("specValueExtraction","verifySpecValueExtraction")
+  .addConditionalEdges("verifySpecValueExtraction",(agentState) => {
+    if(agentState.focusedIntentSpecValuesExtracted) return "SPEC_VALUES_EXTRACTED"
+    if(!agentState.focusedIntentSpecValuesExtracted && agentState.retries < 5) return "RETRY"
+    return "TOO_MANY_RETRIES"  
+  },{
+    "SPEC_VALUES_EXTRACTED":"__end__",
+    "RETRY":"specValueExtraction",
+    "TOO_MANY_RETRIES":"__end__"
+  })
+
   .compile()
 

@@ -21,10 +21,13 @@ export const agentState = new StateSchema({
   outOfScopeIntent: z.boolean().default(false),
   relatedIntent: z.boolean().default(false),
   focusedIntent: z.boolean().default(false),
-  focusedIntentClassification: z.enum(["similar_products","product_comparison","product_lookup","other"]),
+  focusedIntentClassification: z.enum(["similar_products","product_comparison","product_lookup_by_model","product_lookup_by_specs","other"]),
   relatedIntentLLMResponse: z.string(),
   // focusedIntentModelsExtracted: z.array(z.string()),
   focusedIntentSpecsExtracted: z.array(z.string()),
+  focusedIntentSpecValuesExtracted: z.object({
+    "specValues": z.array(z.object({category: z.string(),value: z.string()}))
+  }),
   candidates: z.array(z.string()),
   filteredMatches: z.array(z.string())
 })

@@ -49,8 +49,8 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
           return JSON.stringify(res)
       }
       if(focusedIntentClassification == "product_lookup_by_specs"){
-        const requestedSpecs = agentState.focusedIntentSpecsExtracted
-        const res = executionService.getSpecs(requestedSpecs)
+        const requestedSpecs = agentState.focusedIntentSpecValuesExtracted
+        const res = await executionService.getSpecs(requestedSpecs.specValues)
       }
     }
     console.log("Focused Intent Classification: ", focusedIntentClassification)

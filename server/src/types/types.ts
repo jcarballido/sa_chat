@@ -65,4 +65,11 @@ export type LLMcall = {
   invokeGeneralLLMAgent: (systemPrompt: string) => Promise<GeneralLLMState>,
 }
 
+export type MappedSpecRows<T> = {
+  [K in keyof T]:{
+    category: K,
+    value: T[K]
+  }
+}[keyof T] 
+
 

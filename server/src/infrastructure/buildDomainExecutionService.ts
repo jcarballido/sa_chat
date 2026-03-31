@@ -1,5 +1,5 @@
 import type { MessageStore } from "./buildMessageStore.js";
-import type { Filter, InferRows, InventoryStore, Operators, SpecCriteria, SpecificationRow, SpecificationStore } from "../types/types.js";
+import type { Filter, InferRows, InventoryStore, MappedSpecRows, Operators, SpecCriteria, SpecificationRow, SpecificationStore } from "../types/types.js";
 
 export function buildDomainExecutionServices(inventoryStore: InventoryStore, specificationStore: SpecificationStore, messageStore: MessageStore){
 
@@ -156,14 +156,24 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     return allNearProductMatches
   }
 
-  async function getSpecs(requestedSpecs: string[]) {
-    // 
+  async function getSpecs(requestedSpecs: MappedSpecRows<SpecificationRow>[]) {
+    const requirements: SpecificationRow[] = []
+    
+    for(const req of requestedSpecs){
+      const category = req.category
+      const val = req.value
+      const modelsBySpec = transformedSpecificationStore.getRowsByColumnValue(category,val)
+      const model = modelsBySpec[0]!
+      requirements.push(model)
+    }    
+    return requirements
   }
 
   return{
     getModelSpecs,
     getSimilarModels,
     getInventoriedModelNumbers,
-    strippedModelNumbersInInventory
+    strippedModelNumbersInInventory,
+    getSpecs
   }
 }

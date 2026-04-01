@@ -50,27 +50,37 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
           return JSON.stringify(res)
       }
       if(focusedIntentClassification == "product_lookup_by_specs"){
-        const requestedSpecsAsStrings:{category: keyof typeof SpecificationMap,value:string}[] = agentState.focusedIntentSpecValuesExtracted.specValues
+        const requestedSpecsAsStrings:{category: keyof typeof SpecificationMap,value:string | null}[] = agentState.focusedIntentSpecValuesExtracted.specValues
         // Take specStrings and convert them to correct values based on types
         const convertedRequestedSpecs = requestedSpecsAsStrings.map( spec => {
-          // let value: string | number | boolean
+          if(spec.value === null){
+            return {category: spec.category, value: null}
+          }
           if(spec.category == "model") return {category:spec.category,value: spec.value}
           if(spec.category == "waterproof"){
             const waterproofValue = spec.value.toLowerCase()
-            if(waterproofValue === "true") return {category:spec.category,value: true}
-            return {category:spec.category,value: false}
+            if(waterproofValue === "false") return {category:spec.category,value: false}
+            return {category:spec.category,value: true}
           }
-          const digitsExist = spec.value.match(/d+/) || []
+          console.log("SPEC VALUE:")
+          console.log(spec.value)
+          console.log("DIGITS EXIST:")
+          const digitsExist = spec.value.match(/\d+/) || []
+          console.log(digitsExist)
           const extractedDigits = digitsExist[0]
           if(extractedDigits){
             return { category:spec.category, value: Number(extractedDigits) }
           }
           return { category:spec.category, value: null }
         })
-
+        console.log("CONVERTED REQUESTED SPECS:")
+        console.log(convertedRequestedSpecs)
         const filteredRequestedSpecs = convertedRequestedSpecs.filter(spec => spec.value !== null)
+        console.log("filteredRequestedSpecs:")
+        console.log(filteredRequestedSpecs)
 
         const res = await executionService.getSpecs(filteredRequestedSpecs)
+        if (res !== undefined) return JSON.stringify(res)
       }
     }
     console.log("Focused Intent Classification: ", focusedIntentClassification)

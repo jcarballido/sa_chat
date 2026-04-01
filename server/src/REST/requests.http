@@ -4,5 +4,5 @@ POST http://localhost:3000/
 Content-Type: application/json
 
 {
-  "message": "Which models are 55 units in height and waterproof?"
+  "message": "Which models are 55 units in height and  is waterproof?"
 }

@@ -7,9 +7,10 @@ import { keyof } from "zod";
 
 export const inventorySchema = {
   "model": (t: string) => t,
-  // "origin": (t: string) => t,
-  // "height": (t: string) => Number(t),
+  "origin": (t: string) => t,
+  "height": (t: string) => Number(t),
 } as const
+
 
 async function inventoryStorePlugin(fastify:FastifyInstance) {
   const filePath = path.join(process.cwd(),process.env.INVENTORY_SHEET)

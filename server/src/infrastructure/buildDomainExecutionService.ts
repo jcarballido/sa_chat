@@ -1,5 +1,6 @@
 import type { MessageStore } from "./buildMessageStore.js";
 import type { Filter, InferRows, InventoryStore, MappedSpecRows, Operators, SpecCriteria, SpecificationRow, SpecificationStore } from "../types/types.js";
+import type { SpecValueSchema } from "../schemas/schemas.js";
 
 export function buildDomainExecutionServices(inventoryStore: InventoryStore, specificationStore: SpecificationStore, messageStore: MessageStore){
 
@@ -156,6 +157,10 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     return allNearProductMatches
   }
 
+  type E = MappedSpecRows<SpecificationRow> & {
+    "waterproof":boolean
+  }
+
   async function getSpecs(requestedSpecs: MappedSpecRows<SpecificationRow>[]) {
     const requirements: SpecificationRow[] = []
     
@@ -169,6 +174,7 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
 
     console.log("getSpecs RESULT:")
     console.log(requirements)
+    // CHORE: REMOVE DUPLICATES, AND ADD ABILITY TO PULL VALUES WITH NEAR VALUES
     return requirements
   }
 

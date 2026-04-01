@@ -1,6 +1,6 @@
 import { parse } from "csv-parse"
 import fs from "node:fs"
-import type { ConversionSchema, InferRows } from "../types/types.js";
+import type { ConversionSchema, InferRows, MappedSpecRows, SpecificationRow } from "../types/types.js";
 
 function convertRows<S extends Record<string,(t: string) => any>>(
   data: Record<string,string>,
@@ -62,6 +62,10 @@ export async function buildStoreGeneric<T extends ConversionSchema>(filePath:str
 
     return convertedRows.filter(row => row[column] === value);
   };
+
+  function getRowsByMultipleColumnValues<K extends keyof T>(requirements:{ category: K, values: InferRows<T>[K][] }[]){
+
+  }
 
 
   return {

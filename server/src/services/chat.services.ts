@@ -53,8 +53,9 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
         const requestedSpecsAsStrings:{category: keyof typeof SpecificationMap,value:string[] | null}[] = agentState.focusedIntentSpecValuesExtracted.specValues
         // Take specStrings and convert them to correct values based on types
         const convertedRequestedSpecs = requestedSpecsAsStrings.map( spec => {
-          if(spec.value === null || spec.value.length ===  0) return null
-          if(spec.category == "model") return {category:spec.category,value: spec.value[0]||""}
+          const requestedSpecs: typeof requestedSpecsAsStrings[number] = {category: spec.category, value: null}
+          if(spec.value === null || spec.value.length ===  0) return requestedSpecs
+          if(spec.category == "model") return requestedSpecs["value"] = spec.value[0]||""
           if(spec.category == "waterproof"){
             const waterproofValue = spec.value[0] || "true"
             const waterproofValueToLowercase = waterproofValue.toLowerCase()

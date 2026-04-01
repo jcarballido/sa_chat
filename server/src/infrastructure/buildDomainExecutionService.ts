@@ -160,7 +160,7 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   type E = MappedSpecRows<SpecificationRow> & {
     "waterproof":boolean
   }
-
+   
   async function getSpecs(requestedSpecs: MappedSpecRows<SpecificationRow>[]) {
     const requirements: SpecificationRow[] = []
     

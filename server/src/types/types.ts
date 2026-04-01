@@ -69,7 +69,7 @@ export type LLMcall = {
 export type MappedSpecRows<T> = {
   [K in keyof T]:{
     category: K,
-    value: T[K]
+    value: T[K] | T[K][]
   }
 }[keyof T] 
 

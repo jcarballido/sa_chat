@@ -52,7 +52,7 @@ export async function buildStoreGeneric<T extends ConversionSchema>(filePath:str
     return convertedRows.map(row => row[column]) ;
   };
 
-  function getRowsByColumnValue<K extends keyof InferRows<T> & string>(
+  function getRowsBySingleColumnValue<K extends keyof InferRows<T> & string>(
     column: K,
     value: InferRows<T>[K]
   ): InferRows<T>[] {
@@ -63,10 +63,11 @@ export async function buildStoreGeneric<T extends ConversionSchema>(filePath:str
     return convertedRows.filter(row => row[column] === value);
   };
 
+
   return {
     headers,
     rows: convertedRows,
     getColumnValues,
-    getRowsByColumnValue,
+    getRowsBySingleColumnValue,
   };
 }

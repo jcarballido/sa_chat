@@ -54,7 +54,7 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
 
   function getModelSpecs(models: SpecificationRow["model"][]): SpecificationRow[] {
     const returnedSpecs = models.map(model => {
-      const returnedRows = transformedSpecificationStore.getRowsByColumnValue("model",model)
+      const returnedRows = transformedSpecificationStore.getRowsBySingleColumnValue("model",model)
       const modelSpecs = returnedRows[0] ?? null
       return modelSpecs
     })
@@ -167,7 +167,7 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     for(const req of requestedSpecs){
       const category = req.category
       const val = req.value
-      const modelsBySpec = transformedSpecificationStore.getRowsByColumnValue(category,val) || []
+      const modelsBySpec = transformedSpecificationStore.getRowsBySingleColumnValue(category,val) || []
       if(modelsBySpec.length === 0) return 
       requirements.push(...modelsBySpec)
     }    
@@ -175,6 +175,12 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     console.log("getSpecs RESULT:")
     console.log(requirements)
     // CHORE: REMOVE DUPLICATES, AND ADD ABILITY TO PULL VALUES WITH NEAR VALUES
+    // Example request: "What are safes with gun_count of 12 and fire rating of 1400"
+    // Result: Here are safes that match exactly: [], Here are safes that are not exact, but similar: []
+    // Example request: "What are safes with a gun count between 12 and 20, waterproof, and a fire rating between 1200-1600"
+    // Result: Here are safes that fit within the given range(s): []
+    // DECISION: If a user provides a range, only search for models within that range, do not look for near models
+
     return requirements
   }
 

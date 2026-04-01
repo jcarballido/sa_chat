@@ -227,7 +227,11 @@ Valid specification categories:
 Your task:
 - Extract **values for only the provided categories** from the user message.
 - Ignore any specifications not listed above.
-- Return **exactly what the user provided** (including units if mentioned).
+- Return **values exactly as provided**, except:
+  - For numeric or spec values, always return as an array:
+    - A single value → array with one element (e.g., [1400])
+    - A range → array with both bounds (e.g., [12,20])
+  - For "waterproof", return: ["true"], ["false"], or null
 - If a category is mentioned but no value is provided, return null as the value.
 - If a category is not mentioned, **do not include it in the output**.
 
@@ -247,8 +251,8 @@ Return JSON in the following format:
 
 Rules:
 1. Only include categories provided in the input list.
-2. For "waterproof", value must be "true", "false", or null.
-3. For all other categories, value must be a string or null.
+2. For "waterproof", value must be ["true"], ["false"], or null (strings, not booleans).
+3. For all other categories, value must be an array of values (numbers or strings with units) or null.
 4. Return JSON exactly in the format above. Do not explain anything.
 5. If no values are found for any category, return an empty array:
 {
@@ -258,39 +262,40 @@ Rules:
 # Examples
 
 Input:
-User message: "What safes have a 45 @ 1400°F fire rating and 55in tall?"
+User message: "What are safes with a gun count between 12 and 20, waterproof, and a fire rating of 1400"
+Categories to extract: ["gun_count", "waterproof", "fire_rating_temp"]
+
+Output:
+{
+  "specValues": [
+    { "category": "gun_count", "value": [12, 20] },
+    { "category": "waterproof", "value": ["true"] },
+    { "category": "fire_rating_temp", "value": [1400] }
+  ]
+}
+
+Input:
+User message: "Looking for safes with a fire rating of 45 @ 1400°F and 55in tall"
 Categories to extract: ["fire_rating_time", "fire_rating_temp", "height"]
 
 Output:
 {
   "specValues": [
-    { "category": "fire_rating_time", "value": "45" },
-    { "category": "fire_rating_temp", "value": "1400°F" },
-    { "category": "height", "value": "55in" }
+    { "category": "fire_rating_time", "value": ["45"] },
+    { "category": "fire_rating_temp", "value": ["1400°F"] },
+    { "category": "height", "value": ["55in"] }
   ]
 }
 
 Input:
-User message: "Looking for safes that hold 24 guns and are waterproof"
-Categories to extract: ["gun_count", "waterproof"]
-
-Output:
-{
-  "specValues": [
-    { "category": "gun_count", "value": "24" },
-    { "category": "waterproof", "value": "true" }
-  ]
-}
-
-Input:
-User message: "Need something around 60 inches tall and 30 inches wide"
+User message: "Need safes around 60-70 inches tall and 30 inches wide"
 Categories to extract: ["height", "width"]
 
 Output:
 {
   "specValues": [
-    { "category": "height", "value": "60 inches" },
-    { "category": "width", "value": "30 inches" }
+    { "category": "height", "value": ["60", "70"] },
+    { "category": "width", "value": ["30"] }
   ]
 }
 

@@ -26,5 +26,5 @@ export const SpecificationMap = {
 
 
 export const SpecValueSchema = z.object({
-  "specValues": z.array(z.object({category: z.enum(Object.keys(SpecificationMap) as [keyof typeof SpecificationMap ]),value: z.string().nullable()}))
+  "specValues": z.array(z.object({category: z.enum(Object.keys(SpecificationMap) as [keyof typeof SpecificationMap ]),value: z.array(z.string()).nullable()}))
 })

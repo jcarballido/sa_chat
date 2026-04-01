@@ -50,36 +50,46 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
           return JSON.stringify(res)
       }
       if(focusedIntentClassification == "product_lookup_by_specs"){
-        const requestedSpecsAsStrings:{category: keyof typeof SpecificationMap,value:string | null}[] = agentState.focusedIntentSpecValuesExtracted.specValues
+        const requestedSpecsAsStrings:{category: keyof typeof SpecificationMap,value:string[] | null}[] = agentState.focusedIntentSpecValuesExtracted.specValues
         // Take specStrings and convert them to correct values based on types
         const convertedRequestedSpecs = requestedSpecsAsStrings.map( spec => {
-          if(spec.value === null){
-            return {category: spec.category, value: null}
-          }
-          if(spec.category == "model") return {category:spec.category,value: spec.value}
+          if(spec.value === null || spec.value.length ===  0) return null
+          if(spec.category == "model") return {category:spec.category,value: spec.value[0]||""}
           if(spec.category == "waterproof"){
-            const waterproofValue = spec.value.toLowerCase()
-            if(waterproofValue === "false") return {category:spec.category,value: false}
+            const waterproofValue = spec.value[0] || "true"
+            const waterproofValueToLowercase = waterproofValue.toLowerCase()
+            if(waterproofValueToLowercase === "false") return {category:spec.category,value: false}
             return {category:spec.category,value: true}
           }
           console.log("SPEC VALUE:")
           console.log(spec.value)
           console.log("DIGITS EXIST:")
-          const digitsExist = spec.value.match(/\d+/) || []
+          if(spec.value.length > 1){
+            const minimumValue = spec.value[0] || ""
+            const maximumValue = spec.value[1] || ""
+            const digitsExistMinimumValue = minimumValue.match(/\d+/) || ["0"]
+            const extractedMinValue = digitsExistMinimumValue[0]
+            const digitsExistMaximumValue = maximumValue.match(/\d+/) || ["Infinity"]
+            const extractedMaxValue = digitsExistMaximumValue[0]
+            return { category: spec.category, value: [Number(extractedMinValue), Number(extractedMaxValue)] }
+          }
+          const extractedValue = spec.value[0] || ""
+          const digitsExist = extractedValue.match(/\d+/) || []
           console.log(digitsExist)
           const extractedDigits = digitsExist[0]
           if(extractedDigits){
-            return { category:spec.category, value: Number(extractedDigits) }
+            return { category:spec.category, value: [Number(extractedDigits)] }
           }
           return { category:spec.category, value: null }
         })
-        console.log("CONVERTED REQUESTED SPECS:")
-        console.log(convertedRequestedSpecs)
-        const filteredRequestedSpecs = convertedRequestedSpecs.filter(spec => spec.value !== null)
-        console.log("filteredRequestedSpecs:")
-        console.log(filteredRequestedSpecs)
+        // console.log("CONVERTED REQUESTED SPECS:")
+        // console.log(convertedRequestedSpecs)
+        const filterNullSpecs = convertedRequestedSpecs.filter(spec=> spec !== null)
+        const filteredRequestedSpecValues = filterNullSpecs.filter(spec => spec.value !== null )
+        // console.log("filteredRequestedSpecs:")
+        // console.log(filteredRequestedSpecs)
 
-        const res = await executionService.getSpecs(filteredRequestedSpecs)
+        const res = await executionService.getSpecs(filteredRequestedSpecValues)
         if (res !== undefined) return JSON.stringify(res)
       }
     }

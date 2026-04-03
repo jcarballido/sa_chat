@@ -4,5 +4,5 @@ POST http://localhost:3000/
 Content-Type: application/json
 
 {
-  "message": "Which models are 55 units in height and  is waterproof?"
+  "message": "Which models are at least 65 units in height and 800 fire rating temp and is not waterproof?"
 }

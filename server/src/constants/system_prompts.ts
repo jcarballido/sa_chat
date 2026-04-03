@@ -227,13 +227,19 @@ Valid specification categories:
 Your task:
 - Extract **values for only the provided categories** from the user message.
 - Ignore any specifications not listed above.
-- Return **values exactly as provided**, except:
-  - For numeric or spec values, always return as an array:
-    - A single value → array with one element (e.g., [1400])
-    - A range → array with both bounds (e.g., [12,20])
-  - For "waterproof", return: ["true"], ["false"], or null
-- If a category is mentioned but no value is provided, return null as the value.
-- If a category is not mentioned, **do not include it in the output**.
+- Return **values exactly as provided**, with the following rules:
+
+1. Numeric/spec values:
+  - Always return as an array:
+    - Single value → array with one element (e.g., ["1400"])
+    - Closed range → array with both bounds (e.g., ["12","20"])
+    - **Open-ended ranges:**
+      - "at least X" → ["X","Infinity"]
+      - "at most Y" → ["0","Y"]
+2. Boolean:
+  - For "waterproof", return a string: "true", "false", or null
+3. If a category is mentioned but no value is provided, return null as the value.
+4. If a category is not mentioned, **do not include it in the output**.
 
 Special rule for waterproof:
 - Return "true" if the user indicates waterproof or similar.
@@ -252,7 +258,7 @@ Return JSON in the following format:
 Rules:
 1. Only include categories provided in the input list.
 2. For "waterproof", value must be ["true"], ["false"], or null (strings, not booleans).
-3. For all other categories, value must be an array of values (numbers or strings with units) or null.
+3. For all other categories, value must be an array of values (strings only) or null.
 4. Return JSON exactly in the format above. Do not explain anything.
 5. If no values are found for any category, return an empty array:
 {
@@ -262,15 +268,39 @@ Rules:
 # Examples
 
 Input:
+User message: "Whats a safe with at least 1200 fire rating?"
+Categories to extract: ["fire_rating_temp"]
+
+Output:
+{
+  "specValues": [
+    { "category": "fire_rating_temp", "value": ["1200","Infinity"] }
+  ]
+}
+
+Input:
+User message: "I need a safe with at most 20 guns, waterproof, and a fire rating of 1400"
+Categories to extract: ["gun_count","waterproof","fire_rating_temp"]
+
+Output:
+{
+  "specValues": [
+    { "category": "gun_count", "value": ["0","20"] },
+    { "category": "waterproof", "value": "true" },
+    { "category": "fire_rating_temp", "value": ["1400"] }
+  ]
+}
+
+Input:
 User message: "What are safes with a gun count between 12 and 20, waterproof, and a fire rating of 1400"
 Categories to extract: ["gun_count", "waterproof", "fire_rating_temp"]
 
 Output:
 {
   "specValues": [
-    { "category": "gun_count", "value": [12, 20] },
+    { "category": "gun_count", "value": ["12", "20"] },
     { "category": "waterproof", "value": ["true"] },
-    { "category": "fire_rating_temp", "value": [1400] }
+    { "category": "fire_rating_temp", "value": ["1400"] }
   ]
 }
 
@@ -306,7 +336,7 @@ Categories to extract: ["waterproof", "fire_rating_time", "fire_rating_temp"]
 Output:
 {
   "specValues": [
-    { "category": "waterproof", "value": "false" },
+    { "category": "waterproof", "value": ["false"] },
     { "category": "fire_rating_time", "value": null },
     { "category": "fire_rating_temp", "value": null }
   ]

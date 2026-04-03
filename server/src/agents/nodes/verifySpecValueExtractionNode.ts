@@ -9,7 +9,7 @@ export async function verifySpecValueExtractionNode(state: State) : Promise<Upda
   if(!state.latestLLMResponse) throw new Error("LLM response is missing in state passed to verifySpecValueExtractionNode.")
   console.log("verifySpecValueExtractionNode LLM RESULT:")
   console.log(state.latestLLMResponse)
-  const specCategoriesRegex = /(\{\s*"specValues"\s*:\s*\[[\s\S]*?\]\s*})/
+  const specCategoriesRegex = /(\{\s*"specValues"\s*:\s*\[(?:[^\[\]]|\[[^\[\]]*\])*\]\s*})/
   const regexTest = stringExists(state.latestLLMResponse, specCategoriesRegex)
   if(!regexTest.result) {
     console.log("RESPONSE NOT FOUND IN SPEC VALUE VERIFICATION NODE")

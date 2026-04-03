@@ -12,7 +12,9 @@ export const specificationSchema = {
   "width": (t: string) => Number(t),
   "depth": (t: string) => Number(t),
   "gun_count": (t: string) => Number(t),
-  "waterproof": (t: string) => t === "TRUE"
+  "waterproof": (t: string) => {
+    return t.toLowerCase() === "true" 
+  }
 } as const
 
 async function specificationStorePlugin(fastify:FastifyInstance) {

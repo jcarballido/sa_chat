@@ -8,7 +8,14 @@ export default function stringExists(llmResponse: string, regex: RegExp): {resul
 
   if(match) {
     const result = match[1]
-    if(result) return {result: true, "match": JSON.parse(result)}
+    console.log("Result from MATCH, index 1")
+    console.log(result)
+    try {
+      if(result) return {result: true, "match": JSON.parse(result)}      
+    } catch (error) {
+      console.log("ERROR IN stringExists")
+      console.log(error)
+    }
   }
   return {result: false}
 }

@@ -1,6 +1,7 @@
 import type { MessageStore } from "./buildMessageStore.js";
-import type { Filter, InferRows, InventoryStore, MappedSpecRows, Operators, SpecCriteria, SpecificationRow, SpecificationStore } from "../types/types.js";
+import type { Filter, InferRows, InventoryStore, MappedSpecRows, Operators, ParsedValue, SpecCriteria, SpecificationRow, SpecificationStore } from "../types/types.js";
 import type { SpecValueSchema } from "../schemas/schemas.js";
+import type { specificationSchema } from "../plugins/specificationStore.plugin.js";
 
 export function buildDomainExecutionServices(inventoryStore: InventoryStore, specificationStore: SpecificationStore, messageStore: MessageStore){
 
@@ -156,20 +157,19 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     const allNearProductMatches = await Promise.all( allModelSpecs.map(async(spec) => await findNearProducts(allInventorySpecs,spec)))
     return allNearProductMatches
   }
-
-  type E = MappedSpecRows<SpecificationRow> & {
-    "waterproof":boolean
-  }
    
-  async function getSpecs(requestedSpecs: MappedSpecRows<SpecificationRow>[]) {
+  async function getSpecs(requestedSpecs:  {
+    category: keyof typeof specificationSchema,
+    value: ParsedValue<keyof typeof specificationSchema> | null
+  }[]) {
     const requirements: SpecificationRow[] = []
     
     for(const req of requestedSpecs){
       const category = req.category
       const val = req.value
-      const modelsBySpec = transformedSpecificationStore.getRowsBySingleColumnValue(category,val) || []
-      if(modelsBySpec.length === 0) return 
-      requirements.push(...modelsBySpec)
+      // const modelsBySpec = transformedSpecificationStore.getRowsBySingleColumnValue(category,val) || []
+      // if(modelsBySpec.length === 0) return 
+      // requirements.push(...modelsBySpec)
     }    
 
     console.log("getSpecs RESULT:")

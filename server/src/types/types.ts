@@ -4,6 +4,7 @@ import type { buildStoreGeneric } from "../infrastructure/buildStore.js"
 import type { inventorySchema } from "../plugins/inventoryStore.plugin.js"
 import type { specificationSchema } from "../plugins/specificationStore.plugin.js"
 import * as prompts from "../constants/system_prompts.js"
+import { readonly } from "zod"
 
 export type ChatMessage = {
   message: string
@@ -56,9 +57,10 @@ export type InventoryStore = Awaited<
 >
 
 
-export type InferRows<S extends Record<string,(v:string)=> any>> = {
+export type InferRows<S extends Record<string,(t:any)=> any>> = {
   -readonly [K in keyof S]: ReturnType<S[K]>
 } 
+
 export type Prompts = keyof typeof prompts
 
 export type LLMcall = {
@@ -72,5 +74,15 @@ export type MappedSpecRows<T> = {
     value: T[K] extends number ? T[K][] : T[K]
   }
 }[keyof T] 
+
+export type ToArraySchema<S extends Record<string,(t:string) => any>> = {
+  -readonly [K in keyof S]: (t: string[]) => ReturnType<S[K]>[]
+}
+
+
+export  type MultiValue = "height" | "width" | "depth" | "gun_count" | "fire_rating_temp" | "fire_rating_time"
+
+export  type ParsedValue<K extends keyof typeof specificationSchema> = 
+    K extends MultiValue ? InferRows<typeof specificationSchema>[K][] : InferRows<typeof specificationSchema>[K] 
 
 

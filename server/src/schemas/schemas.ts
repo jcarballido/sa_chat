@@ -24,7 +24,8 @@ export const SpecificationMap = {
   "waterproof":z.boolean()
 } as const
 
+export const ReturnedSpecValue = z.array(z.object({category: z.enum(Object.keys(SpecificationMap) as [keyof typeof SpecificationMap ]),value: z.array(z.string()).nullable()})) 
 
 export const SpecValueSchema = z.object({
-  "specValues": z.array(z.object({category: z.enum(Object.keys(SpecificationMap) as [keyof typeof SpecificationMap ]),value: z.array(z.string()).nullable()}))
+  "specValues": ReturnedSpecValue
 })

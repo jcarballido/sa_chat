@@ -2,9 +2,9 @@ import type z from "zod"
 import type { State } from "../agents/intentAgentState.js"
 import * as prompts from "../constants/system_prompts.js"
 import { ReturnedSpecValue, SpecificationMap } from "../schemas/schemas.js"
-import type { InferRows, LLMcall, ParsedValue, SpecificationRow, ToArraySchema } from "../types/types.js"
-import type { specificationSchema } from "../plugins/specificationStore.plugin.js"
-import type { keyof } from "zod"
+import type { LLMcall, SpecificationRow } from "../types/types.js"
+import { specificationSchema } from "../plugins/specificationStore.plugin.js"
+import { number, readonly, type keyof } from "zod"
 
 export function buildServices(llm: LLMcall, executionService: ReturnType<typeof import("../infrastructure/buildDomainExecutionService.js").buildDomainExecutionServices>){
 
@@ -13,40 +13,88 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
     return await llm.invokeIntentAgent(message,confirmedInventoryModelNumbers)
   }
 
-  function parseReturnedSpec<K extends keyof typeof specificationSchema>(
-    spec: {category: K, value: string[] | null }
-  ): {
-    category: K,
-    value: ParsedValue<keyof typeof specificationSchema> | null
-  } {
-    if(spec.value === null || spec.value.length ===  0) return {category:spec.category,value: null}
-    if(spec.category == "model") return {category: spec.category,value: spec.value?.[0] ?? null}
-    if(spec.category == "waterproof"){
-      const waterproofValue = spec.value?.[0] ?? "true"
-      const waterproofValueToLowercase = waterproofValue.toLowerCase()
-      if(waterproofValueToLowercase === "false") return {category:spec.category, value: false} 
-      return {category:spec.category, value: true}
-    }
-    if(spec.value.length > 1){
-      const minimumValue = spec.value[0] || ""
-      const maximumValue = spec.value[1] || ""
-      const digitsExistMinimumValue = minimumValue.match(/\d+/) || ["0"]
-      const extractedMinValue = digitsExistMinimumValue[0]
-      const digitsExistMaximumValue = maximumValue.match(/\d+/) || ["Infinity"]
-      const extractedMaxValue = digitsExistMaximumValue[0]
-      return { category: spec.category, value: [Number(extractedMinValue), Number(extractedMaxValue)] }
-    }
-    const extractedValue = spec.value[0] || ""
-    const digitsExist = extractedValue.match(/\d+/) || []
-    console.log(digitsExist)
-    const extractedDigits = digitsExist[0]
-    if(extractedDigits){
-      return { category:spec.category, value: [Number(extractedDigits)] }
-    }
-    return {
-      category: spec.category,value: null
-    }
+  type SpecificationSchema = typeof specificationSchema
+
+  type FilteredSpecSchema = Omit<SpecificationSchema,"model">
+
+  type FilteredSpecSchemaKeys = keyof FilteredSpecSchema
+
+  type RawLLMResult = {
+    category: FilteredSpecSchemaKeys,
+    value: string[] | null
   }
+
+  type SingleReturnType<S extends FilteredSpecSchemaKeys> = ReturnType<FilteredSpecSchema[S]>
+
+  type SpecSchemaReturnTypes = {
+    [K in FilteredSpecSchemaKeys] : SingleReturnType<K> extends boolean 
+      ? boolean | null
+      : SingleReturnType<K>[] | null
+  }
+
+  const transformers: {
+    [K in FilteredSpecSchemaKeys]: (raw: string[] | null) => SpecSchemaReturnTypes[K]
+  } = Object.fromEntries(
+    Object.entries(specificationSchema).map(([key, conversionFn]) => {
+      const transformFn = (raw: string[] | null) => {
+        const singleReturn = conversionFn(raw?.[0] ?? "true")
+        return typeof singleReturn === "boolean"
+          ? singleReturn
+          : (raw ?? []).map((element,i,arr) => {
+            const p = conversionFn(element)
+            const isLast = arr.length - 1
+            if(i === 0) {
+              const digits = element.match(/\d+/) || ["0"]
+              return conversionFn(digits[0])
+            }
+            if(i === isLast) {
+              const digits = element.match(/\d+/) || ["Infinity"]
+              return conversionFn(digits[0])
+            }
+          })
+      }
+      return [key,transformFn] 
+    })
+  )as { [K in FilteredSpecSchemaKeys]: (raw: string[] | null) => SpecSchemaReturnTypes[K]}
+
+  function transformSpecs<K extends FilteredSpecSchemaKeys>(
+    spec: RawLLMResult & {category: K}
+  ): {category: K,value: SpecSchemaReturnTypes[K]}
+  {
+    return {category:spec.category,value: transformers[spec.category](spec.value) }
+  }
+  
+  // function parseReturnedSpec<K extends keyof Omit<typeof specificationSchema, "model">>(
+  //   spec: {category: K, value: string[] | null }
+  // ): Extract<ParsedSpec<SpecificationRow>,{category: K}>
+  // {
+  //   if(spec.value === null || spec.value.length ===  0) return {category:spec.category,value: null}
+  //   const parse = specificationSchema[spec.category]
+  //   if(spec.category == "waterproof"){
+  //     const waterproofValue = spec.value?.[0] ?? "true"
+  //     const waterproofValueToLowercase = waterproofValue.toLowerCase()
+  //     return {category:spec.category, value: parse(waterproofValueToLowercase) as MapedValues<Omit<typeof specificationSchema,"model">>[K]} 
+  //   }
+  //   if(typeof(specificationSchema[spec.category])  === "number"){
+  //     const minimumValue = spec.value[0] || ""
+  //     const maximumValue = spec.value[1] || ""
+  //     const digitsExistMinimumValue = minimumValue.match(/\d+/) || ["0"]
+  //     const extractedMinValue = digitsExistMinimumValue[0]
+  //     const digitsExistMaximumValue = maximumValue.match(/\d+/) || ["Infinity"]
+  //     const extractedMaxValue = digitsExistMaximumValue[0]
+  //     return { category: spec.category, value: [Number(extractedMinValue), Number(extractedMaxValue)] }
+  //   }
+  //   const extractedValue = spec.value[0] || ""
+  //   const digitsExist = extractedValue.match(/\d+/) || []
+  //   console.log(digitsExist)
+  //   const extractedDigits = digitsExist[0]
+  //   if(extractedDigits){
+  //     return { category:spec.category, value: [Number(extractedDigits)] }
+  //   }
+  //   return {
+  //     category: spec.category,value: null
+  //   }
+  // }
   
   async function executeIntent(agentState:State): Promise<string> {
     const {initialMessageClassification, relatedIntent, relatedIntentLLMResponse, focusedIntent, focusedIntentClassification, filteredMatches} = agentState
@@ -55,6 +103,7 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
     if(initialMessageClassification === "out_of_scope") return 'Out of Scope intent'
     if(relatedIntent) return relatedIntentLLMResponse
     if(focusedIntent){
+      console.log("Focused Intent Classification: ", focusedIntentClassification)
       if(focusedIntentClassification == "similar_products"){
         //CHORE: Update getSimilarModels to accept an array
         const res = await executionService.getSimilarModels(filteredMatches)
@@ -82,47 +131,13 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
           return JSON.stringify(res)
       }
       if(focusedIntentClassification == "product_lookup_by_specs"){
-        // const returnedSpecValues:{category: keyof typeof SpecificationMap,value:string[] | null}[] = agentState.focusedIntentSpecValuesExtracted.specValues
         const returnedSpecValues:z.infer<(typeof ReturnedSpecValue)> = agentState.focusedIntentSpecValuesExtracted.specValues
-        // Take specStrings and convert them to correct values based on types
         const convertedSpecValues = returnedSpecValues.map( spec => {
-            return parseReturnedSpec(spec)
-        //   function parseReturnedSpec(spec: typeof returnedSpecValues[number] ){
-        //     const convertedSpec = {category: spec.category, value: null}
-        //     return
-        //   }
-        //   const convertedSpec: typeof returnedSpecValues[number] = {category: spec.category, value: null}
-          
-        //   if(spec.value === null || spec.value.length ===  0) return convertedSpec
-        //   if(spec.category == "model") return convertedSpec["value"] = spec.value||null
-        //   if(spec.category == "waterproof"){
-        //     const waterproofValue = spec.value[0] || "true"
-        //     const waterproofValueToLowercase = waterproofValue.toLowerCase()
-        //     if(waterproofValueToLowercase === "false") return {category:spec.category,value: false}
-        //     return {category:spec.category,value: true}
-        //   }
-        //   if(spec.value.length > 1){
-        //     const minimumValue = spec.value[0] || ""
-        //     const maximumValue = spec.value[1] || ""
-        //     const digitsExistMinimumValue = minimumValue.match(/\d+/) || ["0"]
-        //     const extractedMinValue = digitsExistMinimumValue[0]
-        //     const digitsExistMaximumValue = maximumValue.match(/\d+/) || ["Infinity"]
-        //     const extractedMaxValue = digitsExistMaximumValue[0]
-        //     return { category: spec.category, value: [Number(extractedMinValue), Number(extractedMaxValue)] }
-        //   }
-        //   const extractedValue = spec.value[0] || ""
-        //   const digitsExist = extractedValue.match(/\d+/) || []
-        //   console.log(digitsExist)
-        //   const extractedDigits = digitsExist[0]
-        //   if(extractedDigits){
-        //     return { category:spec.category, value: [Number(extractedDigits)] }
-        //   }
-        //   return { category:spec.category, value: null }
+            return transformSpecs(spec)
         })
         console.log("CONVERTED REQUESTED SPECS:")
         console.log(convertedSpecValues)
-        const filterNullSpecs = convertedSpecValues.filter(spec=> spec !== null)
-        const filteredRequestedSpecValues = filterNullSpecs.filter(spec => spec.value !== null )
+        const filteredRequestedSpecValues = convertedSpecValues.filter(spec => spec.value !== null )
         console.log("filteredRequestedSpecs:")
         console.log(filteredRequestedSpecValues)
 
@@ -130,7 +145,6 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
         if (res !== undefined) return JSON.stringify(res)
       }
     }
-    console.log("Focused Intent Classification: ", focusedIntentClassification)
     return "FOCUSED INTENT RETURNED, BUT NOT SIMILAR PRODUCTS CLASSIFICATION"
   }
 

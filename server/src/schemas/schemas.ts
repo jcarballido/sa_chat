@@ -14,7 +14,7 @@ export const PromptSchema = z.object({
 }).strict()
 
 export const SpecificationMap = {
-  "model":z.string(),
+  // "model":z.string(),
   "height":z.number(),
   "depth":z.number(),
   "width":z.number(),

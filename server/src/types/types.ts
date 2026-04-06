@@ -82,8 +82,8 @@ export  type SingleReturnType<S extends FilteredSpecSchemaKeys> = ReturnType<Fil
 
 export  type SpecSchemaReturnTypes = {
   [K in FilteredSpecSchemaKeys] : SingleReturnType<K> extends boolean 
-    ? boolean | null
-    : SingleReturnType<K>[] | null
+    ? boolean 
+    : SingleReturnType<K>[] 
 }
 
 export type TransformedSpec<K extends FilteredSpecSchemaKeys=FilteredSpecSchemaKeys> = {

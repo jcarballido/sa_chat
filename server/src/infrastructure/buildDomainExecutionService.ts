@@ -62,6 +62,32 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     return returnedSpecs.filter(specs => specs !== null)
   }
 
+  function getRequiredSpecs(
+    rows: SpecificationRow[],
+    requirements: Filter<OmittedSpecRow>
+  ): SpecificationRow[] {
+    
+    const results = rows.filter((row) => {
+      return Object.entries(requirements).every(([key, requirement]) => {
+        const value = row[key as keyof SpecificationRow]
+        const req = requirement as Operators<SpecificationRow[keyof SpecificationRow]>
+        if (req?.eq !== undefined && value !== req.eq) return false
+        if (req?.neq !== undefined && value == req.neq) return false
+        if (req?.gt !== undefined && req?.gt !== null && value <= req.gt) return false
+        if (req?.gte !== undefined && req?.gte !== null && value < req.gte) return false
+        if (req?.lt !== undefined && req?.lt !== null && value >= req.lt) return false
+        if (req?.lte !== undefined && req?.lte !== null && value > req.lte) return false
+        return true
+      })
+    })
+    console.log("RESULT FROM GETREQUIREDSPECS:")
+    console.log(JSON.stringify(results))
+
+
+    return results
+  }
+  
+
   function filterBy(
     model: SpecificationRow["model"],
     rows: SpecificationRow[],
@@ -83,6 +109,7 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     })
     return results
   }
+
 
   function getOneBeforeAndAfter(values: number[], referenceValue: number): number[] {
     const sortedValues = [...new Set(values)].toSorted((a, b) => a - b)
@@ -115,13 +142,12 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   type OmittedSpecRow = Omit<SpecificationRow,"model">
 
   async function getSpecs(requestedSpecs: TransformedSpec[]) {
-    const requirements: Filter<OmittedSpecRow> = {}
 
-    for (const item of requestedSpecs) {
-      if(item.category === "waterproof") return requirements[item.category] = {eq: item.value ?? true}
-      if(item.value === null) return
-      return requirements[item.category] = {eq: item.value?.[0] ?? 0}
-    }   
+    // for (const item of requestedSpecs) {
+    //   if(item.category === "waterproof") return requirements[item.category] = {eq: item.value ?? true}
+    //   if(item.value === null) return
+    //   return requirements[item.category] = {eq: item.value?.[0] ?? 0}
+    // }   
 
     type NumberedKeys = {
       [K in keyof OmittedSpecRow]: 
@@ -132,34 +158,86 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
       [K in keyof OmittedSpecRow]: 
         OmittedSpecRow[K] extends boolean ? K : never
     }[keyof OmittedSpecRow]
-  
-    const specHandler = {
-      ...Object.fromEntries(
-        (Object.keys(specificationSchema) as NumberedKeys[]).map( key => {
-          const toOperator = (values: number[]): Operators<number> => {
-            if(values.length === 1) return {eq: values[0] ?? 0 } 
-            return {gte:Math.min(...values), lte: Math.max(...values)}
-          }
-          return [key,toOperator]
-        })
-      ),
-      ...Object.fromEntries(
-        (Object.keys(specificationSchema) as BooleanKeys[]).map( key => {
-          const toOperator = (value: boolean): Operators<boolean> => ({eq: value})
-          return [key,toOperator]
-        })
-      )            
+
+    type CategoryHandler = {
+      [K in NumberedKeys]: (value: number[]) => Operators<number>
+    } & {
+      [K in BooleanKeys]: (value: boolean) => Operators<boolean>
     }
 
+    type SchemaKey = keyof typeof specificationSchema
+
+    const numberEntries = (Object.keys(specificationSchema) as SchemaKey[])
+      .filter(key => typeof specificationSchema[key]("0") === "number")
+      .map(key => [key, (value:number[]) => {
+        if (value.length === 1) return {eq: value[0] ?? 0} 
+        return  {gt:value[0]??0,lt:value[1]??Infinity }
+      }])
+
+    const booleanEntries = (Object.keys(specificationSchema) as SchemaKey[]).filter(key => typeof specificationSchema[key]("true") === "boolean")
+      .map(key => ([key, (value:boolean) => ({eq:value})]))
+
+    const specHandler = {
+    ...Object.fromEntries(numberEntries),
+    ...Object.fromEntries(booleanEntries),
+    } as CategoryHandler
+  
+    // const specHandler: CategoryHandler = {
+    //   ...Object.fromEntries(
+    //     (Object.keys(specificationSchema) as NumberedKeys[])
+    //       .filter(key => !['model'].includes(key))
+    //       .map( key => {
+    //       const toOperator = (values: number[]): Operators<number> => {
+    //         if(values.length === 1){
+    //           console.log("VALUES ARRAY IS ONE ELEMENT")
+    //           return {eq: values[0] ?? 0 } 
+    //         } 
+    //         console.log("VALUES ARRAY IS MULTIPLE ELEMENTS")
+    //         return {gte:Math.min(...values), lte: Math.max(...values)}
+    //       }
+    //       return [key,toOperator]
+    //     })
+    //   ),
+    //   ...Object.fromEntries(
+    //     (Object.keys(specificationSchema) as BooleanKeys[])
+    //     .filter(key => !['model'].includes(key))
+    //     .map( key => {
+    //       const toOperator = (value: boolean): Operators<boolean> => ({eq: value})
+    //       return [key,toOperator]
+    //     })
+    //   )            
+    // } as CategoryHandler
+
+    const requirements: Filter<OmittedSpecRow> = Object.fromEntries(
+      requestedSpecs.map(spec => {
+        const fn = specHandler[spec.category]
+        console.log("SPEC HANDLER[HEIGHT]:")
+        console.dir(specHandler["height"].toString(),{depth:null})
+        console.log("SPEC HANDLER[WATERPROOF]:")
+        console.dir(specHandler["waterproof"].toString(),{depth:null})
+        console.log("SPEC HANDLER [DYNAMIC]:")
+        console.dir(specHandler[spec.category].toString(),{depth:null})
+
+        console.log("are they the same key?:", "height" === spec.category)
+        // const t = specHandler[spec.category as keyof CategoryHandler]
+        // console.log("fn:", JSON.stringify(t))
+        // console.log("specHandler keys:", Object.keys(specHandler))
+        // console.log("match:", Object.keys(specHandler).includes(spec.category))
+        // console.log("SPEC CATEGORY:",spec.category)
+        console.log("SPEC HANDLER RESULT:",JSON.stringify(fn))
+        const val = fn(spec.value as any)
+        console.log("value returned:",val)
+        console.log("SPEC VALUE:")
+        console.log(spec.value)
+        console.log("SPEC HANDLER CALLED:")
+        console.log(JSON.stringify(specHandler[spec.category](spec.value as any)))
+        return [spec.category,specHandler[spec.category](spec.value as any)]
+      }) 
+    )
     console.log("getSpecs RESULT:")
     console.log(requirements)
-    // CHORE: REMOVE DUPLICATES, AND ADD ABILITY TO PULL VALUES WITH NEAR VALUES
-    // Example request: "What are safes with gun_count of 12 and fire rating of 1400"
-    // Result: Here are safes that match exactly: [], Here are safes that are not exact, but similar: []
-    // Example request: "What are safes with a gun count between 12 and 20, waterproof, and a fire rating between 1200-1600"
-    // Result: Here are safes that fit within the given range(s): []
-    // DECISION: If a user provides a range, only search for models within that range, do not look for near models
-
+    const allInventorySpecs = mergedInventoryAndSpecStore.matches
+    const result = getRequiredSpecs(allInventorySpecs,requirements)
     return requirements
   }
 

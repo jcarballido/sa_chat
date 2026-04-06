@@ -2,7 +2,7 @@ import type z from "zod"
 import type { State } from "../agents/intentAgentState.js"
 import * as prompts from "../constants/system_prompts.js"
 import { ReturnedSpecValue, SpecificationMap } from "../schemas/schemas.js"
-import type { LLMcall, SpecificationRow } from "../types/types.js"
+import type { FilteredSpecSchemaKeys, LLMcall, RawLLMResult, SpecificationRow, SpecSchemaReturnTypes, TransformedSpec } from "../types/types.js"
 import { specificationSchema } from "../plugins/specificationStore.plugin.js"
 import { number, readonly, type keyof } from "zod"
 
@@ -13,24 +13,6 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
     return await llm.invokeIntentAgent(message,confirmedInventoryModelNumbers)
   }
 
-  type SpecificationSchema = typeof specificationSchema
-
-  type FilteredSpecSchema = Omit<SpecificationSchema,"model">
-
-  type FilteredSpecSchemaKeys = keyof FilteredSpecSchema
-
-  type RawLLMResult = {
-    category: FilteredSpecSchemaKeys,
-    value: string[] | null
-  }
-
-  type SingleReturnType<S extends FilteredSpecSchemaKeys> = ReturnType<FilteredSpecSchema[S]>
-
-  type SpecSchemaReturnTypes = {
-    [K in FilteredSpecSchemaKeys] : SingleReturnType<K> extends boolean 
-      ? boolean | null
-      : SingleReturnType<K>[] | null
-  }
 
   const transformers: {
     [K in FilteredSpecSchemaKeys]: (raw: string[] | null) => SpecSchemaReturnTypes[K]
@@ -41,7 +23,10 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
         return typeof singleReturn === "boolean"
           ? singleReturn
           : (raw ?? []).map((element,i,arr) => {
-            const p = conversionFn(element)
+            if(arr.length === 1) {
+              const digits = element.match(/\d+/) || ["null"]
+              return conversionFn(digits[0])
+            }
             const isLast = arr.length - 1
             if(i === 0) {
               const digits = element.match(/\d+/) || ["0"]
@@ -63,38 +48,6 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
   {
     return {category:spec.category,value: transformers[spec.category](spec.value) }
   }
-  
-  // function parseReturnedSpec<K extends keyof Omit<typeof specificationSchema, "model">>(
-  //   spec: {category: K, value: string[] | null }
-  // ): Extract<ParsedSpec<SpecificationRow>,{category: K}>
-  // {
-  //   if(spec.value === null || spec.value.length ===  0) return {category:spec.category,value: null}
-  //   const parse = specificationSchema[spec.category]
-  //   if(spec.category == "waterproof"){
-  //     const waterproofValue = spec.value?.[0] ?? "true"
-  //     const waterproofValueToLowercase = waterproofValue.toLowerCase()
-  //     return {category:spec.category, value: parse(waterproofValueToLowercase) as MapedValues<Omit<typeof specificationSchema,"model">>[K]} 
-  //   }
-  //   if(typeof(specificationSchema[spec.category])  === "number"){
-  //     const minimumValue = spec.value[0] || ""
-  //     const maximumValue = spec.value[1] || ""
-  //     const digitsExistMinimumValue = minimumValue.match(/\d+/) || ["0"]
-  //     const extractedMinValue = digitsExistMinimumValue[0]
-  //     const digitsExistMaximumValue = maximumValue.match(/\d+/) || ["Infinity"]
-  //     const extractedMaxValue = digitsExistMaximumValue[0]
-  //     return { category: spec.category, value: [Number(extractedMinValue), Number(extractedMaxValue)] }
-  //   }
-  //   const extractedValue = spec.value[0] || ""
-  //   const digitsExist = extractedValue.match(/\d+/) || []
-  //   console.log(digitsExist)
-  //   const extractedDigits = digitsExist[0]
-  //   if(extractedDigits){
-  //     return { category:spec.category, value: [Number(extractedDigits)] }
-  //   }
-  //   return {
-  //     category: spec.category,value: null
-  //   }
-  // }
   
   async function executeIntent(agentState:State): Promise<string> {
     const {initialMessageClassification, relatedIntent, relatedIntentLLMResponse, focusedIntent, focusedIntentClassification, filteredMatches} = agentState
@@ -133,13 +86,10 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
       if(focusedIntentClassification == "product_lookup_by_specs"){
         const returnedSpecValues:z.infer<(typeof ReturnedSpecValue)> = agentState.focusedIntentSpecValuesExtracted.specValues
         const convertedSpecValues = returnedSpecValues.map( spec => {
-            return transformSpecs(spec)
-        })
-        console.log("CONVERTED REQUESTED SPECS:")
-        console.log(convertedSpecValues)
+          const test = transformSpecs(spec)
+          return test
+        }) as TransformedSpec[]
         const filteredRequestedSpecValues = convertedSpecValues.filter(spec => spec.value !== null )
-        console.log("filteredRequestedSpecs:")
-        console.log(filteredRequestedSpecValues)
 
         const res = await executionService.getSpecs(filteredRequestedSpecValues)
         if (res !== undefined) return JSON.stringify(res)

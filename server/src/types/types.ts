@@ -67,7 +67,35 @@ export type LLMcall = {
   invokeGeneralLLMAgent: (systemPrompt: string) => Promise<GeneralLLMState>,
 }
 
+export  type SpecificationSchema = typeof specificationSchema
 
+export type FilteredSpecSchema<T> = Omit<T,"model">
+
+export  type FilteredSpecSchemaKeys = keyof FilteredSpecSchema<SpecificationSchema>
+
+export  type RawLLMResult = {
+  category: FilteredSpecSchemaKeys,
+  value: string[] | null
+}
+
+export  type SingleReturnType<S extends FilteredSpecSchemaKeys> = ReturnType<FilteredSpecSchema<SpecificationSchema>[S]>
+
+export  type SpecSchemaReturnTypes = {
+  [K in FilteredSpecSchemaKeys] : SingleReturnType<K> extends boolean 
+    ? boolean | null
+    : SingleReturnType<K>[] | null
+}
+
+export type TransformedSpec<K extends FilteredSpecSchemaKeys=FilteredSpecSchemaKeys> = {
+  [P in K]:{
+    category: P,
+    value: SpecSchemaReturnTypes[P]
+  }
+}[K]
+
+export type FilteredSchema<T extends ConversionSchema> = {
+  [K in keyof T]: ReturnType<T[K]> extends string ? never: ReturnType<T[K]>
+} 
 
 
 

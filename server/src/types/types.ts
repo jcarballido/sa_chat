@@ -97,6 +97,25 @@ export type FilteredSchema<T extends ConversionSchema> = {
   [K in keyof T]: ReturnType<T[K]> extends string ? never: ReturnType<T[K]>
 } 
 
+export type OmittedSpecRow = Omit<SpecificationRow,"model">
+
+export type NumberedKeys = {
+      [K in keyof OmittedSpecRow]: 
+        OmittedSpecRow[K] extends number ? K : never
+    }[keyof OmittedSpecRow]
+
+export type BooleanKeys = {
+      [K in keyof OmittedSpecRow]: 
+        OmittedSpecRow[K] extends boolean ? K : never
+    }[keyof OmittedSpecRow]
+
+export type CategoryHandler = {
+      [K in NumberedKeys]: (value: number[]) => Operators<number>
+    } & {
+      [K in BooleanKeys]: (value: boolean) => Operators<boolean>
+    }
+
+export type SchemaKey = keyof typeof specificationSchema
 
 
 

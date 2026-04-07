@@ -237,13 +237,13 @@ Your task:
       - "at least X" → ["X","Infinity"]
       - "at most Y" → ["0","Y"]
 2. Boolean:
-  - For "waterproof", return a string: "true", "false", or null
+  - For "waterproof", return an array with a single string: ["true"], ["false"], or null
 3. If a category is mentioned but no value is provided, return null as the value.
 4. If a category is not mentioned, **do not include it in the output**.
 
 Special rule for waterproof:
-- Return "true" if the user indicates waterproof or similar.
-- Return "false" if the user explicitly indicates NOT waterproof.
+- Return ["true"] if the user indicates waterproof or similar.
+- Return ["false"] if the user explicitly indicates NOT waterproof.
 - If mentioned but unclear, return null.
 
 Return JSON in the following format:
@@ -286,7 +286,7 @@ Output:
 {
   "specValues": [
     { "category": "gun_count", "value": ["0","20"] },
-    { "category": "waterproof", "value": "true" },
+    { "category": "waterproof", "value": ["true"] },
     { "category": "fire_rating_temp", "value": ["1400"] }
   ]
 }

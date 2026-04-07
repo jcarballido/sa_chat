@@ -4,5 +4,5 @@ POST http://localhost:3000/
 Content-Type: application/json
 
 {
-  "message": "Which of our products has a fire rating temp between 1420 and 2000?"
+  "message": "Which of our products has a fire rating temp of at least 1400 and waterproof?"
 }

@@ -36,3 +36,5 @@ ui/dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+*.http

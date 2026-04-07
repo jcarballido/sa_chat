@@ -1,6 +1,6 @@
 import { parse } from "csv-parse"
 import fs from "node:fs"
-import type { ConversionSchema, FilteredSchema, InferRows, MappedSpecRows, SpecificationRow } from "../types/types.js";
+import type { ConversionSchema, FilteredSchema, InferRows } from "../types/types.js";
 
 function convertRows<S extends Record<string,(t: string) => any>>(
   data: Record<string,string>,

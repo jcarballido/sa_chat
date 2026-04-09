@@ -4,6 +4,8 @@ import type { buildStoreGeneric } from "../infrastructure/buildStore.js"
 import type { inventorySchema } from "../plugins/inventoryStore.plugin.js"
 import type { specificationSchema } from "../plugins/specificationStore.plugin.js"
 import * as prompts from "../constants/system_prompts.js"
+import type { ApiErrorSchema } from "../schemas/schemas.js"
+import type z from "zod"
 
 export type ChatMessage = {
   message: string
@@ -117,5 +119,5 @@ export type CategoryHandler = {
 
 export type SchemaKey = keyof typeof specificationSchema
 
-
+export type ApiError = z.infer<typeof ApiErrorSchema>
 

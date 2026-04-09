@@ -18,8 +18,8 @@ importers:
         specifier: ^5.90.21
         version: 5.90.21(react@19.2.4)
       agent:
-        specifier: link:../../../../.local/share/pnpm/global/5/node_modules/agent
-        version: link:../../../../.local/share/pnpm/global/5/node_modules/agent
+        specifier: link:../../../.local/share/pnpm/global/5/node_modules/agent
+        version: link:../../../.local/share/pnpm/global/5/node_modules/agent
       react:
         specifier: ^19.2.0
         version: 19.2.4

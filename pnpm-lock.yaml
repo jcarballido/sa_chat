@@ -61,13 +61,16 @@ importers:
         version: 5.90.21(react@19.2.4)
       agent:
         specifier: link:../../../../.local/share/pnpm/global/5/node_modules/agent
-        version: link:../../../../.local/share/pnpm/global/5/node_modules/agent
+        version: link:../../../.local/share/pnpm/global/5/node_modules/agent
       react:
         specifier: ^19.2.0
         version: 19.2.4
       react-dom:
         specifier: ^19.2.0
         version: 19.2.4(react@19.2.4)
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@eslint/js':
         specifier: ^9.39.1

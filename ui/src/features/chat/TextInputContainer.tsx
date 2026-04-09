@@ -12,12 +12,14 @@ const TextInputContainer: React.FC<TextInputContainerProps> = () => {
 
   const handleSubmit = async (message: string) => {
     try {
-      const res = await fetch('/api/submit', {
+      const res = await fetch('api/chat/submit', {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({message}) 
         })
+        console.log("DATA:",res)
         const data = await res.json()
+        console.log(data)
         console.log('Data:')
         console.log(data)
     } catch (error) {

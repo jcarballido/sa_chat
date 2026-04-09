@@ -12,6 +12,8 @@ const TextInputComponent: React.FC<TextInputComponentProps> = ({ value, isLoadin
   const handleSubmit: React.SubmitEventHandler = (e) => {
     e.preventDefault()
     if(!input.trim()) return
+    console.log("STRING SUBMITTED:")
+    console.log(input)
     submit(input)
     setInput("")
   }

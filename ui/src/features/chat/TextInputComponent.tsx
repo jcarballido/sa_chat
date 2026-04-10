@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+// import React, { useState } from 'react';
+
+import { useState } from "react";
 
 interface TextInputComponentProps {
   value: string;
@@ -6,7 +8,7 @@ interface TextInputComponentProps {
   submit: (message:string) => void
 }
 
-const TextInputComponent: React.FC<TextInputComponentProps> = ({ value, isLoading, submit }) => {
+const TextInputComponent = ({ value, isLoading, submit }: TextInputComponentProps) => {
 
   const [ input, setInput ] = useState(value)
   const handleSubmit: React.SubmitEventHandler = (e) => {

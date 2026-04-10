@@ -49,10 +49,30 @@ export const ApiResponseSchema = <T extends z.ZodType>(dataSchema: T) =>
     }),
   ])
 
+export const ApiRequestBodySchema = <T extends z.ZodType>(dataSchema: T) => 
+  z.object({
+    id:z.string(),
+    conversationId:z.string().nullable(),
+    role:z.enum(["user", "assistant"]),
+    content:z.string(),
+    createdAt:z.iso.datetime(),
+    status: z.enum(["delivered","error","sending"])
+  })
+
+export const RequestMessageSchema = () => 
+  z.object({
+    id:z.string(),
+    conversationId:z.string().nullable(),
+    role:z.enum(["user", "assistant"]),
+    content:z.string(),
+    createdAt:z.iso.datetime(),
+    status: z.enum(["delivered","error","sending"])
+  })
+
 export const ResponseMessageSchema = 
   z.object({
-    id:z.uuid(),
-    conversationId:z.uuid(),
+    id:z.string(),
+    conversationId:z.string().nullable(),
     role:z.enum(["user", "assistant"]),
     content:z.string(),
     createdAt:z.iso.datetime(),

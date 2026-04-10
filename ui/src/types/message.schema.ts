@@ -1,8 +1,8 @@
 import z from "zod";
 
 export const MessageSchema = z.object({
-  id:z.uuid(),
-  conversationId:z.uuid(),
+  id:z.string(),
+  conversationId:z.string().nullable(),
   role:z.enum(["user", "assistant"]),
   content:z.string(),
   createdAt:z.iso.datetime(),

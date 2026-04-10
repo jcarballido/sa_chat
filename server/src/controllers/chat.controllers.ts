@@ -17,19 +17,35 @@ export function buildChatController(service:ReturnType<typeof import("../service
   }
 
   async function test(request:FastifyRequest): Promise<z.infer<ReturnType<typeof ApiResponseSchema<typeof ResponseMessageSchema>>>> {
-    // const body = PromptSchema.safeParse(request.body)
-    const body = request.body
+    console.log("REQUEST BODY:")
+    console.log(request.body)
+    const body = ResponseMessageSchema.safeParse(request.body)
+    // const body = request.body
+    if(body.error){
+      console.log("ERROR PARSING BODY:")
+      console.log(body)
+      return{
+        status:"error",
+        data:null,
+        error:{
+          code:"FAIL",
+          message:"Dummy fail message"
+        }
+      }
+    }
+    const {id,conversationId} = body.data
     return {
       status:"success",
       data:{
-        id:"1",
-        conversationId:"1",
+        id,
+        conversationId: conversationId ?? `${Math.random()}`,
         role:"assistant",
         content:"Dummy Response",
         createdAt: new Date().toISOString(),
         status: "delivered"
       },
       error: null
+      
     }
   }
 

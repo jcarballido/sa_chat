@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import type { AssistantMessageType, MessageType, UserMessageType } from "../types/message.schema"
+import type { AssistantMessageType, UserMessageType } from "../types/message.schema"
 import type { ConversationType } from "../types/conversation.schema"
 
 type State = {
@@ -10,7 +10,7 @@ type State = {
 
 type Action = {
   addMessage:(message: UserMessageType | AssistantMessageType,options?:{conversationId?: string}) => void,
-  setActiveConversation:(conversationId: string)=> void
+  setActiveConversation:(conversationId: string | null)=> void
 }
 
 const createConversation = (initialMessage: UserMessageType) => {
@@ -54,7 +54,7 @@ export const useMessageStore = create<State & Action>()(
           })
         }))
       },
-      setActiveConversation:(activeConversationId: string) => set({activeConversationId})
+      setActiveConversation:(activeConversationId: string | null) => set({activeConversationId})
     }),{name:'message-store'}
   )
 )

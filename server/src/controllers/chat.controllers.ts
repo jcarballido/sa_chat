@@ -38,9 +38,9 @@ export function buildChatController(service:ReturnType<typeof import("../service
       status:"success",
       data:{
         id,
-        conversationId: conversationId ?? `${Math.random()}`,
+        conversationId: conversationId,
         role:"assistant",
-        content:"Dummy Response",
+        content:`Dummy Response ${Math.random()}`,
         createdAt: new Date().toISOString(),
         status: "delivered"
       },

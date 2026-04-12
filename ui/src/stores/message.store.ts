@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import type { MessageType } from "../types/message.schema"
+import type { AssistantMessageType, MessageType, UserMessageType } from "../types/message.schema"
 import type { ConversationType } from "../types/conversation.schema"
 
 type State = {
@@ -9,13 +9,13 @@ type State = {
 }
 
 type Action = {
-  addMessage:(message: MessageType,options?:{conversationId?: string}) => void,
+  addMessage:(message: UserMessageType | AssistantMessageType,options?:{conversationId?: string}) => void,
   setActiveConversation:(conversationId: string)=> void
 }
 
-const createConversation = (initialMessage: MessageType) => {
+const createConversation = (initialMessage: UserMessageType) => {
   const conversation = {
-    conversationId:`${Math.random()}`,
+    conversationId:initialMessage.conversationId!,
     createdAt:new Date().toISOString(),
     updatedAt:null,
     messages:[initialMessage],
@@ -29,21 +29,29 @@ export const useMessageStore = create<State & Action>()(
     (set,get) => ({
       conversations: [],
       activeConversationId: null,
-      addMessage:(message:MessageType) => {
-        // Able to add a message anytime, a conversation gets created if non existent
+      addMessage: (message: UserMessageType | AssistantMessageType) => {
         const { activeConversationId } = get()
-        if(activeConversationId){
-          set((state) => ({
-            conversations: state.conversations.map( conv => {
-              return conv.conversationId === message.conversationId
-              ? {...conv,messages: [...conv.messages,message]}
-              : conv
-            })
+        if(activeConversationId === null && message.role === "user"){
+          const newConversation = createConversation(message)
+
+          return set((state) => ({
+            activeConversationId: message.conversationId!,
+            conversations: [...state.conversations,newConversation]
+            // conversations: state.conversations.map( conv => {
+            //   return conv.conversationId === message.conversationId
+            //   ? {...conv,messages: [...conv.messages,message]}
+            //   : conv
+            // })
           }))
         }
-        const newConversation = createConversation(message)
-        set((state) => ({
-          conversations: [...state.conversations,newConversation]
+        if(activeConversationId === message.conversationId)
+        return set((state) => ({
+          // conversations: [...state.conversations,newConversation]
+          conversations: state.conversations.map( conv => {
+            return conv.conversationId === message.conversationId
+            ? {...conv,messages: [...conv.messages,message]}
+            : conv
+          })
         }))
       },
       setActiveConversation:(activeConversationId: string) => set({activeConversationId})

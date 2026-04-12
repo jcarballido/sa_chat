@@ -72,7 +72,7 @@ export const RequestMessageSchema = () =>
 export const ResponseMessageSchema = 
   z.object({
     id:z.string(),
-    conversationId:z.string().nullable(),
+    conversationId:z.string(),
     role:z.enum(["user", "assistant"]),
     content:z.string(),
     createdAt:z.iso.datetime(),

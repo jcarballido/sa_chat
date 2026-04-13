@@ -1,3 +1,4 @@
+import SecondaryActionButton from "../../shared/SecondaryActionButton"
 import { useMessageStore } from "../../stores/message.store"
 
 const StoredConversations = () => {
@@ -5,10 +6,12 @@ const StoredConversations = () => {
   const { conversations, setActiveConversation } = messageStore
 
   return(
-    <div className="grow-0">
+    <div className="">
       {
         conversations.map(conv => (
-            <div key={conv.conversationId} onClick={() => setActiveConversation(conv.conversationId) }>{conv.conversationId}</div>
+            <div className="w-full">
+              <SecondaryActionButton action={conv.title} clickHandler={()=> setActiveConversation(conv.conversationId)}/>
+            </div>
           )
         )
       }

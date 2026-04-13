@@ -5,7 +5,7 @@ import { type UserMessageType, type AssistantMessageType, AssistantMessageSchema
 async function send (userMessage: UserMessageType ): Promise<AssistantMessageType> {
   
   try {
-    const res = await fetch('api/chat/test', {
+    const res = await fetch('api/chat/process', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userMessage) 

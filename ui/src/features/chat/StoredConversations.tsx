@@ -5,7 +5,7 @@ const StoredConversations = () => {
   const { conversations, setActiveConversation } = messageStore
 
   return(
-    <div>
+    <div className="grow-0">
       {
         conversations.map(conv => (
             <div key={conv.conversationId} onClick={() => setActiveConversation(conv.conversationId) }>{conv.conversationId}</div>

@@ -99,10 +99,15 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
   }
 
   async function generateRespone(userPrompt:string): Promise<string> {
-    const intent = await determineIntent(userPrompt)
-    const executionResult = await executeIntent(intent)
+    try {
+      const intent = await determineIntent(userPrompt)
+      const executionResult = await executeIntent(intent)
 
-    return executionResult
+      return executionResult      
+    } catch (error) {
+      console.log("ERROR IN chat.service: ",error)
+      throw error
+    }
   }
 
   return{

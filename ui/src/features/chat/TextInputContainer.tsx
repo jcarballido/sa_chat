@@ -9,7 +9,7 @@ const TextInputContainer = () => {
   const handleSubmit = async (input: string) => await sendUserMessage(input) 
 
   return (
-    <div className="flex flex-col grow max-h-full">
+    <div className=" w-full ">
       <TextInputComponent value='start' submit={handleSubmit} isLoading={isLoading}/>
     </div>
   );

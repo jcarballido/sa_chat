@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SendSVG from "../../assets/send.svg"
 import { colorMap } from "../../constants/colorTheme.constants";
 
@@ -11,6 +11,21 @@ interface TextInputComponentProps {
 const TextInputComponent = ({ value, isLoading, submit }: TextInputComponentProps) => {
 
   const [ input, setInput ] = useState(value)
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
+  useEffect(() => {
+    autoResize()
+  }, [input])
+
+  const autoResize = () => {
+    const textAreaCurrent = textAreaRef.current
+    if(!textAreaCurrent) {
+      console.log("Text Area not registered to current.")
+      return
+    }
+    textAreaCurrent.style.height = 'auto'
+    textAreaCurrent.style.height = `${textAreaCurrent.scrollHeight}px`
+  }
+
   const handleSubmit: React.SubmitEventHandler = (e) => {
     e.preventDefault()
     if(!input.trim()) return
@@ -21,16 +36,18 @@ const TextInputComponent = ({ value, isLoading, submit }: TextInputComponentProp
   }
 
   return(
-    <form onSubmit={handleSubmit} className="flex justify-center items-end p-2 gap-4 rounded-xl border-2 border-stone-400 focus-within:border-2 focus-within:border-stone-700 transition duration-300  bg-stone-300">  
+    <form onSubmit={handleSubmit} className="flex justify-center items-end p-2 gap-4 rounded-xl border-2 border-stone-400 focus-within:border-2 focus-within:border-[rgb(251,44,54)] transition duration-300  bg-stone-300">  
       <textarea
-        className="flex flex-col p-2 min-h-11 max-h-64  rounded grow outline-none resize-none [&::-webkit-scrollbar]:hidden [scrollbar-width:none]"
+        className="flex flex-col p-2 min-h-11 max-h-64 grow outline-none resize-none   
+          [&::-webkit-scrollbar]:w-[6px]
+          [&::-webkit-scrollbar-thumb]:bg-white/20
+          [&::-webkit-scrollbar-thumb]:rounded-full
+          hover:[&::-webkit-scrollbar-thumb]:bg-white/40"
+        ref={textAreaRef}
         rows={1}
         value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onInput={(event) => {
-          const target = event.target as HTMLTextAreaElement;
-          target.style.height = 'auto';
-          target.style.height = `${target.scrollHeight}px`;
+        onChange={(e) =>{
+          setInput(e.target.value)
         }}
       />
       <div className="flex flex-col justify-end">

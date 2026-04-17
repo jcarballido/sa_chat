@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { colorMap } from '../../constants/colorTheme.constants';
 import { useMessageStore } from '../../stores/message.store';
 import TextInputContainer from './TextInputContainer';
 import SpecificationTable from './SpecificationTable';
@@ -8,7 +7,7 @@ const ScrollingContainer = () => {
 
   const sentinalRef = useRef<HTMLDivElement | null>(null)
   const messageStore = useMessageStore()
-  const { conversations,activeConversationId } = messageStore
+  const { conversations } = messageStore
 
   useEffect(() => {
     const sentinal = sentinalRef.current

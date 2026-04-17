@@ -1,37 +1,28 @@
+import dataManipulation from "../../services/dataManipulation.services"
+
 const SpecificationTable = ({specs}:{specs:{"model":string,"gun_count":number, "waterproof":boolean, "height":number, "width": number }[]}) => {
 
 	const headers = Object.keys(specs[0]) as (keyof typeof specs[number])[] 
+	const convertedHeaders = dataManipulation.capitalizeFirstChar(headers)
 
 	return(
 		<div className="overflow-x-auto     
-				/* scrollbar size */
-    [&::-webkit-scrollbar]:h-2
-    [&::-webkit-scrollbar]:w-2
-
-    /* track */
-    
-
-    /* thumb */
-    [&::-webkit-scrollbar-thumb]:bg-white/10
-    [&::-webkit-scrollbar-thumb]:rounded-full
-
-    /* hover */
-    [&::-webkit-scrollbar-thumb]:bg-white/20
-
-    /* Firefox */
-    [scrollbar-width:thin]
-    [scrollbar-color:rgba(255,255,255,0.2)] ">
+			/* scrollbar size */
+	    [&::-webkit-scrollbar]:h-2
+  	  [&::-webkit-scrollbar]:w-2    
+			[&::-webkit-scrollbar-thumb]:bg-white/10
+			[&::-webkit-scrollbar-thumb]:rounded-full
+			[scrollbar-width:thin]
+			[scrollbar-color:rgba(255,255,255,0.2)] "
+		>
 			<table className=" p-2 w-full border-separate border-spacing-0 rounded-xl">
 				<thead className="">
 					<tr className="text-black ">
 						{
-							headers.map( header => {
+							convertedHeaders.map( header => {
 								return(
 									<th className={`
-									p-2 
-									
-									odd: 
-									
+									p-2 																
 									border-t-black
 									border-t
 									first:border-l
@@ -42,9 +33,9 @@ const SpecificationTable = ({specs}:{specs:{"model":string,"gun_count":number, "
 									last:border-r-black
 									bg-gray-300
 									font-semibold
-									${header === "model" 
+									${header === "Model" 
 									? 'text-left'
-									: header === "waterproof"
+									: header === "Waterproof"
 										? 'text-center'
 										:'text-right'}`} >
 										{header}
@@ -61,13 +52,6 @@ const SpecificationTable = ({specs}:{specs:{"model":string,"gun_count":number, "
 								<tr className="p-2 hover:bg-red-100">
 									{
 										Object.entries(spec).map( ([key,value]) => {
-											// if(typeof value === 'boolean'){
-											// 	return (
-											// 		<td className={`text-center odd:bg-white/10 border-b border-gray-200 ${index % 2 === 0 ? "bg-white":"bg-stone-100"}`}>
-											// 			{value ? "YES":"NO"}
-											// 		</td>
-											// 	)
-											// }
 											return(
 												<td className={`
 													p-2 

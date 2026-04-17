@@ -10,7 +10,7 @@ async function chatRoutes (fastify: FastifyInstance) {
   const controller = buildChatController(services)
 
   fastify.post("/process", controller.processMessage)
-  fastify.post("/test",controller.test)
+  // fastify.post("/test",controller.test)
 }
 
 export default chatRoutes

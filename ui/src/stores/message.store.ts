@@ -37,16 +37,10 @@ export const useMessageStore = create<State & Action>()(
           return set((state) => ({
             activeConversationId: message.conversationId!,
             conversations: [...state.conversations,newConversation]
-            // conversations: state.conversations.map( conv => {
-            //   return conv.conversationId === message.conversationId
-            //   ? {...conv,messages: [...conv.messages,message]}
-            //   : conv
-            // })
           }))
         }
         if(activeConversationId === message.conversationId)
         return set((state) => ({
-          // conversations: [...state.conversations,newConversation]
           conversations: state.conversations.map( conv => {
             return conv.conversationId === message.conversationId
             ? {...conv,messages: [...conv.messages,message]}

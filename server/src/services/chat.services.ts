@@ -49,7 +49,7 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
     return {category:spec.category,value: transformers[spec.category](spec.value) }
   }
   
-  async function executeIntent(agentState:State): Promise<string> {
+  async function executeIntent(agentState:State): Promise<string>  {
     const {initialMessageClassification, relatedIntent, relatedIntentLLMResponse, focusedIntent, focusedIntentClassification, filteredMatches} = agentState
     // if(latestLLMResponse) return latestLLMResponse
     if(initialMessageClassification === "malicious") return 'Malicious intent detected'
@@ -60,9 +60,8 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
       if(focusedIntentClassification == "similar_products"){
         //CHORE: Update getSimilarModels to accept an array
         const res = await executionService.getSimilarModels(filteredMatches)
-        return `Similar models found: 
-        ${JSON.stringify(res)}
-        `
+        return JSON.stringify({domainData: res})
+        
       }
       if(focusedIntentClassification == "product_comparison"){
         console.log('Classified as "product_comparison"')
@@ -74,14 +73,14 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
           const {model,...rest} = spec
           resultingSpecs[model] = {...rest} 
         }
-        const toString = JSON.stringify(resultingSpecs)
-        const comparisonPrompt = prompts.COMPARSION_SYSTEM_PROMPT(toString)
-        const res = await llm.invokeGeneralLLMAgent(comparisonPrompt)
-        return res.res
+        // const toString = JSON.stringify(resultingSpecs)
+        // const comparisonPrompt = prompts.COMPARSION_SYSTEM_PROMPT(toString)
+        // const res = await llm.invokeGeneralLLMAgent(comparisonPrompt)
+        return JSON.stringify({domainData:resultingSpecs})
       }
       if(focusedIntentClassification == "product_lookup_by_model"){
           const res = executionService.getModelSpecs(filteredMatches)
-          return JSON.stringify(res)
+          return JSON.stringify({domainData:res})
       }
       if(focusedIntentClassification == "product_lookup_by_specs"){
         const returnedSpecValues:z.infer<(typeof ReturnedSpecValue)> = agentState.focusedIntentSpecValuesExtracted.specValues
@@ -90,9 +89,8 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
           return test
         }) as TransformedSpec[]
         const filteredRequestedSpecValues = convertedSpecValues.filter(spec => spec.value !== null )
-
         const res = await executionService.getSpecs(filteredRequestedSpecValues)
-        if (res !== undefined) return JSON.stringify(res)
+        if (res !== undefined) return JSON.stringify({domainData:res})
       }
     }
     return "FOCUSED INTENT RETURNED, BUT NOT SIMILAR PRODUCTS CLASSIFICATION"

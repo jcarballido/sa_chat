@@ -1,7 +1,6 @@
 import { generalLLMAgent } from "../agents/generalAgent.js";
 import { intentAgent } from "../agents/intentAgent.js"
-import type { LLMcall, Prompts, SpecificationRow } from "../types/types.js"
-import * as prompt from "../constants/system_prompts.js"
+import type { LLMcall } from "../types/types.js"
 
 
 export async function buildLlmCall(): Promise<LLMcall> {

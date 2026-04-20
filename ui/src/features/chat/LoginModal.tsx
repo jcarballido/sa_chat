@@ -13,19 +13,19 @@ const LoginModal = () => {
     return (/^.+@.+.com$/.test(email.trim())) 
   }
 
-  const submitMagicLinkRequest: React.SubmitEventHandler = async (e) => {
+  const submitMagicLinkRequest: SubmitEventHandler = async (e) => {
     e.preventDefault()
     if(validEmail(emailInput)){
       try {
         setIsSending(true)
-        const res = await fetch('api/login/requestAccess',{
+        const response = await fetch('api/login/requestAccess',{
           method:"POST",
           headers:{"Content-Type": "application/json"},
-          body:JSON.stringify({req: emailInput})
+          body:JSON.stringify({email: emailInput.trim()})
         })
         console.log("Request received:")
-        const r = await res.json()
-        console.log(r.d)
+        const raw = await response.json()
+        console.log(raw.status)
         return
       } catch (error) {
         console.log("ERROR in response:", error)

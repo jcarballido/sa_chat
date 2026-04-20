@@ -49,6 +49,12 @@ export const ApiResponseSchema = <T extends z.ZodType>(dataSchema: T) =>
     }),
   ])
 
+const magicLinkRequestSchema = z.object({
+  requestApproved: z.boolean()
+})
+
+export const loginRequestResponseSchema = ApiResponseSchema(magicLinkRequestSchema)
+
 export const ApiRequestBodySchema = <T extends z.ZodType>(dataSchema: T) => 
   z.object({
     id:z.string(),
@@ -77,4 +83,8 @@ export const ResponseMessageSchema =
     content:z.string(),
     createdAt:z.iso.datetime(),
     status: z.enum(["delivered","error","sending"])
+  })
+
+export const AccessRequest = z.object({
+    email: z.string()
   })

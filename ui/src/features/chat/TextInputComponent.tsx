@@ -39,7 +39,7 @@ const TextInputComponent = ({ value, isLoading, submit }: TextInputComponentProp
     <form onSubmit={handleSubmit} className="flex justify-center items-end p-2 gap-4 rounded-xl border-2 border-stone-400 focus-within:border-2 focus-within:border-[rgb(251,44,54)] transition duration-300  bg-stone-300">  
       <textarea
         className="flex flex-col p-2 min-h-11 max-h-64 grow outline-none resize-none   
-          [&::-webkit-scrollbar]:w-[6px]
+          [&::-webkit-scrollbar]:w-1.5
           [&::-webkit-scrollbar-thumb]:bg-white/20
           [&::-webkit-scrollbar-thumb]:rounded-full
           hover:[&::-webkit-scrollbar-thumb]:bg-white/40"

@@ -2,7 +2,7 @@ import { useMessageStore } from '../../stores/message.store';
 import TextInputContainer from './TextInputContainer';
 import { type AssistantMessageType, type UserMessageType } from '../../types/message.schema';
 import UserMessage from './UserMessage';
-import AssistantMessage from '../AssistantMessage';
+import AssistantMessage from './AssistantMessage';
 import { useConversationSentinel } from '../../hooks/useSentinel.hooks';
 import { useAuthStore } from '../../stores/auth.store';
 import SendSVG from "../../assets/send.svg"

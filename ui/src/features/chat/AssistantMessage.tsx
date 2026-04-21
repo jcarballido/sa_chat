@@ -1,5 +1,5 @@
-import { AssistantDataSchema, type AssistantMessageType } from "../types/message.schema"
-import SpecificationTable from "./chat/SpecificationTable"
+import { AssistantDataSchema, type AssistantMessageType } from "../../types/message.schema"
+import SpecificationTable from "./SpecificationTable"
 
 const AssistantMessage = ({assistantMessage}:{assistantMessage: AssistantMessageType}) => {
   try {

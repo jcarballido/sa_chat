@@ -33,7 +33,12 @@ export async function buildLoginServices() {
     }
     try {
       console.log("Attempting to send to supabase")
-      await supabaseBase.auth.signInWithOtp({email})
+      await supabaseBase.auth.signInWithOtp({
+        email,
+        options:{
+          emailRedirectTo: 'https://ideal-succotash-rwr6jrr9pqjhpxpp-5173.app.github.dev/'
+        }
+      })
       console.log("Supabase email request sent.")      
     } catch (error) {
       console.log("Error sending to supabase")

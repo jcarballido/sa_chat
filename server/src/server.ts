@@ -19,16 +19,16 @@ fastify.register(messageStorePlugin)
 fastify.register(chatRoutes, { prefix: "/chat"})
 fastify.register(loginRoutes, {prefix:"/login"})
 
-const checkDependencies = async() => {
-  try {
-    await checkOllamaReachable()
-    await checkModelAvailble() 
-    console.log("Dependencies OK")
-  } catch (error) {
-    fastify.log.error(`Error in dependency check:\n + ${error}`)
-    process.exit(1)
-  }
-}
+// const checkDependencies = async() => {
+//   try {
+//     await checkOllamaReachable()
+//     await checkModelAvailble() 
+//     console.log("Dependencies OK")
+//   } catch (error) {
+//     fastify.log.error(`Error in dependency check:\n + ${error}`)
+//     process.exit(1)
+//   }
+// }
 
 const start = async () => {
   try {
@@ -39,5 +39,5 @@ const start = async () => {
   }
 }
 
-checkDependencies()
+// checkDependencies()
 start()

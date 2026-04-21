@@ -2,6 +2,7 @@ import { colorMap } from "../../constants/colorTheme.constants"
 import EmailSVG from "../../assets/email.svg"
 import LeftArrowSVG from "../../assets/leftArrow.svg"
 import { useState, type SubmitEventHandler } from "react"
+import { supabase } from "../../supabase/client"
 
 const LoginModal = () => {
 
@@ -36,6 +37,12 @@ const LoginModal = () => {
     }
     console.log("Email is not valid")
     return 
+    // const { error } = await supabase.auth.signInWithOtp({
+    // email: emailInput,
+    // options: {
+    //   emailRedirectTo: 'http://localhost:5173'
+    // }})
+    // if(error) console.log("ERROR DURING SIGN IN: ", error)
   }
 
   return (

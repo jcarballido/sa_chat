@@ -5,13 +5,16 @@ import UserMessage from './UserMessage';
 import AssistantMessage from '../AssistantMessage';
 import { useConversationSentinel } from '../../hooks/useSentinel.hooks';
 import { useAuthStore } from '../../stores/auth.store';
-import { colorMap } from '../../constants/colorTheme.constants';
 import SendSVG from "../../assets/send.svg"
 
 const ScrollingContainer = () => {
 
-  const { isAuthenticated } = useAuthStore()
-  if(!isAuthenticated){
+  const { session } = useAuthStore()
+  const messageStore = useMessageStore()
+  const { conversations, activeConversationId } = messageStore
+  const sentinel = useConversationSentinel(conversations)
+
+  if(!session){
     return(
       <div className={`flex flex-col h-full w-[70%] gap-2 p-2 bg-transparent`}>
         <div className="grow overflow-y-auto overflow-x-hidden resize-none   
@@ -19,24 +22,6 @@ const ScrollingContainer = () => {
         [&::-webkit-scrollbar-track]:bg-transparent
         [&::-webkit-scrollbar-thumb]:rounded-full
         hover:[&::-webkit-scrollbar-thumb]:bg-black/40">
-          {/* {
-            conversations.map(conv => {
-              if(conv.conversationId === activeConversationId){
-                return(
-                  <div className='flex flex-col w-full'>
-                    {
-                      conv.messages.map((mes: UserMessageType | AssistantMessageType) => {
-                        return mes.role === "user" 
-                          ? <UserMessage userMessage={mes}/> 
-                          : <AssistantMessage assistantMessage={mes} />
-                      })
-                    }
-                  </div>
-                )
-              }
-              return null
-            })
-          } */}
           <div>USER MESSAGE</div>
           <div>ASSISTANT MESSAGE</div>
         </div>
@@ -67,9 +52,6 @@ const ScrollingContainer = () => {
       </div>
     )
   }
-  const messageStore = useMessageStore()
-  const { conversations, activeConversationId } = messageStore
-  const sentinel = useConversationSentinel(conversations)
 
   return (
     <div className={`flex flex-col h-full w-[70%] gap-2 p-2 bg-transparent`}>

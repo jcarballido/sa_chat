@@ -3,8 +3,8 @@ import ScrollingContainer from "./ScrollingContainer"
 
 const MainContainer = () => {
   
-  const { isAuthenticated } = useAuthStore()
-  if(!isAuthenticated){
+  const { session } = useAuthStore()
+  if(!session){
     return (
       <main className="flex-1 h-full min-w-0 flex justify-center ${colorMap.bgSecondary} bg-stone-100">
         {/* <ScrollingContainer/> */}

@@ -1,17 +1,15 @@
+import type { Session, User } from "@supabase/supabase-js";
 import { create } from "zustand";
 
-type State = {
-  isAuthenticated: boolean
+type AuthState = {
+  session: Session | null,
+  user: User | null,
+  setSession: (session: Session | null) => void
 }
 
-type Action = {
-  setAuthentication: (authenticated: boolean) => void,
-  logOut: () => void
-}
-
-export const useAuthStore = create<State & Action>()((set) => ({
-  isAuthenticated:false,
-  setAuthentication:(authenticated)=> set(() => ({isAuthenticated: authenticated})),
-  logOut: ()=>set({isAuthenticated: false})
+export const useAuthStore = create<AuthState>()((set) => ({
+  session: null,
+  user:null,
+  setSession:(session)=> set({session, user: session?.user ?? null}),
 }))
 

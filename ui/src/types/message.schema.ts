@@ -1,5 +1,5 @@
 import type { Override } from "@tanstack/react-query";
-import z, { boolean } from "zod";
+import z from "zod";
 
 export const MessageSchema = z.object({
   id:z.string(),

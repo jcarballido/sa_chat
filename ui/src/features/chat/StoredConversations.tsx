@@ -1,16 +1,19 @@
+import useAsideData from "../../hooks/useAsideData.hooks"
+import useInteraction from "../../hooks/useInteraction.hooks"
 import SecondaryActionButton from "../../shared/SecondaryActionButton"
 import { useMessageStore } from "../../stores/message.store"
 
 const StoredConversations = () => {
-  const messageStore = useMessageStore()  
-  const { conversations, setActiveConversation } = messageStore
+  const setActiveConversation = useMessageStore(s=>s.setActiveConversation)  
+  const conversations = useAsideData()
+  const { disabled } = useInteraction()
 
   return(
     <div className="">
       {
         conversations.map(conv => (
             <div className="w-full">
-              <SecondaryActionButton action={conv.title} clickHandler={()=> setActiveConversation(conv.conversationId)}/>
+              <SecondaryActionButton action={conv.title} clickHandler={()=> setActiveConversation(conv.conversationId)} disabled={disabled} />
             </div>
           )
         )

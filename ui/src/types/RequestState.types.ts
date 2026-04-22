@@ -1,0 +1,1 @@
+export type RequestState = "idle" | "sending" | "success" | "error"

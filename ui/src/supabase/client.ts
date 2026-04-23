@@ -16,16 +16,7 @@ export const supabase = createClient(
 console.log("URL at client init:", window.location.href)
 console.log("Hash at client init:", window.location.hash)
 
-const hash = window.location.hash
-if (hash && hash.includes('access_token')) {
-  const params = new URLSearchParams(hash.substring(1))
-  const { data, error } = await supabase.auth.setSession({
-    access_token: params.get('access_token')!,
-    refresh_token: params.get('refresh_token')!,
-  })
-  console.log('manual session set:', data)
-  console.log('error:', error)
-}
+
 
 supabase.auth.onAuthStateChange((event, session) => {
   console.log("---")
@@ -34,5 +25,20 @@ supabase.auth.onAuthStateChange((event, session) => {
   console.log("Event receieved from supabase listener.")
   console.log(event)
   console.log("---")
+
   useAuthStore.getState().setSession(session)
 })
+
+const hash = window.location.hash
+if (hash && hash.includes('error')) {
+  const params = new URLSearchParams(hash.substring(1))
+  const description = params.get('error_description') ?? "unknown"
+  console.log('params:', params)
+  console.log("ERROR DESCIPTION:", description)
+  if(description == "Email link is invalid or has expired") useAuthStore.getState().setAuthError("The link is invalid or expired. Try again.")
+
+  useAuthStore.getState().setAuthError("Something went wrong. Try again.")
+
+  window.history.replaceState(null,"",window.location.pathname)
+}
+

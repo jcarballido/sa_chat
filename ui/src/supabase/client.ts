@@ -25,8 +25,7 @@ supabase.auth.onAuthStateChange((event, session) => {
   console.log("Event receieved from supabase listener.")
   console.log(event)
   console.log("---")
-
-  useAuthStore.getState().setSession(session)
+  if(session) useAuthStore.getState().setSession(session)
 })
 
 const hash = window.location.hash

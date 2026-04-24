@@ -36,7 +36,7 @@ export async function buildLoginServices() {
       await supabaseBase.auth.signInWithOtp({
         email,
         options:{
-          emailRedirectTo: 'https://ideal-succotash-rwr6jrr9pqjhpxpp-5173.app.github.dev/'
+          emailRedirectTo: 'http://localhost:5173/'
         }
       })
       console.log("Supabase email request sent.")      

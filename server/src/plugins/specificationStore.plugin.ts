@@ -10,9 +10,9 @@ export const specificationSchema = {
   "fire_rating_temp": (t: string) => Number(t),
   "height": (t: string) => Number(t),
   "gun_count": (t: string) => Number(t),
-  // "width": (t: string) => Number(t),
-  // "depth": (t: string) => Number(t),
-  // "waterproof": (t: string) => t.toLowerCase() === "true" 
+  "width": (t: string) => Number(t),
+  "depth": (t: string) => Number(t),
+  "waterproof": (t: string) => t.toLowerCase() === "true" 
   
 } as const
 

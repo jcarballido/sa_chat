@@ -4,18 +4,19 @@ import { specificationSchema } from "../plugins/specificationStore.plugin.js";
 
 export function buildDomainExecutionServices(inventoryStore: InventoryStore, specificationStore: SpecificationStore, messageStore: MessageStore) {
 
-  function getInventoriedModelNumbers() { return inventoryStore.getColumnValues("model") }
-  function transformModelNumbersNoHyphens(officialModelNumbers: string[]): Map<string, string> {
+  const modelsInInventory = inventoryStore.getColumnValues("model")
+
+  const modelNumberMapGenerator = (rawModelNumbers: string[]):Map<string, string> =>  {
     const map = new Map<string, string>()
-    officialModelNumbers.map((modelNumber) => {
-      const strippedDashModelNumber = modelNumber.replace(/-/g, '')
-      map.set(strippedDashModelNumber, modelNumber)
+    rawModelNumbers.map((modelNumber) => {
+      const result = modelNumber.replace(/-/g, '')
+      map.set(result, modelNumber)
     })
     return map
   }
 
-  const strippedModelNumbersInventoryMap = transformModelNumbersNoHyphens(getInventoriedModelNumbers())
-  const strippedModelNumbersInInventory = [...strippedModelNumbersInventoryMap.keys()]
+  const modelNumberMap = modelNumberMapGenerator(modelsInInventory)
+  const strippedModelNumbers = [...modelNumberMap.keys()] as string[]
 
   function transformSpecificationStore(specificationStore: SpecificationStore): SpecificationStore {
     const rows = specificationStore.rows
@@ -35,7 +36,7 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     inventoryModels: SpecificationRow["model"][],
     allSpecs: SpecificationRow[]): {
       matches: SpecificationRow[], missing: { model: SpecificationRow["model"] }[]
-    } {
+  } {
     const specMap = new Map(allSpecs.map(modelSpec => [modelSpec.model, modelSpec]))
     const matches: SpecificationRow[] = []
     const missing: { "model": SpecificationRow["model"] }[] = []
@@ -51,7 +52,7 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
     }
   }
 
-  const mergedInventoryAndSpecStore = mergeStores([...strippedModelNumbersInventoryMap.keys()], transformedSpecificationStore.rows)
+  const mergedInventoryAndSpecStore = mergeStores(strippedModelNumbers, transformedSpecificationStore.rows)
 
   function getModelSpecs(models: SpecificationRow["model"][]): SpecificationRow[] {
     const returnedSpecs = models.map(model => {
@@ -166,8 +167,8 @@ export function buildDomainExecutionServices(inventoryStore: InventoryStore, spe
   return {
     getModelSpecs,
     getSimilarModels,
-    getInventoriedModelNumbers,
-    strippedModelNumbersInInventory,
+    modelsInInventory,
+    strippedModelNumbers,
     getSpecs
   }
 }

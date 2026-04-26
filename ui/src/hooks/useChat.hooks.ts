@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useMessageStore } from "../stores/message.store"
 import { messageService } from "../services/message.services"
-import type { UserMessageType } from "../types/message.schema"
+import { AssistantMessageSchema, type AssistantMessageType, type UserMessageType } from "../types/message.schema"
 
 export const useChat = () => {
   const [ isLoading, setIsLoading ] = useState(false)
@@ -26,7 +26,8 @@ export const useChat = () => {
     try {
       addMessage(userMessage)
       const assistantMessage = await messageService.send(userMessage)
-      addMessage(assistantMessage)
+      const result: AssistantMessageType = AssistantMessageSchema.parse(assistantMessage)
+      addMessage(result)
     } catch (error) {
       console.error(error)
     }finally{

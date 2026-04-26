@@ -1,11 +1,11 @@
 import z from "zod";
-import { MessageSchema } from "./message.schema";
+import { AssistantMessageSchema, MessageSchema, UserMessageSchema } from "./message.schema";
 
 export const ConversationSchema = z.object({
   conversationId: z.uuid(),
   createdAt:z.iso.datetime(),
   updatedAt:z.iso.datetime().nullable(),
-  messages: z.array(MessageSchema),
+  messages: z.array( UserMessageSchema.or(AssistantMessageSchema)),
   title: z.string(),
 })
 

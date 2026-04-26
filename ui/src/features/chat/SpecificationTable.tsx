@@ -1,11 +1,17 @@
+import type z from "zod"
 import dataManipulation from "../../services/dataManipulation.services"
+import type { SpecifcationRowSchema } from "../../types/message.schema"
 
-const SpecificationTable = ({specs}:{specs:{"model":string,"gun_count":number, "waterproof":boolean, "height":number, "width": number }[]}) => {
+type SpecificationTableProps = {
+	specs: z.infer<typeof SpecifcationRowSchema>[]
+}
 
-	const headers = Object.keys(specs[0]) as (keyof typeof specs[number])[] 
+const SpecificationTable = ({ specs }: SpecificationTableProps ) => {
+
+	const headers = Object.keys(specs[0]) as (keyof typeof specs[number])[]
 	const convertedHeaders = dataManipulation.capitalizeFirstChar(headers)
 
-	return(
+	return (
 		<div className="overflow-x-auto     
 			/* scrollbar size */
 	    [&::-webkit-scrollbar]:h-2
@@ -19,8 +25,8 @@ const SpecificationTable = ({specs}:{specs:{"model":string,"gun_count":number, "
 				<thead className="">
 					<tr className="text-black ">
 						{
-							convertedHeaders.map( header => {
-								return(
+							convertedHeaders.map(header => {
+								return (
 									<th className={`
 									p-2 																
 									border-t-black
@@ -31,13 +37,11 @@ const SpecificationTable = ({specs}:{specs:{"model":string,"gun_count":number, "
 									last:rounded-tr-lg
 									last:border-r
 									last:border-r-black
-									bg-gray-300
-									font-semibold
-									${header === "Model" 
-									? 'text-left'
-									: header === "Waterproof"
-										? 'text-center'
-										:'text-right'}`} >
+									${header === "Model"
+											? 'text-left'
+											: header === "Waterproof"
+												? 'text-center'
+												: 'text-right'}`} >
 										{header}
 									</th>
 								)
@@ -47,12 +51,12 @@ const SpecificationTable = ({specs}:{specs:{"model":string,"gun_count":number, "
 				</thead>
 				<tbody>
 					{
-						specs.map( (spec, index) => {
-							return(
+						specs.map((spec, index) => {
+							return (
 								<tr className="p-2 hover:bg-red-100">
 									{
-										Object.entries(spec).map( ([key,value]) => {
-											return(
+										Object.entries(spec).map(([key, value]) => {
+											return (
 												<td className={`
 													p-2 
 													odd:
@@ -62,20 +66,20 @@ const SpecificationTable = ({specs}:{specs:{"model":string,"gun_count":number, "
 													first:border-l-black
 													last:border-r 
 													last:border-r-black
-													${key === "model" ? "font-medium":""}
-													${typeof value === "number" 
-													? "text-right"
-													: typeof value === "boolean"
-														? "text-center"
-														: "text-left"}
-													${index === Object.values(specs).length - 1 ? 'first:rounded-bl-lg last:rounded-br-lg border-b-black':''}
-													${index % 2 === 0 ? "":""}
+													${key === "model" ? "font-medium" : ""}
+													${typeof value === "number"
+														? "text-right"
+														: typeof value === "boolean"
+															? "text-center"
+															: "text-left"}
+													${index === Object.values(specs).length - 1 ? 'first:rounded-bl-lg last:rounded-br-lg border-b-black' : ''}
+													${index % 2 === 0 ? "" : ""}
 												`}>
-													{typeof value === 'boolean' 
-													? value 
-														? "Yes"
-														:"No"
-													: value}
+													{typeof value === 'boolean'
+														? value
+															? "Yes"
+															: "No"
+														: value}
 												</td>
 											)
 										})

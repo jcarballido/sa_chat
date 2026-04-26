@@ -18,8 +18,8 @@ export async function verifyAdjacentIntentNode(state: State) : Promise<Update> {
       retries: state.retries + 1
     }
   }
-  const parsedResponse = JSON.parse(regexTest.match.trim())
-  const safeParseResult = AdjacentIntentResponse.safeParse(parsedResponse)
+  const result = regexTest.match
+  const safeParseResult = AdjacentIntentResponse.safeParse(result)
   if(safeParseResult.error){
     console.log("SAFE PARSE RESULT ERROR")
     console.log(safeParseResult)

@@ -76,7 +76,7 @@ const conversations: z.infer<typeof ConversationSchema>[] = [
             id: "m7",
             conversationId: "e3c1d8f4-6a7b-4c2d-9e1f-3a4b5c6d7e33",
             role: "user",
-            content: "Yeah it's overflowing horizontally.",
+            content: "Yeah its overflowing horizontally.",
             createdAt: "2026-04-18T14:25:00.000Z",
             status: "sending",
         },
@@ -85,5 +85,5 @@ const conversations: z.infer<typeof ConversationSchema>[] = [
 ];
 
 export default {
-    conversations
+    conversations,
 }

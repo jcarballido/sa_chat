@@ -1,14 +1,16 @@
 import z from "zod";
 
 export const SpecifcationRowSchema = z.object({ model: z.string(), waterproof: z.boolean(), height: z.number(), width: z.number(), depth: z.number(), gun_count: z.number(), fire_rating_time: z.number(), fire_rating_temp: z.number() })
-
+export const RemoveModel = SpecifcationRowSchema.omit({
+  model:true
+})
 const ComparisonResultSchema = z.record(z.string(), z.array(SpecifcationRowSchema)).refine(obj => Object.keys(obj).length === 1, {
   message: "Each object can only have one key."
 })
 
 export const AssistantMessageContentSchema = z.discriminatedUnion("type", [
   z.object({
-    type: z.enum(["product_lookup_by_model", "product_lookup_by_specs"]),
+    type: z.enum(["product_lookup_by_model", "product_lookup_by_specs","product_comparison"]),
     text: z.string().nullable(),
     data: z.array(SpecifcationRowSchema)
   }),
@@ -17,6 +19,11 @@ export const AssistantMessageContentSchema = z.discriminatedUnion("type", [
     text: z.string().nullable(),
     data: z.array(ComparisonResultSchema)
   }),
+  // z.object({
+  //   type: z.literal("product_comparison"),
+  //   text: z.string().nullable(),
+  //   data: z.record(z.string(),RemoveModel)
+  // })
 ])
 
 export const MessageSchema = z.object({

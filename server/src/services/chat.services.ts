@@ -74,12 +74,12 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
         if(filteredMatches.length < 2) return "At least 2 model numbers required."
         const specs = executionService.getModelSpecs(filteredMatches)
         if(specs.length < 2) return "Could not locate specs for all model numbers to compare"
-        const resultingSpecs: {[K in SpecificationRow["model"]]:Omit<SpecificationRow,"model">} = {}
-        for(const spec of specs){
-          const {model,...rest} = spec
-          resultingSpecs[model] = {...rest} 
-        }
-        return JSON.stringify({type: "product_comparison", text: null,data:resultingSpecs})
+        // const resultingSpecs: SpecificationRow[] = []
+        // for(const spec of specs){
+        //   // const {model,...rest} = spec
+        //   resultingSpecs[model] = {...spec} 
+        // }
+        return JSON.stringify({type: "product_comparison", text: null,data:specs})
       }
       
       if(focusedIntentClassification == "product_lookup_by_model"){

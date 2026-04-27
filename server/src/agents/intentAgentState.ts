@@ -15,6 +15,7 @@ export const agentState = new StateSchema({
   latestLLMResponse: z.string().nullable().default(null),
   inventoryStore: z.array(z.string()),
   initialMessage: z.string(),
+  title:z.string(),
   initialMessageClassification: z.enum(["malicious","out_of_scope","adjacent","focused"]).nullable().default(null),
   retries: z.number().default(0),
   maliciousIntent: z.boolean().default(false),

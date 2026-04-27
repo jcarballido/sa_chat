@@ -16,7 +16,7 @@ const ScrollingContainer = () => {
 
   if(!session){
     return(
-      <div className={`flex flex-col h-full w-[70%] gap-2 p-2 bg-transparent`}>
+      <div className={`flex flex-col h-full w-[70%] gap-2 p-2 bg-transparent `}>
         <div className="grow overflow-y-auto overflow-x-hidden resize-none   
         [&::-webkit-scrollbar]:w-1
         [&::-webkit-scrollbar-track]:bg-transparent

@@ -13,7 +13,12 @@ export const supabase = createClient(
 )
 
 supabase.auth.onAuthStateChange((event, session) => {
-  if(session) useAuthStore.getState().setSession(session)
+  if(session) {
+    useAuthStore.getState().setSession(session)
+    if(session.user){
+      useAuthStore.getState().setUser(session.user)
+    }
+  }
 })
 
 const hash = window.location.hash

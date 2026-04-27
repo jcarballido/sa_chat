@@ -21,7 +21,7 @@ const SpecificationTable = ({ specs }: SpecificationTableProps ) => {
 			[scrollbar-width:thin]
 			[scrollbar-color:rgba(255,255,255,0.2)] "
 		>
-			<table className=" p-2 w-full border-separate border-spacing-0 rounded-xl">
+			<table className=" p-2 w-full border-separate border-spacing-0 rounded-xl whitespace-nowrap">
 				<thead className="">
 					<tr className="text-black ">
 						{

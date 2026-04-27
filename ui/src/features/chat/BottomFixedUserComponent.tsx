@@ -1,14 +1,15 @@
-import React, { useState, type MouseEventHandler } from 'react';
+import { useState, type MouseEventHandler } from 'react';
 import LogoutSVG from '../../assets/logout.svg'
 import { supabase } from '../../supabase/client';
+import { useAuthStore } from '../../stores/auth.store';
 
 interface BottomFixedUserComponentProps {
-  children?: React.ReactNode;
   style?: React.CSSProperties;
 }
 
-const BottomFixedUserComponent: React.FC<BottomFixedUserComponentProps> = ({ children, style }) => {
+const BottomFixedUserComponent = ({ style }: BottomFixedUserComponentProps) => {
   const [ showSlide, setShowSlide ] = useState(false)
+  const { user } = useAuthStore()
 
   const handleSignOut: MouseEventHandler = async (e) => {
     e.preventDefault()
@@ -19,15 +20,20 @@ const BottomFixedUserComponent: React.FC<BottomFixedUserComponentProps> = ({ chi
     }
   }
 
+  const id = user?.email!.replace(/(@gmail.com)/,"")
+  const firstLetter = id?.charAt(0).toUpperCase()
+
   return (
-    <div className="shadow-lg flex justify-start gap-2 relative" style={style}>
+    <div className="shadow-lg flex justify-start items-center gap-2 relative" style={style}>
       <button className={`w-full p-2 bg-gray-400 rounded-xl absolute flex gap-2 -translate-y-[120%] origin-bottom transition duration-150 ease-in ${showSlide ? "scale-y-100":"scale-y-0"} `} onClick={handleSignOut}>
         <img src={LogoutSVG} className={`transition delay-150 ease-in ${showSlide ? "text-white":"text-transparent"}`}/>
         <div className={`transition delay-150 ease-in ${showSlide ? "text-white":"text-transparent"} font-semibold`}>Sign Out</div>
       </button>
-      <div className='aspect-square h-8 rounded-full bg-amber-400  ' />
-      <div className={`whitespace-nowrap flex items-center justify-start `} onClick={()=>setShowSlide(!showSlide)}>
-        F. LName
+      <div className='aspect-square h-8 rounded-full bg-blue-500 flex justify-center items-center font-extrabold text-xl  '>
+        {firstLetter}
+      </div>
+      <div className={`whitespace-nowrap flex items-center justify-start p-2`} onClick={()=>setShowSlide(!showSlide)}>
+        {id}
       </div>
     </div>
   );

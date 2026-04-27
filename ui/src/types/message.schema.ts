@@ -10,20 +10,23 @@ const ComparisonResultSchema = z.record(z.string(), z.array(SpecifcationRowSchem
 
 export const AssistantMessageContentSchema = z.discriminatedUnion("type", [
   z.object({
+    title: z.string(),
     type: z.enum(["product_lookup_by_model", "product_lookup_by_specs","product_comparison"]),
     text: z.string().nullable(),
     data: z.array(SpecifcationRowSchema)
   }),
   z.object({
+    title: z.string(),
     type: z.enum(["similar_products"]),
     text: z.string().nullable(),
     data: z.array(ComparisonResultSchema)
   }),
-  // z.object({
-  //   type: z.literal("product_comparison"),
-  //   text: z.string().nullable(),
-  //   data: z.record(z.string(),RemoveModel)
-  // })
+  z.object({
+    title: z.string(),
+    type: z.enum(["malicious","out_of_scope"]),
+    text: z.string().nullable(),
+    data: null
+  })
 ])
 
 export const MessageSchema = z.object({

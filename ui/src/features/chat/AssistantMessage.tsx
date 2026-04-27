@@ -12,7 +12,7 @@ const AssistantMessage = ({ assistantMessage }: { assistantMessage: AssistantMes
       console.log("ERROR VALIDATING CONTENT: ")
       console.log(validatedResult.error)
       return (
-        <div className={` my-8 text-black`}>
+        <div className={` my-8 text-[#e4e4e4]`}>
           <div className={`w-full p-2 rounded-xl`}>
             ERROR WITH DOMAIN DATA
           </div>
@@ -22,7 +22,7 @@ const AssistantMessage = ({ assistantMessage }: { assistantMessage: AssistantMes
     const content = validatedResult.data
     if(content.data.length === 0){
     return (
-      <div className={`my-8 text-black`}>
+      <div className={`my-8 text-[#121212]`}>
         <div className={`w-full p-2 rounded-xl`}>
           No results found.
         </div>

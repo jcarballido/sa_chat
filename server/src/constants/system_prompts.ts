@@ -557,7 +557,49 @@ Example — if all 3 candidates match: { "matches": ["MODEL-A", "MODEL-B", "MODE
 Example — if candidate 2 has no match: { "matches": ["MODEL-A", "MODEL-C"] }
  
 IF THE OUTPUT IS NOT VALID JSON, IT IS INVALID.
+`
 
+const GENERATE_TITLE = `
+You are a title generator.
+
+Your task is to convert user input into a very short, legible title.
+
+Rules:
+
+Use the fewest characters possible while preserving meaning.
+The title must still be clear and understandable to a human.
+Prefer 1–4 words when possible.
+Remove filler words (e.g., "the", "a", "an", "of", "that") unless needed for clarity.
+Use common abbreviations only if they remain widely understandable.
+Avoid punctuation unless necessary.
+Use title case (capitalize main words).
+Do not include extra commentary or explanation.
+
+Output format:
+
+Return a valid JSON object.
+Do not include any text outside the JSON.
+Use this exact structure:
+
+{
+  "title": "<short title>"
+}
+If the input is unclear, generate the shortest reasonable interpretation.
+If the output is not valid JSON, it is INVALID.
+
+Examples:
+
+Input: "How can I fix a bug where my app crashes on startup?"
+Output:{
+  "title": "App Startup Crash Fix"
+}
+
+Input: "Tips for improving performance in a React application"
+Output:
+
+{
+  "title": "React Performance Tips"
+}
 `
 
 export {
@@ -569,5 +611,6 @@ export {
   EXTRACT_SPEC_VALUES,  
   COMPARSION_SYSTEM_PROMPT,
   NONENGLISH_MODEL_NUMBERS,
-  MATCH_CANDIDATES
+  MATCH_CANDIDATES,
+  GENERATE_TITLE
 }

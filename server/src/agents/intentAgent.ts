@@ -17,6 +17,8 @@ import { modelMatchingNode } from "./nodes/modelMatchingNode.js"
 import { verifyModelTokenExtractorNode } from "./nodes/verifyModelTokenExtractorNode.js"
 import { specValueExtractionNode } from "./nodes/specValueExtractionNode.js"
 import { verifySpecValueExtractionNode } from "./nodes/verifySpecValueExtractionNode.js"
+import { generateTitleNode } from "./nodes/generateTitleNode.js"
+import { verifyGeneratedTitleNode } from "./nodes/verifyGeneratedTitle.js"
 
 export const intentAgent = new StateGraph(agentState)
   .addNode("classifyInitialMessageNode", classifyInitialMessageNode)
@@ -32,7 +34,21 @@ export const intentAgent = new StateGraph(agentState)
   .addNode("verifySpecExtractionNode",verifySpecExtractionNode)
   .addNode("specValueExtraction",specValueExtractionNode)
   .addNode("verifySpecValueExtraction", verifySpecValueExtractionNode)
-  .addEdge("__start__", "classifyInitialMessageNode")
+  .addNode("generateTitleNode",generateTitleNode)
+  .addNode("verifyGeneratedTitleNode",verifyGeneratedTitleNode)
+  .addEdge("__start__","generateTitleNode")
+  .addEdge("generateTitleNode","verifyGeneratedTitleNode")
+  .addConditionalEdges("verifyGeneratedTitleNode",(agentState) => {
+    if(agentState.retries < 5) return "RETRY"
+    if(agentState.retries >= 5) {
+      agentState.title = "Title"
+      return "CLASSIFY_INITIAL_MESSAGE"
+    }
+    return "CLASSIFY_INITIAL_MESSAGE"
+  },{
+    "CLASSIFY_INITIAL_MESSAGE": "classifyInitialMessageNode",
+    "RETRY": "generateTitleNode"
+  } )
   .addEdge("classifyInitialMessageNode", "verifyClassificationNode")
   .addConditionalEdges("verifyClassificationNode", (agentState) => {
     const classification = agentState.initialMessageClassification

@@ -49,16 +49,16 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
   
   async function executeIntent(agentState:State): Promise<string>  {
 
-    const {initialMessageClassification, relatedIntent, relatedIntentLLMResponse, focusedIntent, focusedIntentClassification, filteredMatches} = agentState
+    const {initialMessageClassification, relatedIntent, relatedIntentLLMResponse, focusedIntent, focusedIntentClassification, filteredMatches, title} = agentState
 
     if(initialMessageClassification === "malicious") {
       const number = Math.floor(Math.random() * ((MALICIOUS_INTENT_RESPONSES.length - 1)));
-      return MALICIOUS_INTENT_RESPONSES[number] ?? "Sensitive data can only be accessed and used within this system — I can’t send it elsewhere."
+      return JSON.stringify({title,type:"malicious",text:MALICIOUS_INTENT_RESPONSES[number] ?? "Sensitive data can only be accessed and used within this system — I can’t send it elsewhere.",data:null})
     }
 
     if(initialMessageClassification === "out_of_scope"){
       const number = Math.floor(Math.random() * (OUT_OF_SCOPE_RESPONSES.length - 1));
-      return MALICIOUS_INTENT_RESPONSES[number] ?? JSON.stringify({type:"out_of_scope",text:"That\’s outside my lane, I\’m here for more specific tasks.",data:null})
+      return JSON.stringify({title,type:"out_of_scope",text:MALICIOUS_INTENT_RESPONSES[number] ?? "That\’s outside my lane, I\’m here for more specific tasks.",data:null})
     }
 
     if(relatedIntent) return relatedIntentLLMResponse
@@ -67,7 +67,7 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
       console.log("Focused Intent Classification: ", focusedIntentClassification)
       if(focusedIntentClassification == "similar_products"){
         const res = await executionService.getSimilarModels(filteredMatches)
-        return JSON.stringify({type:"similar_products", text: null,data: res})        
+        return JSON.stringify({title,type:"similar_products", text: null,data: res})        
       }
 
       if(focusedIntentClassification == "product_comparison"){
@@ -79,12 +79,12 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
         //   // const {model,...rest} = spec
         //   resultingSpecs[model] = {...spec} 
         // }
-        return JSON.stringify({type: "product_comparison", text: null,data:specs})
+        return JSON.stringify({title,type: "product_comparison", text: null,data:specs})
       }
       
       if(focusedIntentClassification == "product_lookup_by_model"){
           const res = executionService.getModelSpecs(filteredMatches)
-          return JSON.stringify({type:"product_lookup_by_model", text:null,data:res})
+          return JSON.stringify({title,type:"product_lookup_by_model", text:null,data:res})
       }
       if(focusedIntentClassification == "product_lookup_by_specs"){
         const returnedSpecValues:z.infer<(typeof ReturnedSpecValue)> = agentState.focusedIntentSpecValuesExtracted.specValues
@@ -94,7 +94,7 @@ export function buildServices(llm: LLMcall, executionService: ReturnType<typeof 
         }) as TransformedSpec[]
         const filteredRequestedSpecValues = convertedSpecValues.filter(spec => spec.value !== null )
         const res = await executionService.getSpecs(filteredRequestedSpecValues)
-        if (res !== undefined) return JSON.stringify({type:"product_lookup_by_specs",text:null,data:res})
+        if (res !== undefined) return JSON.stringify({title,type:"product_lookup_by_specs",text:null,data:res})
       }
     }
     return "FOCUSED INTENT RETURNED, BUT NOT SIMILAR PRODUCTS CLASSIFICATION"

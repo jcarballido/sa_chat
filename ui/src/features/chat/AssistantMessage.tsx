@@ -63,6 +63,8 @@ const AssistantMessage = ({ assistantMessage }: { assistantMessage: AssistantMes
 
   } catch (error) {
     console.log("CONTENT COULD NOT BE PARSED WITH JSON.parse")
+    console.log("RESULT:")
+    console.log(result)
     return (
       <div className={` my-8 text-black`}>
         <div className={`w-full p-2 rounded-xl`}>

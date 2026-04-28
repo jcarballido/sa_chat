@@ -6,13 +6,16 @@ import { AssistantMessageSchema, type AssistantMessageType, type UserMessageType
 export const useChat = () => {
   const [ isLoading, setIsLoading ] = useState(false)
   const messageStore = useMessageStore()
-  const { activeConversationId, addMessage } = messageStore
+  const { activeConversationId, addMessage, conversations } = messageStore
+
+  const title = activeConversationId ? conversations.filter(conv => conv.conversationId === activeConversationId)[0].title : null
 
   const sendUserMessage = async(input: string) => {
 
     const createNewMessage = (newUserMessage:string, activeConversationId: string | null): UserMessageType => ({
       id:`${Math.random()}`,
       conversationId: activeConversationId ?? `${Math.random()}`,
+      title: title,
       role:"user",
       content: newUserMessage,
       createdAt:new Date().toISOString(),
@@ -20,8 +23,6 @@ export const useChat = () => {
     })
 
     const userMessage = createNewMessage(input, activeConversationId)
-    console.log("USER MESSAGE CREATED WITH CONVO ID: ", userMessage.conversationId)
-    console.log("ACTIVE CONVO ID IN STATE: ", activeConversationId)
 
     try {
       addMessage(userMessage)

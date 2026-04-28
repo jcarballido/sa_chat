@@ -43,6 +43,7 @@ export const AssistantMessageSchema = MessageSchema.extend({
 
 export const UserMessageSchema = MessageSchema.extend({
   role: z.literal("user"),
+  title: z.string().nullable()
 })
 
 export type MessageType = z.infer<typeof MessageSchema>

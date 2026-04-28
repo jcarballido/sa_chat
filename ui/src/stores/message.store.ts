@@ -10,7 +10,8 @@ type State = {
 
 type Action = {
   addMessage:(message: UserMessageType | AssistantMessageType,options?:{conversationId?: string}) => void,
-  setActiveConversation:(conversationId: string | null)=> void
+  setActiveConversation:(conversationId: string | null)=> void,
+  setConversationTitle: (title: string, activeConversationId: string) => void
 }
 
 const createConversation = (initialMessage: UserMessageType) => {
@@ -19,7 +20,7 @@ const createConversation = (initialMessage: UserMessageType) => {
     createdAt:new Date().toISOString(),
     updatedAt:null,
     messages:[initialMessage],
-    title:"Test Title"
+    title:""
   }
   return conversation
 }
@@ -36,7 +37,7 @@ export const useMessageStore = create<State & Action>()(
 
           return set((state) => ({
             activeConversationId: message.conversationId!,
-            conversations: [...state.conversations,newConversation]
+            conversations: [...state.conversations,newConversation],
           }))
         }
         if(activeConversationId === message.conversationId)
@@ -48,7 +49,19 @@ export const useMessageStore = create<State & Action>()(
           })
         }))
       },
-      setActiveConversation:(activeConversationId: string | null) => set({activeConversationId})
+      setActiveConversation:(activeConversationId: string | null) => set({activeConversationId}),
+      setConversationTitle:(title: string, activeConversationId: string) => set((state)=> {
+        const convs = state.conversations
+        const updated = convs.map(conv => {
+          if(conv.conversationId === activeConversationId){
+            if(!conv["title"] || conv.title === "") conv["title"] === title 
+          }
+          return conv
+        })
+        return {
+          conversations: [...updated]
+        }
+      })
     }),{name:'message-store'}
   )
 )

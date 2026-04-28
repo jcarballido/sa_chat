@@ -1,11 +1,11 @@
-import useAsideData from "../../hooks/useAsideData.hooks"
+import useData from "../../hooks/useData.hooks"
 import useInteraction from "../../hooks/useInteraction.hooks"
 import SecondaryActionButton from "../../shared/SecondaryActionButton"
 import { useMessageStore } from "../../stores/message.store"
 
 const StoredConversations = () => {
   const setActiveConversation = useMessageStore(s=>s.setActiveConversation)  
-  const conversations = useAsideData()
+  const {conversations } = useData()
   const { disabled } = useInteraction()
 
   return(

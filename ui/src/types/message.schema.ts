@@ -34,7 +34,8 @@ export const MessageSchema = z.object({
   conversationId: z.string().nullable(),
   createdAt: z.iso.datetime(),
   content: z.string(),
-  status: z.enum(["delivered", "error", "sending"])
+  status: z.enum(["delivered", "error", "sending"]),
+  title: z.string().nullable()
 })
 
 export const AssistantMessageSchema = MessageSchema.extend({
@@ -43,7 +44,7 @@ export const AssistantMessageSchema = MessageSchema.extend({
 
 export const UserMessageSchema = MessageSchema.extend({
   role: z.literal("user"),
-  title: z.string().nullable()
+  
 })
 
 export type MessageType = z.infer<typeof MessageSchema>

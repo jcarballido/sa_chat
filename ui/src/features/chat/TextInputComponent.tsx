@@ -5,10 +5,11 @@ import { colorMap } from "../../constants/colorTheme.constants";
 interface TextInputComponentProps {
   value: string;
   isLoading: boolean;
-  submit: (message:string) => void
+  submit: (message:string) => void,
+  disabled: boolean
 }
 
-const TextInputComponent = ({ value, isLoading, submit }: TextInputComponentProps) => {
+const TextInputComponent = ({ value, isLoading, submit, disabled }: TextInputComponentProps) => {
 
   const [ input, setInput ] = useState(value)
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -36,7 +37,7 @@ const TextInputComponent = ({ value, isLoading, submit }: TextInputComponentProp
   }
 
   return(
-    <form onSubmit={handleSubmit} className="flex justify-center items-end p-2 gap-4 rounded-xl border-2 border-stone-400 focus-within:border-2 focus-within:border-[rgb(251,44,54)] transition duration-300  bg-stone-300">  
+    <form onSubmit={handleSubmit} className="flex justify-center items-end p-2 gap-4 rounded-xl border-2 border-stone-400 focus-within:border-2 focus-within:border-[rgb(251,44,54)] transition duration-300  bg-stone-300 w-full">  
       <textarea
         className="flex flex-col p-2 min-h-11 max-h-64 grow outline-none resize-none   
           [&::-webkit-scrollbar]:w-1.5
@@ -46,12 +47,13 @@ const TextInputComponent = ({ value, isLoading, submit }: TextInputComponentProp
         ref={textAreaRef}
         rows={1}
         value={input}
+        disabled={disabled}
         onChange={(e) =>{
           setInput(e.target.value)
         }}
       />
       <div className="flex flex-col justify-end">
-        <button className={`text-white rounded-xl aspect-square transition duration-500 ${input === ''? 'bg-gray-600': colorMap.accent} flex justify-center items-center min-w-11`}  type="submit" disabled={input === ''}>
+        <button className={`text-white rounded-xl aspect-square transition duration-500 ${input === ''? 'bg-gray-600': colorMap.accent} flex justify-center items-center min-w-11`}  type="submit" disabled={input === '' || disabled}>
           <img className='min-w-8' src={SendSVG} />
         </button>
       </div>

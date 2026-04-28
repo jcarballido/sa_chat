@@ -29,9 +29,9 @@ const BottomFixedUserComponent = ({ style }: BottomFixedUserComponentProps) => {
         <img src={LogoutSVG} className={`transition delay-150 ease-in ${showSlide ? "text-white":"text-transparent"}`}/>
         <div className={`transition delay-150 ease-in ${showSlide ? "text-white":"text-transparent"} font-semibold`}>Sign Out</div>
       </button>
-      <div className='aspect-square h-8 rounded-full bg-blue-500 flex justify-center items-center font-extrabold text-xl  '>
+      {user ? <div className='aspect-square h-8 rounded-full bg-blue-500 flex justify-center items-center font-extrabold text-xl  '>
         {firstLetter}
-      </div>
+      </div> : null}  
       <div className={`whitespace-nowrap flex items-center justify-start p-2`} onClick={()=>setShowSlide(!showSlide)}>
         {id}
       </div>

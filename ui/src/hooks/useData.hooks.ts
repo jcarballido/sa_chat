@@ -6,7 +6,7 @@ const useData = () => {
     const preview = usePreviewMode()
     const { conversations, activeConversationId } = useMessageStore()
 
-    console.log("FAKE ID:",placeholderData.activeId)
+    // console.log("FAKE ID:",placeholderData.activeId)
 
     if(preview) return {conversations: placeholderData.conversations, activeConversationId:placeholderData.activeId}
 

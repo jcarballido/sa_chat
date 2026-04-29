@@ -1,4 +1,4 @@
-import type z from "zod"
+// import type z from "zod"
 import { AssistantMessageContentSchema, type AssistantMessageType } from "../../types/message.schema"
 import SpecificationTable from "./SpecificationTable"
 
@@ -6,8 +6,8 @@ const AssistantMessage = ({ assistantMessage }: { assistantMessage: AssistantMes
   // try {
   const result = assistantMessage.content
   try {
-    const parsed: z.infer<typeof AssistantMessageContentSchema> = JSON.parse(result)
-    const validatedResult = AssistantMessageContentSchema.safeParse(parsed)
+    // const parsed: z.infer<typeof AssistantMessageContentSchema> = JSON.parse(result)
+    const validatedResult = AssistantMessageContentSchema.safeParse(result)
     if (validatedResult.error) {
       console.log("ERROR VALIDATING CONTENT: ")
       console.log(validatedResult.error)
@@ -62,13 +62,13 @@ const AssistantMessage = ({ assistantMessage }: { assistantMessage: AssistantMes
     )
 
   } catch (error) {
-    console.log("CONTENT COULD NOT BE PARSED WITH JSON.parse")
+    // console.log("CONTENT COULD NOT BE PARSED WITH JSON.parse")
     console.log("RESULT:")
     console.log(result)
     return (
       <div className={` my-8 text-black`}>
         <div className={`w-full p-2 rounded-xl`}>
-          {result}
+          {result.text}
         </div>
       </div>
     )

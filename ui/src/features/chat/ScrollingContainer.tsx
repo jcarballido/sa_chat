@@ -12,9 +12,9 @@ const ScrollingContainer = () => {
   const {conversations, activeConversationId} = useData()
   const sentinel = useConversationSentinel(conversations)
 
-  console.log("CONVERSATIONS:")
-  console.log(conversations)
-  console.log("activeConversationId",activeConversationId)
+  // console.log("CONVERSATIONS:")
+  // console.log(conversations)
+  // console.log("activeConversationId",activeConversationId)
 
   return (
     <div className={`flex flex-col h-full w-[70%] gap-2 p-2 bg-transparent`}>

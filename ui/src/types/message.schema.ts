@@ -1,9 +1,11 @@
 import z from "zod";
 
 export const SpecifcationRowSchema = z.object({ model: z.string(), waterproof: z.boolean(), height: z.number(), width: z.number(), depth: z.number(), gun_count: z.number(), fire_rating_time: z.number(), fire_rating_temp: z.number() })
+
 export const RemoveModel = SpecifcationRowSchema.omit({
   model:true
 })
+
 const ComparisonResultSchema = z.record(z.string(), z.array(SpecifcationRowSchema)).refine(obj => Object.keys(obj).length === 1, {
   message: "Each object can only have one key."
 })
@@ -25,11 +27,11 @@ export const AssistantMessageContentSchema = z.discriminatedUnion("type", [
     title: z.string(),
     type: z.enum(["malicious","out_of_scope"]),
     text: z.string().nullable(),
-    data: null
+    data: z.null()
   })
 ])
 
-export const MessageSchema = z.object({
+export const MessageSchema = z.object({ 
   id: z.string(),
   conversationId: z.string().nullable(),
   createdAt: z.iso.datetime(),

@@ -1,7 +1,6 @@
 import { ApiResponseSchema } from "../types/api.schema";
 import { type UserMessageType, type AssistantMessageType, AssistantMessageSchema } from "../types/message.schema";
 
-
 async function send (userMessage: UserMessageType ): Promise<AssistantMessageType> {
   
   try {
@@ -30,6 +29,7 @@ async function send (userMessage: UserMessageType ): Promise<AssistantMessageTyp
     return data
   
   } catch (error) {
+    console.log("Error thrown: ", error)
     throw error
   }
 }

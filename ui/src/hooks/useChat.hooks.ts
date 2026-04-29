@@ -27,9 +27,11 @@ export const useChat = () => {
     try {
       addMessage(userMessage)
       const assistantMessage = await messageService.send(userMessage)
+      console.log("ASSISTANT MESSAGE: ", assistantMessage)
       const result: AssistantMessageType = AssistantMessageSchema.parse(assistantMessage)
       addMessage(result)
     } catch (error) {
+
       console.error(error)
     }finally{
       setIsLoading(false)

@@ -1,13 +1,13 @@
 import { type FastifyRequest } from "fastify";
-import { ResponseMessageSchema } from "../schemas/schemas.js"
+import { RequestMessageSchema } from "../schemas/schemas.js"
 
 export function buildChatController(service:ReturnType<typeof import("../services/chat.services.js").buildServices>) {
 
   async function processMessage(request: FastifyRequest) {
     console.log("REQUEST BODY:")
     console.log(request.body)
-    const body = ResponseMessageSchema.safeParse(request.body)
-    if(body.error){
+    const result = RequestMessageSchema.safeParse(request.body)
+    if(result.error){
       return{
         status:"error",
         data:null,
@@ -17,24 +17,37 @@ export function buildChatController(service:ReturnType<typeof import("../service
         }
       }
     }
-    const {id,conversationId,content} = body.data
+
+    const requestMessage = result.data
+
+    console.log("---chat.controller---")
+    console.log("BODY DATA")
+    console.log(result.data)
+    console.log(typeof(result.data))
+
     try {
-      const llmResponse = await service.generateRespone(content)
+      const llmResponse = await service.generateRespone(result.data)
+      console.log("LLMR RESPONSE")
+      console.log(llmResponse)
+      console.log(typeof(llmResponse))
+      const {title,...rest} = llmResponse
   
       return {
         status:"success",
         data:{
-          id,
-          conversationId: conversationId,
+          id: requestMessage.id,
+          conversationId: requestMessage.conversationId,
+          conversationTitle: title,
           role:"assistant",
-          content:llmResponse,
+          content:JSON.stringify(rest),
           createdAt: new Date().toISOString(),
           status: "delivered"
         },
         error: null
       }      
     } catch (error) {
-      
+      console.log("ERROR  in chat.controllers")
+      console.log(error)
       return {
         status:"error",
         data:null,
@@ -45,39 +58,6 @@ export function buildChatController(service:ReturnType<typeof import("../service
       }
     }
   }
-
-  // async function test(request:FastifyRequest): Promise<z.infer<ReturnType<typeof ApiResponseSchema<typeof ResponseMessageSchema>>>> {
-  //   console.log("REQUEST BODY:")
-  //   console.log(request.body)
-  //   const body = ResponseMessageSchema.safeParse(request.body)
-  //   // const body = request.body
-  //   if(body.error){
-  //     console.log("ERROR PARSING BODY:")
-  //     console.log(body)
-  //     return{
-  //       status:"error",
-  //       data:null,
-  //       error:{
-  //         code:"FAIL",
-  //         message:"Dummy fail message"
-  //       }
-  //     }
-  //   }
-  //   const {id,conversationId} = body.data
-  //   return {
-  //     status:"success",
-  //     data:{
-  //       id,
-  //       conversationId: conversationId,
-  //       role:"assistant",
-  //       content:`Dummy Response ${Math.random()}`,
-  //       createdAt: new Date().toISOString(),
-  //       status: "delivered"
-  //     },
-  //     error: null
-      
-  //   }
-  // }
 
   return{
     processMessage,

@@ -13,7 +13,7 @@ export const PromptSchema = z.object({
     .max(200, "Maximum message length exceeded")
 }).strict()
 
-export const SpecificationMap = {
+export const SpecificationMapSchema = {
   // "model":z.string(),
   "height":z.number(),
   "depth":z.number(),
@@ -22,9 +22,9 @@ export const SpecificationMap = {
   "fire_rating_temp":z.number(),
   "gun_count": z.number(),
   "waterproof":z.boolean()
-} as const
+} 
 
-export const ReturnedSpecValue = z.array(z.object({category: z.enum(Object.keys(SpecificationMap) as [keyof typeof SpecificationMap ]),value: z.array(z.string()).nullable()})) 
+export const ReturnedSpecValue = z.array(z.object({category: z.enum(Object.keys(SpecificationMapSchema) as [keyof typeof SpecificationMapSchema ]),value: z.array(z.string()).nullable()})) 
 
 export const SpecValueSchema = z.object({
   "specValues": ReturnedSpecValue
@@ -54,20 +54,49 @@ const magicLinkRequestSchema = z.object({
 })
 
 export const loginRequestResponseSchema = ApiResponseSchema(magicLinkRequestSchema)
+export const SpecifcationRowSchema = z.object({ model: z.string(), waterproof: z.boolean(), height: z.number(), width: z.number(), depth: z.number(), gun_count: z.number(), fire_rating_time: z.number(), fire_rating_temp: z.number() })
+export const RemoveModel = SpecifcationRowSchema.omit({
+  model:true
+})
+const ComparisonResultSchema = z.record(z.string(), z.array(SpecifcationRowSchema)).refine(obj => Object.keys(obj).length === 1, {
+  message: "Each object can only have one key."
+})
+
+export const AssistantMessageContentSchema = z.discriminatedUnion("type", [
+  z.object({
+    title: z.string(),
+    type: z.enum(["product_lookup_by_model", "product_lookup_by_specs","product_comparison"]),
+    text: z.string().nullable(),
+    data: z.array(SpecifcationRowSchema)
+  }),
+  z.object({
+    title: z.string(),
+    type: z.enum(["similar_products"]),
+    text: z.string().nullable(),
+    data: z.array(ComparisonResultSchema)
+  }),
+  z.object({
+    title: z.string(),
+    type: z.enum(["malicious","out_of_scope","related","other","empty"]),
+    text: z.string().nullable(),
+    data: null
+  })
+])
 
 export const ApiRequestBodySchema = <T extends z.ZodType>(dataSchema: T) => 
   z.object({
     id:z.string(),
     conversationId:z.string().nullable(),
     role:z.enum(["user", "assistant"]),
-    content:z.string(),
+    content:AssistantMessageContentSchema,
     createdAt:z.iso.datetime(),
     status: z.enum(["delivered","error","sending"])
   })
 
-export const RequestMessageSchema = () => 
+export const RequestMessageSchema =  
   z.object({
     id:z.string(),
+    title: z.string().nullable(),
     conversationId:z.string().nullable(),
     role:z.enum(["user", "assistant"]),
     content:z.string(),
@@ -75,15 +104,16 @@ export const RequestMessageSchema = () =>
     status: z.enum(["delivered","error","sending"])
   })
 
-export const ResponseMessageSchema = 
-  z.object({
-    id:z.string(),
-    conversationId:z.string(),
-    role:z.enum(["user", "assistant"]),
-    content:z.string(),
-    createdAt:z.iso.datetime(),
-    status: z.enum(["delivered","error","sending"])
-  })
+// export const ResponseMessageSchema = 
+//   z.object({
+//     id:z.string(),
+//     conversationId:z.string(),
+//     title: z.string().nullable(),
+//     role:z.enum(["user", "assistant"]),
+//     content:z.string(),
+//     createdAt:z.iso.datetime(),
+//     status: z.enum(["delivered","error","sending"])
+//   })
 
 export const AccessRequest = z.object({
     email: z.string()

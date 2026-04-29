@@ -1,10 +1,15 @@
 import { generalLLMAgent } from "../agents/generalAgent.js";
 import { intentAgent } from "../agents/intentAgent.js"
+import { RequestMessageSchema } from "../schemas/schemas.js";
 import type { LLMcall } from "../types/types.js"
 
 
 export async function buildLlmCall(): Promise<LLMcall> {
-  async function invokeIntentAgent(message: string, inventoriedModelNumbers: string[]) {
+  async function invokeIntentAgent(message: string, title: string, inventoriedModelNumbers: string[]) {
+
+    console.log("---BUILD LLM CALL---")
+    console.log(typeof(message))
+    console.log(message)
 
     function sanitizeUserPrompt(originalString: string): string{
       const targetRegex =  /[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*/g;
@@ -14,34 +19,34 @@ export async function buildLlmCall(): Promise<LLMcall> {
       return updatedString
     } 
 
-    const sanitizedInputMessage = sanitizeUserPrompt(message)
-    try {
+    
+    // const sanitizedInputMessage = sanitizeUserPrompt(message)
+    // console.log("SANITIZED INPUT")
+    // console.log(sanitizedInputMessage)
+      // const parsed = JSON.parse(message)
+      // console.log("JSON PARSED MESSAGE:")
+      // console.log(typeof(parsed))
+      // console.log(parsed)      
+      // const validatedResult = RequestMessageSchema.safeParse(parsed)
+      // if(validatedResult.error){
+      //   console.log("Validation error:")
+      //   console.log(validatedResult.error)
+      //   throw new Error("Error validating sanitized user message")
+  
+      // }
+      // const data = validatedResult.data
+      // const title = data.title ?? null
       const response = await intentAgent.invoke({
-        initialMessage: sanitizedInputMessage,
+        title,
+        initialMessage: message,
         inventoryStore: inventoriedModelNumbers
       })
-      return response
-    } catch (error) {
-      console.log("ERROR INVOKING intentAgent")
-      throw error
-    }
-  }
-  
-  async function invokeGeneralLLMAgent(systemPrompt: string ) {
-    try {
-      const res = await generalLLMAgent.invoke({
-        systemPrompt,
-      })
-      return res
-    } catch (error) {
-      console.log("ERROR INVOKING generalAgent")
-      throw error
-    }
-  }
+  return response
+}  
 
   return {
     invokeIntentAgent,
-    invokeGeneralLLMAgent
+    // invokeGeneralLLMAgent
   }
 }
 

@@ -65,8 +65,8 @@ export type InferRows<S extends Record<string,(t:any)=> any>> = {
 export type Prompts = keyof typeof prompts
 
 export type LLMcall = {
-  invokeIntentAgent: (message: string, inventoriedModelNumbers: string[]) => Promise<State>,
-  invokeGeneralLLMAgent: (systemPrompt: string) => Promise<GeneralLLMState>,
+  invokeIntentAgent: (message: string,title:string, inventoriedModelNumbers: string[]) => Promise<State>,
+  // invokeGeneralLLMAgent: (systemPrompt: string) => Promise<GeneralLLMState>,
 }
 
 export  type SpecificationSchema = typeof specificationSchema

@@ -12,6 +12,8 @@ async function send (userMessage: UserMessageType ): Promise<AssistantMessageTyp
     })
 
     const raw = await res.json()
+    console.log("RAW RESPONSE:")
+    console.log(raw)
 
     const result = ApiResponseSchema(AssistantMessageSchema).safeParse(raw)
     

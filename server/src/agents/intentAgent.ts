@@ -36,14 +36,19 @@ export const intentAgent = new StateGraph(agentState)
   .addNode("verifySpecValueExtraction", verifySpecValueExtractionNode)
   .addNode("generateTitleNode",generateTitleNode)
   .addNode("verifyGeneratedTitleNode",verifyGeneratedTitleNode)
-  .addEdge("__start__","generateTitleNode")
+  // .addEdge("__start__","generateTitleNode")
+  .addConditionalEdges("__start__", (agentState) => {
+    if(agentState.title) return "TITLE_EXISTS"
+    return "MISSING_TITLE"
+  },{
+    "TITLE_EXISTS":"classifyInitialMessageNode",
+    "MISSING_TITLE":"generateTitleNode"
+  })
   .addEdge("generateTitleNode","verifyGeneratedTitleNode")
   .addConditionalEdges("verifyGeneratedTitleNode",(agentState) => {
+    if(agentState.title) return "CLASSIFY_INITIAL_MESSAGE" 
     if(agentState.retries < 5) return "RETRY"
-    if(agentState.retries >= 5) {
-      agentState.title = "Title"
-      return "CLASSIFY_INITIAL_MESSAGE"
-    }
+    agentState.title = "Title"
     return "CLASSIFY_INITIAL_MESSAGE"
   },{
     "CLASSIFY_INITIAL_MESSAGE": "classifyInitialMessageNode",

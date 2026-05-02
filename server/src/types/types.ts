@@ -30,16 +30,21 @@ export type SpecCriteria = {
 export type Defined<T> = Exclude<T, undefined>
 
 export type Operators<T> = {
-  eq?:T,
-  neq?:T,
-  gt?:T,
-  gte?:T,
-  lt?:T,
-  lte?:T,
+  eq?: T,
+  neq?: T 
+  gt?:T 
+  gte?:T
+  lt?:T 
+  lte?:T
 }
 
 export type Filter<T> = {
-  [K in keyof T]?: Operators<T[K]>
+  [K in keyof T]? : Operators<T[K]>
+  // [K in keyof T]?: T[K] extends string
+  // ? {eq: string}
+  // : T[K] extends boolean
+  //   ? {eq: boolean}
+  //   : Operators<T[K]>
 }
 
 export type ConversionSchema = {

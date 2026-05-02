@@ -16,14 +16,14 @@ async function inventoryStorePlugin(fastify:FastifyInstance) {
   const filePath = path.join(process.cwd(),process.env.INVENTORY_SHEET)
   const REQUIRED_HEADERS = Object.keys(inventorySchema) as (keyof typeof inventorySchema)[]
   const inventoryStore = await buildStoreGeneric(filePath,inventorySchema, REQUIRED_HEADERS)
-  fastify.decorate("inventoryStore", inventoryStore)
+  // fastify.decorate("inventoryStore", inventoryStore)
 }
 
 export default fp(inventoryStorePlugin)
 
-declare module "fastify" {
-  interface FastifyInstance{
-    inventoryStore: InventoryStore
-  }
-}
+// declare module "fastify" {
+//   interface FastifyInstance{
+//     inventoryStore: InventoryStore
+//   }
+// }
 

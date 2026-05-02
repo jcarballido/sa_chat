@@ -1,5 +1,5 @@
 import type { MessageStore } from "./buildMessageStore.js";
-import type { CategoryHandler, Filter, InventoryStore, OmittedSpecRow, Operators, SchemaKey, SpecificationRow, SpecificationStore, TransformedSpec } from "../types/types.js";
+import type { CategoryHandler, Filter, InventoryStore, OmittedSpecRow, Operators,  SchemaKey, SpecificationRow, SpecificationStore, TransformedSpec } from "../types/types.js";
 import { specificationSchema } from "../plugins/specificationStore.plugin.js";
 
 export function buildDomainExecutionServices(inventoryStore: InventoryStore, specificationStore: SpecificationStore, messageStore: MessageStore) {

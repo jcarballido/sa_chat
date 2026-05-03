@@ -1,12 +1,12 @@
-import type { FastifyRequest } from "fastify";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 import { AccessRequest } from "../schemas/schemas.js";
 
-export function buildLoginController(services: Awaited<ReturnType<typeof import("../infrastructure/buildLoginServices.js").buildLoginServices>>){
+export function buildLoginController(loginServices: FastifyInstance["services"]["loginServices"] ){
 
   async function requestMagicLink(request: FastifyRequest) {
     console.log("Request: requestMagicLink")
     console.log(request.body)
-    const response = await services.processMagicLinkRequest(request.body)
+    const response = await loginServices.processMagicLinkRequest(request.body)
     console.log("RESULT FROM MAGIC LINK REQUEST:")
     console.log(JSON.stringify(response))
 
@@ -19,3 +19,5 @@ export function buildLoginController(services: Awaited<ReturnType<typeof import(
     requestMagicLink
   }
 }
+
+export type LoginController = ReturnType<typeof buildLoginController>

@@ -7,10 +7,23 @@ import llmPlugin from "./plugins/chat.plugin.js"
 import messageStorePlugin from "./plugins/messageStore.plugin.js"
 import "dotenv/config"
 import loginRoutes from "./routes/login.routes.js"
+import configPlugins from "./plugins/config.plugins.js"
+import rowsPlugins from "./plugins/rows.plugins.js"
+import lookupPlugins from "./plugins/lookup.plugin.js"
 
 const fastify: FastifyInstance = Fastify({
   logger: true
 })
+
+fastify.register(configPlugins)
+fastify.register(rowsPlugins)
+fastify.register(lookupPlugins)
+
+
+
+
+
+
 
 fastify.register(inventoryStorePlugin)
 fastify.register(specificationStorePlugin)

@@ -1,7 +1,5 @@
-// import type { FastifyInstance } from "fastify";
 import type {  SpecRowType } from "../types/stores.types.js";
 import type { Filter } from "./types.js";
-// import type { Operators } from "./types.js";
 
 export function buildSpecQuery(specRows: SpecRowType[]) {
   function getAllHeaders(){

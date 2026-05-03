@@ -1,7 +1,7 @@
-import { type FastifyRequest } from "fastify";
+import { type FastifyInstance, type FastifyRequest } from "fastify";
 import { RequestMessageSchema } from "../schemas/schemas.js"
 
-export function buildChatController(service:ReturnType<typeof import("../services/chat.services.js").buildServices>) {
+export function buildChatController(chatService: FastifyInstance["services"]["chatServices"]) {
 
   async function processMessage(request: FastifyRequest) {
     console.log("REQUEST BODY:")
@@ -26,7 +26,7 @@ export function buildChatController(service:ReturnType<typeof import("../service
     console.log(typeof(result.data))
 
     try {
-      const llmResponse = await service.generateRespone(result.data)
+      const llmResponse = await chatService.generateRespone(result.data)
       console.log("LLMR RESPONSE")
       console.log(llmResponse)
       console.log(typeof(llmResponse))
@@ -63,3 +63,5 @@ export function buildChatController(service:ReturnType<typeof import("../service
     processMessage,
   }
 }
+
+export type ChatController = ReturnType<typeof buildChatController>

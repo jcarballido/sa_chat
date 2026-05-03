@@ -3,7 +3,7 @@ import fp from "fastify-plugin";
 import { buildInventoryQuery } from "../queries/inventoryQuery.queries.js";
 import { buildSpecQuery } from "../queries/specQuery.queries.js";
 
-async function lookupPlugin(fastify:FastifyInstance) {
+async function lookupPlugins(fastify:FastifyInstance) {
   const inventoryQuery = buildInventoryQuery(fastify.inventoryRows)  
   const specQuery = buildSpecQuery(fastify.specRows)
 
@@ -11,7 +11,7 @@ async function lookupPlugin(fastify:FastifyInstance) {
   fastify.decorate("specQuery", specQuery)
 }
 
-export default fp(lookupPlugin)
+export default fp(lookupPlugins)
 
 declare module "fastify"{
   interface FastifyInstance{

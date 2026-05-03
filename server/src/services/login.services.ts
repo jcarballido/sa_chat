@@ -1,7 +1,7 @@
 import type z from "zod"
 import { AccessRequest, ApiResponseSchema, loginRequestResponseSchema } from "../schemas/schemas.js"
 
-export function loginServices(){
+export function buildLoginServices(){
 
   const allowedEmails: string[] = process.env.ALLOWED_EMAIL_LIST
     ? process.env.ALLOWED_EMAIL_LIST.split(",").map(allowedEmail => allowedEmail.trim())
@@ -42,4 +42,6 @@ export function loginServices(){
     processMagicLinkRequest
   }
 }
+
+export type LoginServices = ReturnType<typeof buildLoginServices>
 

@@ -1,7 +1,9 @@
+import z from "zod"
 import type { InventoryQueryType } from "../queries/inventoryQuery.queries.js"
 import type { SpecQueryType } from "../queries/specQuery.queries.js"
-import type { Filter } from "../queries/types.js"
-import type { SpecRowType } from "../types/stores.types.js"
+import type { Filter, Operators } from "../queries/types.js"
+import type { ExtractedSpecMapType } from "../types/llmResponse.types.js"
+import { SpecRowSchema, type SpecRowType } from "../types/stores.types.js"
 
 export async function buildDomainExecution(inventoryQuery: InventoryQueryType, specQuery: SpecQueryType) {
 
@@ -23,7 +25,6 @@ export async function buildDomainExecution(inventoryQuery: InventoryQueryType, s
     }
   }
 
-  
   const query= () => {
     function getAll(){
       return merged.matches
@@ -192,6 +193,35 @@ export async function buildDomainExecution(inventoryQuery: InventoryQueryType, s
 //     const result = getRequiredSpecs(allInventorySpecs,requirements)
 //     return result
 //   }
+
+// Receive array of extracted specs. EX:
+//    [ { "category": "fire_rating_temp", "value": [1200,Infinity] } ]
+//    [ 
+//      { "category": "gun_count", "value": [0,20] },
+//      { "category": "waterproof", "value": [true] },
+//      { "category":"fire_rating_temp", "value": [1400] }
+//    ]
+
+  const getModelsBySpecs = (requestedSpecs: ExtractedSpecMapType) => {
+    // const fieldSchema = SpecRowSchema.shape
+    const result = Object.fromEntries(
+      requestedSpecs.map(({category,value}) => {
+        const sample = value[0]
+        if(sample === undefined) return [category, null]
+        if(typeof(sample) === "boolean" || typeof(sample)==="string" || value.length === 1) return [category, {eq: sample}]
+        const operator = {} as Operators<typeof sample>
+
+        operator["gt"] = Math.min(...value as number[])
+        operator["lte"] = Math.max(...value as number[])
+        return [category, operator]
+      })
+    ) as 
+
+    
+    // [ { "category": "gun_count" , "value": [0,20] },{ "category": "waterproof", "value": [true] }
+    // { "gun_count": { gt:0, lte:20 }, "waterproof":{eq:true}  }
+  }
+
 
   return {
     // getModelSpecs,

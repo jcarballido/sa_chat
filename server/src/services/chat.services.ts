@@ -4,14 +4,16 @@ import { AssistantMessageContentSchema, RequestMessageSchema, ReturnedSpecValue,
 import type { FilteredSpecSchemaKeys, LLMcall, RawLLMResult, SpecificationRow, SpecSchemaReturnTypes, TransformedSpec } from "../types/types.js"
 import { specificationSchema } from "../plugins/specificationStore.plugin.js"
 import { MALICIOUS_INTENT_RESPONSES, OUT_OF_SCOPE_RESPONSES } from "../constants/constants.js"
-import fp from "fastify-plugin"
-import type { FastifyInstance } from "fastify"
+// import fp from "fastify-plugin"
+// import type { FastifyInstance } from "fastify"
 import type { InventoryQueryType } from "../queries/inventoryQuery.queries.js"
 import type { SpecQueryType } from "../queries/specQuery.queries.js"
-import type { IntentAgentType } from "../agents/intentAgent.js"
+// import type { IntentAgentType } from "../agents/intentAgent.js"
 import type { AgentInvokerType } from "../types/agentInvoker.types.js"
 // import type { AgentInvoker } from "../agents/agentInvoker.agents.js"
 import { buildDomainExecutionServices as executionService } from "../infrastructure/buildDomainExecutionService.js"
+import { SpecRowSchema } from "../types/stores.types.js"
+import type { ExtractedSpecMapType, ExtractedSpecType } from "../types/llmResponse.types.js"
 
 export async function buildChatServices(inventoryQuery: InventoryQueryType, specQuery: SpecQueryType, agentInvoker: AgentInvokerType){
 
@@ -90,14 +92,32 @@ export async function buildChatServices(inventoryQuery: InventoryQueryType, spec
           const res = executionService.getModelSpecs(filteredMatches)
           return {title: title ?? "",type:"product_lookup_by_model", text:null,data:res}
       }
-      if(focusedIntentClassification == "product_lookup_by_specs"){
-        const returnedSpecValues:z.infer<(typeof ReturnedSpecValue)> = agentState.focusedIntentSpecValuesExtracted.specValues
-        const convertedSpecValues = returnedSpecValues.map( spec => {
-          const test = transformSpecs(spec)
-          return test
-        }) as TransformedSpec[]
-        const filteredRequestedSpecValues = convertedSpecValues.filter(spec => spec.value !== null )
-        const res = await executionService.getSpecs(filteredRequestedSpecValues)
+
+      if (focusedIntentClassification == "product_lookup_by_specs"){
+        // {
+        //   "specValues": [
+        //      { "category": "fire_rating_temp", "value": ["1200","Infinity"] }
+        //   ]
+        // }
+        // {
+        //   "specValues": [
+        //     { "category": "gun_count", "value": ["0","20"] },
+        //     { "category": "waterproof", "value": ["true"] },
+        //     { "category": "fire_rating_temp", "value": ["1400"] }
+        //   ]
+        // }
+        const returnedSpecValues: ExtractedSpecType = agentState.focusedIntentSpecValuesExtracted.specValues
+        const filteredExtractedSpecValues = returnedSpecValues.filter((spec):spec is typeof spec & { value: string[] } => spec.value !== null)
+        const typedSpecValues = filteredExtractedSpecValues.map(spec => ({
+          category: spec.category,
+          value: spec.value?.map( val => SpecRowSchema.shape[spec.category].parse(val))
+        })) as ExtractedSpecMapType
+        // const convertedSpecValues = returnedSpecValues.map( spec => {
+        //   const test = transformSpecs(spec)
+        //   return test
+        // }) as TransformedSpec[]
+        // const filteredRequestedSpecValues = typedSpecValues.filter(spec => spec.value !== null )
+        const res = await executionService.getModelsBySpecs(typedSpecValues)
         if (res !== undefined) return {title: title ?? "",type:"product_lookup_by_specs",text:null,data:res}
       }
     }

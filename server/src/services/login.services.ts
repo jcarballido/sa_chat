@@ -1,11 +1,10 @@
 import type z from "zod"
-import { AccessRequest, ApiResponseSchema, loginRequestResponseSchema } from "../schemas/schemas.js"
+import { AccessRequest, loginRequestResponseSchema } from "../schemas/schemas.js"
 
 export function buildLoginServices(){
-
   const allowedEmails: string[] = process.env.ALLOWED_EMAIL_LIST
     ? process.env.ALLOWED_EMAIL_LIST.split(",").map(allowedEmail => allowedEmail.trim())
-    : [] 
+    : []
 
   function processMagicLinkRequest(linkRequest: unknown): z.infer<typeof loginRequestResponseSchema>{
     const body = AccessRequest.safeParse(linkRequest)

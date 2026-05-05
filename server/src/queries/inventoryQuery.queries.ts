@@ -1,4 +1,3 @@
-import type { FastifyInstance } from "fastify";
 import type { InventoryRowType } from "../types/stores.types.js";
 import type { Filter } from "../types/types.js";
 
@@ -9,7 +8,6 @@ export function buildInventoryQuery(inventoryRows: InventoryRowType[]) {
   function getAll(){
     return inventoryRows
   }
-
   function getRowsByRange(criteria: Filter<InventoryRowType>){
     const result = inventoryRows.filter( row => {
       return Object.entries(criteria).every(([key, operators]) => {
@@ -22,7 +20,6 @@ export function buildInventoryQuery(inventoryRows: InventoryRowType[]) {
 
     return result
   }
-
   function getRowsWhere<K extends keyof InventoryRowType>(column: K, value:InventoryRowType[K] ){
     return inventoryRows.filter(row => row[column] === value )
   }
@@ -38,3 +35,5 @@ export function buildInventoryQuery(inventoryRows: InventoryRowType[]) {
     getColumnValues
   }
 }
+
+export type InventoryQueryType = ReturnType<typeof buildInventoryQuery>

@@ -1,7 +1,8 @@
 import { type FastifyInstance, type FastifyRequest } from "fastify";
 import { RequestMessageSchema } from "../schemas/schemas.js"
+import type { ChatServices } from "../services/chat.services.js";
 
-export function buildChatController(chatService: FastifyInstance["services"]["chatServices"]) {
+export function buildChatController(chatService: ChatServices) {
 
   async function processMessage(request: FastifyRequest) {
     console.log("REQUEST BODY:")

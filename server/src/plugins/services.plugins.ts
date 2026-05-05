@@ -4,7 +4,7 @@ import { buildChatServices, type ChatServices } from "../services/chat.services.
 import { buildLoginServices, type LoginServices } from "../services/login.services.js";
 
 async function servicesPlugins(fastify:FastifyInstance) {
-  const chatServices = await buildChatServices(fastify.inventoryQuery, fastify.specQuery)
+  const chatServices = await buildChatServices(fastify.inventoryQuery, fastify.specQuery, fastify.agentInvoker)
   const loginServices = buildLoginServices()
 
   fastify.decorate("chatServices",chatServices)
@@ -17,7 +17,8 @@ declare module "fastify"{
   interface FastifyInstance {
     services:{
       chatServices: ChatServices,
-      loginServices: LoginServices
+      loginServices: LoginServices,
+      llmServices: LLMServices
     }
   }
 }

@@ -1,10 +1,10 @@
-import { generalLLMAgent } from "../agents/generalAgent.js";
-import { intentAgent } from "../agents/intentAgent.js"
-import { RequestMessageSchema } from "../schemas/schemas.js";
-import type { LLMcall } from "../types/types.js"
+// import { generalLLMAgent } from "../agents/generalAgent.js";
+import { intentAgent, type IntentAgentType } from "../agents/intentAgent.js"
+import type { LLMcall } from "../types/types.js";
+// import { RequestMessageSchema } from "../schemas/schemas.js";
+// import type { LLMcall } from "../types/types.js"
 
-
-export async function buildLlmCall(): Promise<LLMcall> {
+export async function buildLLMServices(agent: IntentAgentType): Promise<LLMcall> {
   async function invokeIntentAgent(message: string, title: string, inventoriedModelNumbers: string[]) {
 
     console.log("---BUILD LLM CALL---")
@@ -36,13 +36,13 @@ export async function buildLlmCall(): Promise<LLMcall> {
       // }
       // const data = validatedResult.data
       // const title = data.title ?? null
-      const response = await intentAgent.invoke({
-        title,
-        initialMessage: message,
-        inventoryStore: inventoriedModelNumbers
-      })
+  const response = await agent.invoke({
+    title,
+    initialMessage: message,
+    inventoryStore: inventoriedModelNumbers
+  })
   return response
-}  
+  }  
 
   return {
     invokeIntentAgent,

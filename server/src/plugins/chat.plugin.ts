@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { buildLlmCall, type LLMcall } from "../infrastructure/buildLlmCall.js";
+import { buildLlmCall, type LLMcall } from "../infrastructure/buildLlmServices.js";
 import fp from "fastify-plugin"
 
 async function llmPlugin(fastify: FastifyInstance) {

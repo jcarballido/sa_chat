@@ -1,7 +1,8 @@
-import type { FastifyInstance, FastifyRequest } from "fastify";
-import { AccessRequest } from "../schemas/schemas.js";
+import type { FastifyRequest } from "fastify";
+// import { AccessRequest } from "../schemas/schemas.js";
+import type { LoginServices } from "../services/login.services.js";
 
-export function buildLoginController(loginServices: FastifyInstance["services"]["loginServices"] ){
+export function buildLoginController(loginServices: LoginServices ){
 
   async function requestMagicLink(request: FastifyRequest) {
     console.log("Request: requestMagicLink")

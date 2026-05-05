@@ -31,6 +31,14 @@ export async function buildLoginServices() {
         }
       }
     }
+    try {
+      console.log("Attempting to send to supabase")
+      await supabaseBase.auth.signInWithOtp({
+        email,
+        options:{
+          emailRedirectTo: 'http://localhost:5173/'
+        }
+      })
       console.log("Supabase email request sent.")      
     } catch (error) {
       console.log("Error sending to supabase")

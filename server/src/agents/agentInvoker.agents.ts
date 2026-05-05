@@ -1,7 +1,13 @@
-import type { IntentAgentType } from "../agents/intentAgent.js";
+import type { AgentInvokerType } from "../types/agentInvoker.types.js";
+import type { IntentAgentType } from "./intentAgent.js"
 
-async function buildLLMServices(agent: IntentAgentType) {
-    async function invokeIntentAgent(message: string, title: string, inventoriedModelNumbers: string[]) {
+export async function buildAgentInvoker(agent: IntentAgentType): Promise<AgentInvokerType> {
+
+  async function invoke(message: string, title: string, inventoriedModelNumbers: string[]) {
+
+    console.log("---BUILD LLM CALL---")
+    console.log(typeof(message))
+    console.log(message)
 
     // function sanitizeUserPrompt(originalString: string): string{
     //   const targetRegex =  /[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*/g;
@@ -37,7 +43,6 @@ async function buildLLMServices(agent: IntentAgentType) {
   }  
 
   return {
-    invokeIntentAgent,
+    invoke,
   }
-
 }

@@ -44,3 +44,5 @@ export function buildSpecQuery(specRows: SpecRowType[]) {
     getColumnValues
   }
 }
+
+export type SpecQueryType = ReturnType<typeof buildSpecQuery>

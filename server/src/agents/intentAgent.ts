@@ -129,3 +129,4 @@ export const intentAgent = new StateGraph(agentState)
 
   .compile()
 
+export type IntentAgentType = typeof intentAgent

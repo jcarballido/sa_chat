@@ -4,6 +4,7 @@ import { buildChatController, type ChatController } from "../controllers/chat.co
 import { buildLoginController, type LoginController } from "../controllers/login.controllers.js";
 
 async function controllersPlugin(fastify:FastifyInstance) {
+  console.log("LOADING CONTROLLERS PLUGIN")
   const chatController = buildChatController(fastify.services.chatServices)
   const loginController = buildLoginController(fastify.services.loginServices)
 

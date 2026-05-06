@@ -14,8 +14,11 @@ import type { AgentInvokerType } from "../types/agentInvoker.types.js"
 import { buildDomainExecutionServices as executionService } from "../infrastructure/buildDomainExecutionService.js"
 import { SpecRowSchema } from "../types/stores.types.js"
 import type { ExtractedSpecMapType, ExtractedSpecType } from "../types/llmResponse.types.js"
+import type { DomainExecutionType } from "./domainExecution.services.js"
 
-export async function buildChatServices(inventoryQuery: InventoryQueryType, specQuery: SpecQueryType, agentInvoker: AgentInvokerType){
+export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery: SpecQueryType, agentInvoker: AgentInvokerType, domainExecution: DomainExecutionType){
+
+  console.log("LOADING CHAT SERVICES")
 
   async function determineIntent(message: z.infer<typeof RequestMessageSchema>) {
     const inventoryModels = inventoryQuery.getColumnValues("model")
@@ -77,21 +80,22 @@ export async function buildChatServices(inventoryQuery: InventoryQueryType, spec
     if(focusedIntent){
       console.log("Focused Intent Classification: ", focusedIntentClassification)
       if(focusedIntentClassification == "similar_products"){
-        const res = await executionService.getSimilarModels(filteredMatches)
-        return {title: title ?? "",type:"similar_products", text: null,data: res}        
+        // const res = await executionService.getSimilarModels(filteredMatches)
+        // return {title: title ?? "",type:"similar_products", text: null,data: res}        
       }
 
       if(focusedIntentClassification == "product_comparison"){
         if(filteredMatches.length < 2) return {title: title ?? "",type: "other", text:  "At least 2 model numbers required.",data:null}
-        const specs = executionService.getModelSpecs(filteredMatches)
-        if(specs.length < 2) return {title: title ?? "",type: "other", text:"Could not locate specs for all model numbers to compare",data:null}
-        return {title: title ?? "",type: "product_comparison", text: null,data:specs}
+        // const specs = executionService.getModelSpecs(filteredMatches)
+        // if(specs.length < 2) return {title: title ?? "",type: "other", text:"Could not locate specs for all model numbers to compare",data:null}
+        // return {title: title ?? "",type: "product_comparison", text: null,data:specs}
+        return {title: title ?? "",type: "product_comparison", text: null,data:[{model:"",waterproof:false,gun_count:12,fire_rating_temp:1400,fire_rating_time: 50, height:30,width:20,depth:10}]}
       }
       
-      if(focusedIntentClassification == "product_lookup_by_model"){
-          const res = executionService.getModelSpecs(filteredMatches)
-          return {title: title ?? "",type:"product_lookup_by_model", text:null,data:res}
-      }
+      // if(focusedIntentClassification == "product_lookup_by_model"){
+      //     const res = executionService.getModelSpecs(filteredMatches)
+      //     return {title: title ?? "",type:"product_lookup_by_model", text:null,data:res}
+      // }
 
       if (focusedIntentClassification == "product_lookup_by_specs"){
         // {
@@ -117,7 +121,7 @@ export async function buildChatServices(inventoryQuery: InventoryQueryType, spec
         //   return test
         // }) as TransformedSpec[]
         // const filteredRequestedSpecValues = typedSpecValues.filter(spec => spec.value !== null )
-        const res = await executionService.getModelsBySpecs(typedSpecValues)
+        const res = domainExecution.getModelsBySpecs("any",typedSpecValues)
         if (res !== undefined) return {title: title ?? "",type:"product_lookup_by_specs",text:null,data:res}
       }
     }

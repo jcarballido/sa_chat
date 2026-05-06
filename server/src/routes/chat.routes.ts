@@ -9,6 +9,7 @@ async function chatRoutes (fastify: FastifyInstance) {
   // const services = buildServices(fastify.llm, domainExecutionServices)
   // const controller = buildChatController(services)
 
+  console.log("LOADING CHATROUTES")
   fastify.post("/process", fastify.controllers.chat.processMessage)
 }
 

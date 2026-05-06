@@ -1,10 +1,10 @@
 import Fastify, { type FastifyInstance, type FastifyRequest } from "fastify"
 import { checkModelAvailble, checkOllamaReachable } from "./services/ollama.services.js"
 import chatRoutes from "./routes/chat.routes.js"
-import inventoryStorePlugin from "./plugins/inventoryStore.plugin.js"
-import specificationStorePlugin from "./plugins/specificationStore.plugin.js"
-import llmPlugin from "./plugins/chat.plugin.js"
-import messageStorePlugin from "./plugins/messageStore.plugin.js"
+// import inventoryStorePlugin from "./plugins/inventoryStore.plugin.js"
+// import specificationStorePlugin from "./plugins/specificationStore.plugin.js"
+// import llmPlugin from "./plugins/chat.plugin.js"
+// import messageStorePlugin from "./plugins/messageStore.plugin.js"
 import "dotenv/config"
 import loginRoutes from "./routes/login.routes.js"
 import configPlugins from "./plugins/config.plugins.js"
@@ -13,6 +13,7 @@ import lookupPlugins from "./plugins/lookup.plugin.js"
 import agentPlugins from "./plugins/agent.plugins.js"
 import servicesPlugins from "./plugins/services.plugins.js"
 import domainExecutionPlugins from "./plugins/domainExecution.plugins.js"
+import controllersPlugins from "./plugins/controllers.plugins.js"
 
 const fastify: FastifyInstance = Fastify({
   logger: true
@@ -24,6 +25,7 @@ fastify.register(lookupPlugins)
 fastify.register(domainExecutionPlugins)
 fastify.register(agentPlugins)
 fastify.register(servicesPlugins)
+fastify.register(controllersPlugins)
 
 // fastify.register(inventoryStorePlugin)
 // fastify.register(specificationStorePlugin)

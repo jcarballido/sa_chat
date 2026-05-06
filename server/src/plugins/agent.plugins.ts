@@ -5,7 +5,7 @@ import { buildAgentInvoker, type AgentInvoker } from "../agents/agentInvoker.age
 
 async function agentInvokerPlugin(fastify: FastifyInstance) {
   const agent = intentAgent
-  const agentInvoker = buildAgentInvoker(agent)
+  const agentInvoker = await buildAgentInvoker(agent)
   
   fastify.decorate("agent", agentInvoker)
 }
@@ -14,6 +14,6 @@ export default fp(agentInvokerPlugin)
 
 declare module "fastify"{
   interface FastifyInstance{
-    agentInvoker: AgentInvoker
+    agent: AgentInvoker
   }
 }

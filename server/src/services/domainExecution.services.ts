@@ -5,7 +5,7 @@ import type { Filter, Operators } from "../queries/types.js"
 import type { ExtractedSpecMapType } from "../types/llmResponse.types.js"
 import { SpecRowSchema, type SpecRowType } from "../types/stores.types.js"
 
-export async function buildDomainExecution(inventoryQuery: InventoryQueryType, specQuery: SpecQueryType) {
+export function buildDomainExecution(inventoryQuery: InventoryQueryType, specQuery: SpecQueryType) {
 
   function mergeStores(): { matches: SpecRowType[], missing: { model: SpecRowType["model"] }[] } {
     // const specMap = new Map(allSpecs.map(modelSpec => [modelSpec.model, modelSpec]))
@@ -79,8 +79,6 @@ export async function buildDomainExecution(inventoryQuery: InventoryQueryType, s
   //   })
   //   return returnedSpecs.filter(specs => specs !== null)
   // }
-
-
 
   function getModelsByQualifiers(rows: "any"|"inventory", qualifiers: Filter<SpecRowType>): SpecRowType[] {
     const arr = rows == "any" ? specQuery.getAll() : merged.matches
@@ -202,24 +200,36 @@ export async function buildDomainExecution(inventoryQuery: InventoryQueryType, s
 //      { "category":"fire_rating_temp", "value": [1400] }
 //    ]
 
-  const getModelsBySpecs = (requestedSpecs: ExtractedSpecMapType) => {
-    // const fieldSchema = SpecRowSchema.shape
-    const result = Object.fromEntries(
-      requestedSpecs.map(({category,value}) => {
+  function convertExtractedSpecs(extractedSpecs: ExtractedSpecMapType){
+    const operators = Object.fromEntries(
+      extractedSpecs.map(({category,value}) => {
         const sample = value[0]
         if(sample === undefined) return [category, null]
         if(typeof(sample) === "boolean" || typeof(sample)==="string" || value.length === 1) return [category, {eq: sample}]
         const operator = {} as Operators<typeof sample>
-
-        operator["gt"] = Math.min(...value as number[])
-        operator["lte"] = Math.max(...value as number[])
+        operator["gt"] = Math.min(...(value as number[]))
+        operator["lte"] = Math.max(...(value as number[]))
         return [category, operator]
       })
-    ) as 
+    ) as Filter<SpecRowType>
+    return operators
+  }
 
-    
-    // [ { "category": "gun_count" , "value": [0,20] },{ "category": "waterproof", "value": [true] }
-    // { "gun_count": { gt:0, lte:20 }, "waterproof":{eq:true}  }
+  const getModelsBySpecs = (rows: "any" | "inventory" ,extractedSpecs: ExtractedSpecMapType) => {
+    const operators = convertExtractedSpecs(extractedSpecs)
+    const result = getModelsByQualifiers(rows,operators)
+    return result
+    // const operators = Object.fromEntries(
+    //   requestedSpecs.map(({category,value}) => {
+    //     const sample = value[0]
+    //     if(sample === undefined) return [category, null]
+    //     if(typeof(sample) === "boolean" || typeof(sample)==="string" || value.length === 1) return [category, {eq: sample}]
+    //     const operator = {} as Operators<typeof sample>
+    //     operator["gt"] = Math.min(...(value as number[]))
+    //     operator["lte"] = Math.max(...(value as number[]))
+    //     return [category, operator]
+    //   })
+    // ) as Filter<SpecRowType>
   }
 
 
@@ -231,6 +241,7 @@ export async function buildDomainExecution(inventoryQuery: InventoryQueryType, s
     // getSpecs
     getSimilarModelsByModel,
     getModelsByQualifiers,
+    getModelsBySpecs
   }
 }
 

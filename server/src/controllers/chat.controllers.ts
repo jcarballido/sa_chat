@@ -3,7 +3,7 @@ import { RequestMessageSchema } from "../schemas/schemas.js"
 import type { ChatServices } from "../services/chat.services.js";
 
 export function buildChatController(chatService: ChatServices) {
-
+  console.log("LOADING buildChatController")
   async function processMessage(request: FastifyRequest) {
     console.log("REQUEST BODY:")
     console.log(request.body)

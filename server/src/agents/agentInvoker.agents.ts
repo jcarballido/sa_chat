@@ -46,3 +46,5 @@ export async function buildAgentInvoker(agent: IntentAgentType): Promise<AgentIn
     invoke,
   }
 }
+
+export type AgentInvoker = Awaited<ReturnType<typeof buildAgentInvoker>>

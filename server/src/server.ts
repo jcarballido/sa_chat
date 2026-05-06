@@ -1,4 +1,4 @@
-import Fastify, { type FastifyInstance, type FastifyRequest } from "fastify"
+import Fastify, { type FastifyInstance } from "fastify"
 import { checkModelAvailble, checkOllamaReachable } from "./services/ollama.services.js"
 import chatRoutes from "./routes/chat.routes.js"
 import "dotenv/config"

@@ -15,7 +15,9 @@ export const SpecRowSchema = z.object({
   "waterproof":z.string().transform(val => val === "true")
 })
 
+export const categoryEnum = SpecRowSchema.keyof()
 export type SpecRowType = z.infer<typeof SpecRowSchema>
+
 // export type SpecCategoryValueRangeType = { [ K in keyof SpecRowType  ] :{ category: K, value: SpecRowType[K] } }[keyof SpecRowType][]
 export type InventoryRowType = z.infer<typeof InventoryRowSchema>
 export type InventoryHeadersType = keyof InventoryRowType

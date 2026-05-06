@@ -1,6 +1,11 @@
-import { SpecValueSchema } from "../../schemas/schemas.js"
+// import { SpecValueSchema } from "../../schemas/schemas.js"
+import z from "zod"
 import { type State, type Update } from "../intentAgentState.js"
 import stringExists from "../util/stringExists.js"
+import { SpecValueSchema } from "../../types/llmResponse.types.js"
+// import { SpecRowSchema } from "../../types/stores.types.js"
+
+
 
 export async function verifySpecValueExtractionNode(state: State) : Promise<Update> {
 
@@ -22,7 +27,7 @@ export async function verifySpecValueExtractionNode(state: State) : Promise<Upda
   const safeParseResult = SpecValueSchema.safeParse(parsedResponse)
   if(safeParseResult.error){
     console.log("SAFE PARSE RESULT ERROR in verifySpecValueExtractionNode")
-    console.log(safeParseResult)
+    console.log(safeParseResult.data)
     return {
       retries: state.retries + 1
     }

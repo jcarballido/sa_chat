@@ -1,4 +1,5 @@
-import type { SpecRowType } from "./stores.types.js";
+import z from "zod";
+import { categoryEnum, SpecRowSchema, type SpecRowType } from "./stores.types.js";
 
 export type ExtractedSpecType = {
     category: keyof SpecRowType,
@@ -11,3 +12,10 @@ export type ExtractedSpecMapType = {
         value: SpecRowType[K][]
     }
 }[keyof SpecRowType][]
+
+
+export const ReturnedSpecValue = z.array(z.object({category: categoryEnum,value: z.array(z.string()).nullable()})) 
+
+export const SpecValueSchema = z.object({
+  "specValues":  ReturnedSpecValue 
+})

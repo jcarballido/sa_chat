@@ -1,6 +1,7 @@
 import { type FastifyInstance, type FastifyRequest } from "fastify";
-import { RequestMessageSchema } from "../schemas/schemas.js"
+// import { RequestMessageSchema } from "../schemas/schemas.js"
 import type { ChatServices } from "../services/chat.services.js";
+import { RequestMessageSchema } from "../types/api.types.js";
 
 export function buildChatController(chatService: ChatServices) {
   console.log("LOADING buildChatController")

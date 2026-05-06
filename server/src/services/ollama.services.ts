@@ -1,5 +1,6 @@
 import ollama, { type Message} from "ollama"
-import type { ChatModels } from "../types/types.js"
+import type { ChatModels } from "../types/api.types.js"
+// import type { ChatModels } from "../types/types.js"
 
 export const checkOllamaReachable = async () => {
   try {

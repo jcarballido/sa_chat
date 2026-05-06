@@ -1,4 +1,4 @@
-import type { SpecificationRow } from "../types/types.js"
+// import type { SpecificationRow } from "../types/types.js"
 
 const CLASSIFICATION_SYSTEM_PROMPT = `
 You are a strict JSON classifier assisting customer service representatives at a secure storage (safes) product manufacturer company. The company manufactures secure storage products that may be fire rated, waterproof, both, or none. Classify the USER message as exactly ONE of:

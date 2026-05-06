@@ -1,6 +1,8 @@
 import { ReducedValue, StateSchema } from "@langchain/langgraph";
 import * as z from 'zod'
-import { MessageSchema, SpecValueSchema } from "../schemas/schemas.js";
+import { MessageSchema } from "../types/api.types.js";
+import { SpecValueSchema } from "../types/llmResponse.types.js";
+// import { MessageSchema, SpecValueSchema } from "../schemas/schemas.js";
 
 type MessageType = z.infer<typeof MessageSchema>
 

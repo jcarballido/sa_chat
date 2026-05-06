@@ -1,5 +1,6 @@
 import type { InventoryRowType } from "../types/stores.types.js";
-import type { Filter } from "../types/types.js";
+import type { Filter } from "./types.js";
+// import type { Filter } from "../types/types.js";
 
 export function buildInventoryQuery(inventoryRows: InventoryRowType[]) {
   function getAllHeaders(){

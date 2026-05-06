@@ -9,9 +9,4 @@ export type Operators<T> = {
 
 export type Filter<T> = {
   [K in keyof T]? : Operators<T[K]>
-  // [K in keyof T]?: T[K] extends string
-  // ? {eq: string}
-  // : T[K] extends boolean
-  //   ? {eq: boolean}
-  //   : Operators<T[K]>
 }

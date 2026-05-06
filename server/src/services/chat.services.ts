@@ -1,8 +1,8 @@
 import type z from "zod"
 import type { State } from "../agents/intentAgentState.js"
-import { AssistantMessageContentSchema, RequestMessageSchema, ReturnedSpecValue, SpecificationMapSchema } from "../schemas/schemas.js"
-import type { FilteredSpecSchemaKeys, LLMcall, RawLLMResult, SpecificationRow, SpecSchemaReturnTypes, TransformedSpec } from "../types/types.js"
-import { specificationSchema } from "../plugins/specificationStore.plugin.js"
+// import { AssistantMessageContentSchema, RequestMessageSchema } from "../schemas/schemas.js"
+// import type { FilteredSpecSchemaKeys, LLMcall, RawLLMResult, SpecificationRow, SpecSchemaReturnTypes, TransformedSpec } from "../types/types.js"
+// import { specificationSchema } from "../plugins/specificationStore.plugin.js"
 import { MALICIOUS_INTENT_RESPONSES, OUT_OF_SCOPE_RESPONSES } from "../constants/constants.js"
 // import fp from "fastify-plugin"
 // import type { FastifyInstance } from "fastify"
@@ -11,10 +11,11 @@ import type { SpecQueryType } from "../queries/specQuery.queries.js"
 // import type { IntentAgentType } from "../agents/intentAgent.js"
 import type { AgentInvokerType } from "../types/agentInvoker.types.js"
 // import type { AgentInvoker } from "../agents/agentInvoker.agents.js"
-import { buildDomainExecutionServices as executionService } from "../infrastructure/buildDomainExecutionService.js"
+// import { buildDomainExecutionServices as executionService } from "../infrastructure/buildDomainExecutionService.js"
 import { SpecRowSchema } from "../types/stores.types.js"
 import type { ExtractedSpecMapType, ExtractedSpecType } from "../types/llmResponse.types.js"
 import type { DomainExecutionType } from "./domainExecution.services.js"
+import type { AssistantMessageContentSchema, RequestMessageSchema } from "../types/api.types.js"
 
 export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery: SpecQueryType, agentInvoker: AgentInvokerType, domainExecution: DomainExecutionType){
 
@@ -26,40 +27,40 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
     return await agentInvoker.invoke(content,title ?? "",inventoryModels)
   }
 
-  const transformers: {
-    [K in FilteredSpecSchemaKeys]: (raw: string[] | null) => SpecSchemaReturnTypes[K]
-  } = Object.fromEntries(
-    Object.entries(specificationSchema).map(([key, conversionFn]) => {
-      const transformFn = (raw: string[] | null) => {
-        const singleReturn = conversionFn(raw?.[0] ?? "true")
-        return typeof singleReturn === "boolean"
-          ? singleReturn
-          : (raw ?? []).map((element,i,arr) => {
-            if(arr.length === 1) {
-              const digits = element.match(/\d+/) || ["null"]
-              return conversionFn(digits[0])
-            }
-            const isLast = arr.length - 1
-            if(i === 0) {
-              const digits = element.match(/\d+/) || ["0"]
-              return conversionFn(digits[0])
-            }
-            if(i === isLast) {
-              const digits = element.match(/\d+/) || ["Infinity"]
-              return conversionFn(digits[0])
-            }
-          })
-      }
-      return [key,transformFn] 
-    })
-  )as { [K in FilteredSpecSchemaKeys]: (raw: string[] | null) => SpecSchemaReturnTypes[K]}
+  // const transformers: {
+  //   [K in FilteredSpecSchemaKeys]: (raw: string[] | null) => SpecSchemaReturnTypes[K]
+  // } = Object.fromEntries(
+  //   Object.entries(specificationSchema).map(([key, conversionFn]) => {
+  //     const transformFn = (raw: string[] | null) => {
+  //       const singleReturn = conversionFn(raw?.[0] ?? "true")
+  //       return typeof singleReturn === "boolean"
+  //         ? singleReturn
+  //         : (raw ?? []).map((element,i,arr) => {
+  //           if(arr.length === 1) {
+  //             const digits = element.match(/\d+/) || ["null"]
+  //             return conversionFn(digits[0])
+  //           }
+  //           const isLast = arr.length - 1
+  //           if(i === 0) {
+  //             const digits = element.match(/\d+/) || ["0"]
+  //             return conversionFn(digits[0])
+  //           }
+  //           if(i === isLast) {
+  //             const digits = element.match(/\d+/) || ["Infinity"]
+  //             return conversionFn(digits[0])
+  //           }
+  //         })
+  //     }
+  //     return [key,transformFn] 
+  //   })
+  // )as { [K in FilteredSpecSchemaKeys]: (raw: string[] | null) => SpecSchemaReturnTypes[K]}
 
-  function transformSpecs<K extends FilteredSpecSchemaKeys>(
-    spec: RawLLMResult & {category: K}
-  ): {category: K,value: SpecSchemaReturnTypes[K]}
-  {
-    return {category:spec.category,value: transformers[spec.category](spec.value) }
-  }
+  // function transformSpecs<K extends FilteredSpecSchemaKeys>(
+  //   spec: RawLLMResult & {category: K}
+  // ): {category: K,value: SpecSchemaReturnTypes[K]}
+  // {
+  //   return {category:spec.category,value: transformers[spec.category](spec.value) }
+  // }
   
   async function executeIntent(agentState:State): Promise<z.infer<typeof AssistantMessageContentSchema>>  {
 

@@ -1,5 +1,6 @@
 import type z from "zod"
-import { AccessRequest, loginRequestResponseSchema } from "../schemas/schemas.js"
+import { AccessRequest, type loginRequestResponseSchema } from "../types/api.types.js"
+// import { AccessRequest, loginRequestResponseSchema } from "../schemas/schemas.js"
 
 export function buildLoginServices(){
   const allowedEmails: string[] = process.env.ALLOWED_EMAIL_LIST

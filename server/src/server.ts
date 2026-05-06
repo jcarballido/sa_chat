@@ -1,10 +1,6 @@
 import Fastify, { type FastifyInstance, type FastifyRequest } from "fastify"
 import { checkModelAvailble, checkOllamaReachable } from "./services/ollama.services.js"
 import chatRoutes from "./routes/chat.routes.js"
-// import inventoryStorePlugin from "./plugins/inventoryStore.plugin.js"
-// import specificationStorePlugin from "./plugins/specificationStore.plugin.js"
-// import llmPlugin from "./plugins/chat.plugin.js"
-// import messageStorePlugin from "./plugins/messageStore.plugin.js"
 import "dotenv/config"
 import loginRoutes from "./routes/login.routes.js"
 import configPlugins from "./plugins/config.plugins.js"
@@ -27,10 +23,6 @@ fastify.register(agentPlugins)
 fastify.register(servicesPlugins)
 fastify.register(controllersPlugins)
 
-// fastify.register(inventoryStorePlugin)
-// fastify.register(specificationStorePlugin)
-// fastify.register(llmPlugin)
-// fastify.register(messageStorePlugin)
 fastify.register(chatRoutes, { prefix: "/chat"})
 fastify.register(loginRoutes, {prefix:"/login"})
 

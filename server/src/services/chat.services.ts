@@ -133,7 +133,8 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
     try {
       const intent = await determineIntent(userPrompt)
       const executionResult = await executeIntent(intent)
-
+      console.log("EXECUTION RESULT:")
+      console.log(executionResult)
       return executionResult      
     } catch (error) {
       console.log("ERROR IN chat.service: ",error)

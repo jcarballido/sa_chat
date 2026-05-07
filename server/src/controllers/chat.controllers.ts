@@ -28,20 +28,21 @@ export function buildChatController(chatService: ChatServices) {
     console.log(typeof(result.data))
 
     try {
-      const llmResponse = await chatService.generateRespone(result.data)
-      console.log("LLMR RESPONSE")
-      console.log(llmResponse)
-      console.log(typeof(llmResponse))
-      const {title,...rest} = llmResponse
+      const agentResult = await chatService.generateRespone(result.data)
+      console.log("AGENT RESULT")
+      console.log(agentResult)
+      console.log(typeof(agentResult))
+      const {title,...rest} = agentResult
   
       return {
         status:"success",
         data:{
+          title,
           id: requestMessage.id,
           conversationId: requestMessage.conversationId,
           conversationTitle: title,
           role:"assistant",
-          content:JSON.stringify(rest),
+          content:rest,
           createdAt: new Date().toISOString(),
           status: "delivered"
         },

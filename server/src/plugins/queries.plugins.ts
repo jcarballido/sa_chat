@@ -3,7 +3,7 @@ import { buildQueries, type QueriesType } from "../db/queries.js";
 import fp from "fastify-plugin";
 
 async function queriesPlugin(fastify: FastifyInstance) {
-  const queries = buildQueries()
+  const queries = await buildQueries()
 
   fastify.decorate("queries", queries)
 }

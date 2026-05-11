@@ -32,4 +32,4 @@ export async function buildQueries() {
   }
 }
 
-export type QueriesType = ReturnType<typeof buildQueries>
+export type QueriesType = Awaited<ReturnType<typeof buildQueries>>

@@ -1,66 +1,21 @@
 import type z from "zod"
 import type { State } from "../agents/intentAgentState.js"
-// import { AssistantMessageContentSchema, RequestMessageSchema } from "../schemas/schemas.js"
-// import type { FilteredSpecSchemaKeys, LLMcall, RawLLMResult, SpecificationRow, SpecSchemaReturnTypes, TransformedSpec } from "../types/types.js"
-// import { specificationSchema } from "../plugins/specificationStore.plugin.js"
 import { MALICIOUS_INTENT_RESPONSES, OUT_OF_SCOPE_RESPONSES } from "../constants/constants.js"
-// import fp from "fastify-plugin"
-// import type { FastifyInstance } from "fastify"
 import type { InventoryQueryType } from "../queries/inventoryQuery.queries.js"
 import type { SpecQueryType } from "../queries/specQuery.queries.js"
-// import type { IntentAgentType } from "../agents/intentAgent.js"
 import type { AgentInvokerType } from "../types/agentInvoker.types.js"
-// import type { AgentInvoker } from "../agents/agentInvoker.agents.js"
-// import { buildDomainExecutionServices as executionService } from "../infrastructure/buildDomainExecutionService.js"
 import { SpecRowSchema } from "../types/stores.types.js"
 import type { ExtractedSpecMapType, ExtractedSpecType } from "../types/llmResponse.types.js"
 import type { DomainExecutionType } from "./domainExecution.services.js"
 import type { AssistantMessageContentSchema, RequestMessageSchema } from "../types/api.types.js"
+import type { QueriesType } from "../db/queries.js"
 
-export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery: SpecQueryType, agentInvoker: AgentInvokerType, domainExecution: DomainExecutionType){
-
-  console.log("LOADING CHAT SERVICES")
+export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery: SpecQueryType, agentInvoker: AgentInvokerType, domainExecution: DomainExecutionType, queries: QueriesType){
 
   async function determineIntent(message: z.infer<typeof RequestMessageSchema>) {
-    // EXTRACT CONV ID -> DETRMINE IF NEW CONVERSATION OR EXISTING
     const { conversationId,title, content } = message
     const inventoryModels = inventoryQuery.getColumnValues("model")
-    return await agentInvoker.invoke(content,inventoryModels,{title,conversationId} )
-
-  // const transformers: {
-  //   [K in FilteredSpecSchemaKeys]: (raw: string[] | null) => SpecSchemaReturnTypes[K]
-  // } = Object.fromEntries(
-  //   Object.entries(specificationSchema).map(([key, conversionFn]) => {
-  //     const transformFn = (raw: string[] | null) => {
-  //       const singleReturn = conversionFn(raw?.[0] ?? "true")
-  //       return typeof singleReturn === "boolean"
-  //         ? singleReturn
-  //         : (raw ?? []).map((element,i,arr) => {
-  //           if(arr.length === 1) {
-  //             const digits = element.match(/\d+/) || ["null"]
-  //             return conversionFn(digits[0])
-  //           }
-  //           const isLast = arr.length - 1
-  //           if(i === 0) {
-  //             const digits = element.match(/\d+/) || ["0"]
-  //             return conversionFn(digits[0])
-  //           }
-  //           if(i === isLast) {
-  //             const digits = element.match(/\d+/) || ["Infinity"]
-  //             return conversionFn(digits[0])
-  //           }
-  //         })
-  //     }
-  //     return [key,transformFn] 
-  //   })
-  // )as { [K in FilteredSpecSchemaKeys]: (raw: string[] | null) => SpecSchemaReturnTypes[K]}
-
-  // function transformSpecs<K extends FilteredSpecSchemaKeys>(
-  //   spec: RawLLMResult & {category: K}
-  // ): {category: K,value: SpecSchemaReturnTypes[K]}
-  // {
-  //   return {category:spec.category,value: transformers[spec.category](spec.value) }
-  // }
+    return await agentInvoker.invoke(content,inventoryModels,{title: title ?? null,conversationId} )
   }
   
   async function executeIntent(agentState:State): Promise<z.infer<typeof AssistantMessageContentSchema>>  {
@@ -82,22 +37,29 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
     if(focusedIntent){
       console.log("Focused Intent Classification: ", focusedIntentClassification)
       if(focusedIntentClassification == "similar_products"){
-        // const res = await executionService.getSimilarModels(filteredMatches)
-        // return {title: title ?? "",type:"similar_products", text: null,data: res}        
+        const res = domainExecution.getSimilarModelsByModel("any",filteredMatches)
+        return {title: title ?? "",type:"similar_products", text: null,data: res}  
       }
 
       if(focusedIntentClassification == "product_comparison"){
         if(filteredMatches.length < 2) return {title: title ?? "",type: "other", text:  "At least 2 model numbers required.",data:null}
-        // const specs = executionService.getModelSpecs(filteredMatches)
-        // if(specs.length < 2) return {title: title ?? "",type: "other", text:"Could not locate specs for all model numbers to compare",data:null}
-        // return {title: title ?? "",type: "product_comparison", text: null,data:specs}
-        return {title: title ?? "",type: "product_comparison", text: null,data:[{model:"",waterproof:false,gun_count:12,fire_rating_temp:1400,fire_rating_time: 50, height:30,width:20,depth:10}]}
+        const allSpecs = filteredMatches.map( match => {
+          const specs = specQuery.getRowsWhere("model",match)
+          return specs[0]
+        })
+        const filteredSpecs = allSpecs.filter(spec => spec != undefined)
+        if(filteredSpecs.length < 2) return {title: title ?? "",type: "other", text:"Could not locate specs for all model numbers to compare",data:null}
+        return {title: title ?? "",type: "product_comparison", text: null,data:filteredSpecs}
       }
       
-      // if(focusedIntentClassification == "product_lookup_by_model"){
-      //     const res = executionService.getModelSpecs(filteredMatches)
-      //     return {title: title ?? "",type:"product_lookup_by_model", text:null,data:res}
-      // }
+      if(focusedIntentClassification == "product_lookup_by_model"){
+        const allSpecs = filteredMatches.map( match => {
+          const specs = specQuery.getRowsWhere("model",match)
+          return specs[0]
+        })
+        const filteredSpecs = allSpecs.filter(spec => spec != undefined)
+        return {title: title ?? "",type: "product_comparison", text: null,data:filteredSpecs}
+      }
 
       if (focusedIntentClassification == "product_lookup_by_specs"){
         // {

@@ -10,12 +10,14 @@ import agentPlugins from "./plugins/agent.plugins.js"
 import servicesPlugins from "./plugins/services.plugins.js"
 import domainExecutionPlugins from "./plugins/domainExecution.plugins.js"
 import controllersPlugins from "./plugins/controllers.plugins.js"
+import queriesPlugins from "./plugins/queries.plugins.js"
 
 const fastify: FastifyInstance = Fastify({
   logger: true
 })
 
 fastify.register(configPlugins)
+fastify.register(queriesPlugins)
 fastify.register(rowsPlugins)
 fastify.register(lookupPlugins)
 fastify.register(domainExecutionPlugins)

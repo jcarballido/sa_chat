@@ -1,6 +1,12 @@
 import ollama from "ollama"
-export async function askLLM(message:string,option?:{systemPrompt: string}) {
+import type { AssistantMessageType, UserMessageType } from "../../types/message.types.js"
+import type { SystemMessage } from "@langchain/core/messages"
 
+export async function prompt(conversation:(UserMessageType | AssistantMessageType | SystemMessage)[],option?:{initialMessage?:boolean,systemPrompt?: string}) {
+
+  if(option?.initialMessage){
+
+  }
   const messages = option ? [
     {role: "system", content: option.systemPrompt},
     {role: "user", content: message}

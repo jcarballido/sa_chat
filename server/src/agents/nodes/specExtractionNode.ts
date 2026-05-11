@@ -1,6 +1,6 @@
 import { EXTRACT_SPECS } from "../../constants/system_prompts.js";
 import type { State, Update } from "../intentAgentState.js";
-import { askLLM } from "../util/askLLM.js";
+import { askLLM } from "../util/prompt.js";
 
 export async function specExtractionNode(state:State): Promise<Update> {
     console.log("SPEC EXTRACTION NODE running...")

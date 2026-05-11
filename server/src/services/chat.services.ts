@@ -22,10 +22,10 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
   console.log("LOADING CHAT SERVICES")
 
   async function determineIntent(message: z.infer<typeof RequestMessageSchema>) {
+    // EXTRACT CONV ID -> DETRMINE IF NEW CONVERSATION OR EXISTING
+    const { conversationId,title, content } = message
     const inventoryModels = inventoryQuery.getColumnValues("model")
-    const {content, title} = message
-    return await agentInvoker.invoke(content,title ?? "",inventoryModels)
-  }
+    return await agentInvoker.invoke(content,inventoryModels,{title,conversationId} )
 
   // const transformers: {
   //   [K in FilteredSpecSchemaKeys]: (raw: string[] | null) => SpecSchemaReturnTypes[K]
@@ -61,6 +61,7 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
   // {
   //   return {category:spec.category,value: transformers[spec.category](spec.value) }
   // }
+  }
   
   async function executeIntent(agentState:State): Promise<z.infer<typeof AssistantMessageContentSchema>>  {
 
@@ -129,9 +130,9 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
     return {title: title ?? "",type: "other", text: "Something went wrong",data:null}
   }
 
-  async function generateRespone(userPrompt:z.infer<typeof RequestMessageSchema>): Promise<z.infer<typeof AssistantMessageContentSchema>> {
+  async function generateRespone(userMessage:z.infer<typeof RequestMessageSchema>): Promise<z.infer<typeof AssistantMessageContentSchema>> {
     try {
-      const intent = await determineIntent(userPrompt)
+      const intent = await determineIntent(userMessage)
       const executionResult = await executeIntent(intent)
       console.log("EXECUTION RESULT:")
       console.log(executionResult)
@@ -148,5 +149,3 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
 }
 
 export type ChatServices = ReturnType<typeof buildChatServices>
-
-

@@ -3,23 +3,30 @@ import type { IntentAgentType } from "./intentAgent.js"
 
 export async function buildAgentInvoker(agent: IntentAgentType): Promise<AgentInvokerType> {
 
-  async function invoke(message: string, title: string, inventoriedModelNumbers: string[]) {
+  async function invoke(message: string, inventoriedModelNumbers: string[],options?: {title:string, conversatioId:string}) {
 
-    console.log("---BUILD LLM CALL---")
-    console.log(typeof(message))
-    console.log(message)
+    console.log("---BUILD AGENT---")
 
+    if(options){
+      const {title} = options
+      const response = await agent.invoke({
+        title,
+        initialMessage: message,
+        inventoryStore: inventoriedModelNumbers
+      })
+      
+      return response
+    }
     const response = await agent.invoke({
-      title,
       initialMessage: message,
       inventoryStore: inventoriedModelNumbers
     })
-    
     return response
+    
   }  
 
   return {
-    invoke,
+    invoke
   }
 }
 

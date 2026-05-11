@@ -1,6 +1,6 @@
 import { NONENGLISH_MODEL_NUMBERS } from "../../constants/system_prompts.js";
 import type { State, Update } from "../intentAgentState.js";
-import { askLLM } from "../util/askLLM.js";
+import { askLLM } from "../util/prompt.js";
 
 export async function modelTokenExtractorNode(state:State): Promise<Update> {
   

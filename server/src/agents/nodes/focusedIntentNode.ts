@@ -1,6 +1,6 @@
 import { EXTRACT_OBJECTIVES_SYSTEM_PROMPT, GENERAL_CHAT_PROMPT } from "../../constants/system_prompts.js";
 import type { State, Update } from "../intentAgentState.js";
-import { askLLM } from "../util/askLLM.js";
+import { askLLM } from "../util/prompt.js";
 
 export async function focusedIntentNode(state:State): Promise<Update> {
   console.log("FOCUSED INTENT NODE running.")

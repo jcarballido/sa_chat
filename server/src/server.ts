@@ -11,9 +11,14 @@ import servicesPlugins from "./plugins/services.plugins.js"
 import domainExecutionPlugins from "./plugins/domainExecution.plugins.js"
 import controllersPlugins from "./plugins/controllers.plugins.js"
 import queriesPlugins from "./plugins/queries.plugins.js"
+import { request } from "node:http"
 
 const fastify: FastifyInstance = Fastify({
   logger: true
+})
+
+fastify.addHook("preHandler", async (request, reply) => {
+  const token = request.headers.authorization?.replace("Bearer ","")
 })
 
 fastify.register(configPlugins)

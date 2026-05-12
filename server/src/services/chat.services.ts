@@ -15,12 +15,19 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
   async function determineIntent(message: z.infer<typeof RequestMessageSchema>) {
     const { conversationId,title, content } = message
     const inventoryModels = inventoryQuery.getColumnValues("model")
-    return await agentInvoker.invoke(content,inventoryModels,{title: title ?? null,conversationId} )
+    return await agentInvoker.invoke(content,inventoryModels,{title: title ?? null,conversationId,newMessage: !!conversationId} )
   }
   
   async function executeIntent(agentState:State): Promise<z.infer<typeof AssistantMessageContentSchema>>  {
 
-    const {initialMessageClassification, relatedIntent, relatedIntentLLMResponse, focusedIntent, focusedIntentClassification, filteredMatches, title} = agentState
+    const {initialMessageClassification, relatedIntent, relatedIntentLLMResponse, focusedIntent, focusedIntentClassification, filteredMatches, title, newMessage} = agentState
+
+    if(newMessage){
+      await queries.createConversation({
+        supabaseUserId:1,
+        title: title!
+      })
+    }
 
     if(initialMessageClassification === "malicious") {
       const number = Math.floor(Math.random() * ((MALICIOUS_INTENT_RESPONSES.length - 1)));

@@ -12,6 +12,7 @@ import domainExecutionPlugins from "./plugins/domainExecution.plugins.js"
 import controllersPlugins from "./plugins/controllers.plugins.js"
 import queriesPlugins from "./plugins/queries.plugins.js"
 import { request } from "node:http"
+import { verifyAuthJWT } from "./supabase/verifyAuthJWT.supabase.js"
 
 const fastify: FastifyInstance = Fastify({
   logger: true
@@ -19,6 +20,10 @@ const fastify: FastifyInstance = Fastify({
 
 fastify.addHook("preHandler", async (request, reply) => {
   const token = request.headers.authorization?.replace("Bearer ","")
+  if(!token) {return console.log("TOKEN MISSING")}
+  const payload = await verifyAuthJWT(token)
+  console.log("PAYLOAD:")
+  console.log(payload)
 })
 
 fastify.register(configPlugins)

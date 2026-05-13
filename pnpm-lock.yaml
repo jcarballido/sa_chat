@@ -40,6 +40,9 @@ importers:
       fastify-plugin:
         specifier: ^5.1.0
         version: 5.1.0
+      jose:
+        specifier: ^6.2.3
+        version: 6.2.3
       ollama:
         specifier: ^0.6.3
         version: 0.6.3
@@ -76,7 +79,7 @@ importers:
         version: 5.90.21(react@19.2.4)
       agent:
         specifier: link:../../../../.local/share/pnpm/global/5/node_modules/agent
-        version: link:../../../../.local/share/pnpm/global/5/node_modules/agent
+        version: link:../../../.local/share/pnpm/global/5/node_modules/agent
       react:
         specifier: ^19.2.0
         version: 19.2.4
@@ -1659,6 +1662,9 @@ packages:
   jiti@2.6.1:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
     hasBin: true
+
+  jose@6.2.3:
+    resolution: {integrity: sha512-YYVDInQKFJfR/xa3ojUTl8c2KoTwiL1R5Wg9YCydwH0x0B9grbzlg5HC7mMjCtUJjbQ/YnGEZIhI5tCgfTb4Hw==}
 
   js-tiktoken@1.0.21:
     resolution: {integrity: sha512-biOj/6M5qdgx5TKjDnFT1ymSpM5tbd3ylwDtrQvFQSu0Z7bBYko2dF+W/aUkXUPuk6IVpRxk/3Q2sHOzGlS36g==}
@@ -3501,6 +3507,8 @@ snapshots:
   isexe@2.0.0: {}
 
   jiti@2.6.1: {}
+
+  jose@6.2.3: {}
 
   js-tiktoken@1.0.21:
     dependencies:

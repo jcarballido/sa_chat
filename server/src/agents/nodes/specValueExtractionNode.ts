@@ -1,13 +1,13 @@
 import { EXTRACT_SPEC_VALUES } from "../../constants/system_prompts.js";
 import type { State,Update } from "../intentAgentState.js";
-import { askLLM } from "../util/prompt.js";
+import { prompt } from "../util/prompt.js";
 
 export async function specValueExtractionNode(state:State): Promise<Update> {
   
   console.log("---specValueExtractionNode RUNNING---")
 
   try {
-    const response = await askLLM(state.initialMessage, {systemPrompt:EXTRACT_SPEC_VALUES})
+    const response = await prompt(state.initialMessage, {systemPrompt:EXTRACT_SPEC_VALUES})
     console.log("RESPONSE RECIEVED:")
     console.log(response)
     console.log("---specValueExtractionNode COMPLETE---")

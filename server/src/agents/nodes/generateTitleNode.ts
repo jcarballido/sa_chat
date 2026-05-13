@@ -1,12 +1,12 @@
 import { GENERATE_TITLE } from "../../constants/system_prompts.js";
 import type { State, Update } from "../intentAgentState.js";
-import { askLLM } from "../util/prompt.js";
+import { prompt } from "../util/prompt.js";
 
 export async function generateTitleNode(state:State): Promise<Update> {
 
   console.log("---GENERATE TITLE RUNNING---")  
   try {
-    const res = await askLLM(state.initialMessage,{systemPrompt: GENERATE_TITLE})
+    const res = await prompt(state.initialMessage,{systemPrompt: GENERATE_TITLE})
     console.log("---GENERATE TITLE RESPONSE---")
     console.log("RESPONSE: ",res)
   console.log("---GENERATE TITLE COMPLETE---")

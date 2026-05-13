@@ -1,13 +1,13 @@
 import { GENERAL_CHAT_PROMPT } from "../../constants/system_prompts.js";
 import type { State, Update } from "../intentAgentState.js";
-import { askLLM } from "../util/prompt.js";
+import { prompt } from "../util/prompt.js";
 
 export async function adjacentIntentNode(state:State): Promise<Update> {
 
   console.log("ADJACENT INTENT NODE running.")
 
   try {
-    const response = await askLLM(state.initialMessage,{systemPrompt: GENERAL_CHAT_PROMPT})
+    const response = await prompt(state.initialMessage,{systemPrompt: GENERAL_CHAT_PROMPT})
     console.log("GENERAL CHAT RESPONSE:")
     console.log(response.message.content)
     return {

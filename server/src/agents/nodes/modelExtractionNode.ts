@@ -1,6 +1,6 @@
 import { EXTRACT_MODEL_SYSTEM_PROMPT } from "../../constants/system_prompts.js";
 import type { State, Update } from "../intentAgentState.js";
-import { askLLM } from "../util/prompt.js";
+import { prompt } from "../util/prompt.js";
 
 export async function modelExtractionNode(state:State): Promise<Update> {
   
@@ -9,7 +9,7 @@ export async function modelExtractionNode(state:State): Promise<Update> {
   const inventory = EXTRACT_MODEL_SYSTEM_PROMPT(state.inventoryStore)
 
   try {
-    const response = await askLLM(state.initialMessage,{systemPrompt: inventory})
+    const response = await prompt(state.initialMessage,{systemPrompt: inventory})
     console.log("MODEL EXTRACTION response:")
     console.log(response.message.content)
     return {

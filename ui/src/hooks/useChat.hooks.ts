@@ -2,11 +2,13 @@ import { useState } from "react"
 import { useMessageStore } from "../stores/message.store"
 import { messageService } from "../services/message.services"
 import { AssistantMessageSchema, type AssistantMessageType, type UserMessageType } from "../types/message.schema"
+import { useAuthStore } from "../stores/auth.store"
 
 export const useChat = () => {
   const [ isLoading, setIsLoading ] = useState(false)
   const messageStore = useMessageStore()
   const { activeConversationId, addMessage, conversations } = messageStore
+  const session = useAuthStore(s => s.session)
 
   const title = activeConversationId ? conversations.filter(conv => conv.conversationId === activeConversationId)[0].title : null
 
@@ -19,7 +21,7 @@ export const useChat = () => {
       role:"user",
       content: newUserMessage,
       createdAt:new Date().toISOString(),
-      status:"sending",
+      status:"sending", 
     })
 
     const userMessage = createNewMessage(input, activeConversationId)

@@ -1,31 +1,20 @@
-type RequestOptions<B> = {
-  method:"GET",
-  headers:{},
-  body: undefined
-} | {
-  method: "POST",
-  headers:{
-    "Content-Type":"application/json"
-  },
-  body: B
-} 
-
-type ClientConfig = {
-  baseURL:'api',
-  getAccessToken: () => (string | null)
-}
+import { ZodType } from 'zod'
+import type { ClientConfig, HttpError, RequestOptions, ValidationError } from './apiClient.types'
 
 export function createApiClient(config: ClientConfig){
 
-  async function request<T, B = unknown>(endpoint: string, options: RequestOptions<B>){
-
+  async function request<T, B = unknown>(
+    endpoint: string,
+    schema: ZodType<T>, 
+    options: RequestOptions<B>
+  ){
     const {method,headers, body} = options
 
     const URL = config.baseURL + endpoint
 
     const accessToken = config.getAccessToken()
 
-    const res = await fetch(URL, {
+    const response = await fetch(URL, {
       method,
       headers:{
         "Authorization": `Bearer ${accessToken}`,
@@ -34,14 +23,48 @@ export function createApiClient(config: ClientConfig){
       body: body ? JSON.stringify(body) : undefined
     })
 
-    if(!res.ok) throw new Error(`${res.status}: ${res.text}`)
+    if(!response.ok){
+      const error: HttpError = {
+        type:"http",
+        status: response.status,
+        body: response.json().catch(() => undefined)
+      }
+      throw error
+    }
 
-    return res.json() as T
+    const json = response.json()
+
+    const result = schema.safeParse(json)
+
+    if(result.error){
+      const error: ValidationError = {
+        type:"validation",
+        issue: result.error.issues
+      }
+      throw error
+    }
+
+    return result.data
   }
 
   return {
-    get: <T>(endpoint: string) => request<T>(endpoint,{method: "GET", headers:{}, body: undefined}),
-    post: <T, B>(endpoint: string, body: B) => request<T>(endpoint, {method:"POST",headers:{"Content-Type":"application/json"}, body})
+    get: <T>(
+      endpoint: string, 
+      schema: ZodType<T>
+    ) => request<T>(
+      endpoint,
+      schema,
+      {method: "GET", headers:{}, body: undefined}
+    ),
+    post: <T, B>(
+      endpoint: string, 
+      schema: ZodType<T>, 
+      body: B
+    ) => request<T>(
+      endpoint, 
+      schema, 
+      {method:"POST",headers:{"Content-Type":"application/json"}, body}
+    )
   }
 }
 

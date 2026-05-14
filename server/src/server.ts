@@ -11,9 +11,9 @@ import servicesPlugins from "./plugins/services.plugins.js"
 import domainExecutionPlugins from "./plugins/domainExecution.plugins.js"
 import controllersPlugins from "./plugins/controllers.plugins.js"
 import queriesPlugins from "./plugins/queries.plugins.js"
-import { request } from "node:http"
+// import { request } from "node:http"
 import { verifyAuthJWT, type AuthUser } from "./supabase/verifyAuthJWT.supabase.js"
-import { error } from "node:console"
+// import { error } from "node:console"
 
 const fastify: FastifyInstance = Fastify({
   logger: true
@@ -24,12 +24,7 @@ fastify.addHook("preHandler", async (request, reply) => {
   if(!token) return reply.code(401).send({ error: "Missing auth headers" })
   const payload = await verifyAuthJWT(token)
   if(!payload) return reply.code(401).send({ error: "Unathorized" })
-  request.user = {sub: payload.sub, email: payload.email}
-})
-
-fastify.post('/test',(request,reply) => {
-  console.log("REQUEST BODY:")
-  console.log(request.body)
+  request.user = {sub: payload.sub}
 })
 
 fastify.register(configPlugins)

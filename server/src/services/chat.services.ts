@@ -1,4 +1,4 @@
-import type z from "zod"
+// import type z from "zod"
 import type { State } from "../agents/intentAgentState.js"
 import { MALICIOUS_INTENT_RESPONSES, OUT_OF_SCOPE_RESPONSES } from "../constants/constants.js"
 import type { InventoryQueryType } from "../queries/inventoryQuery.queries.js"
@@ -9,6 +9,7 @@ import type { ExtractedSpecMapType, ExtractedSpecType } from "../types/llmRespon
 import type { DomainExecutionType } from "./domainExecution.services.js"
 import type { LLMResponseType, NewUserMessageType, RequestMessageSchema } from "../types/api.types.js"
 import type { QueriesType } from "../db/queries.js"
+import { llmResponses } from "../llmResponses.js"
 
 export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery: SpecQueryType, agentInvoker: AgentInvokerType, domainExecution: DomainExecutionType, queries: QueriesType){
 
@@ -21,32 +22,31 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
   
   async function executeIntent(agentState:State): Promise<LLMResponseType>  {
 
-    const {initialMessageClassification, relatedIntent, relatedIntentLLMResponse, focusedIntent, focusedIntentClassification, filteredMatches, title, newMessage} = agentState
+    const {initialMessageClassification, relatedIntent, relatedIntentLLMResponse, focusedIntent, focusedIntentClassification, filteredMatches, title} = agentState
 
-    // if(newMessage){
-    //   await queries.createConversation({
-    //     supabaseUserId:1,
-    //     title: title!
-    //   })
+    if(initialMessageClassification === "malicious" || initialMessageClassification === "out_of_scope") {
+      return llmResponses.reject(initialMessageClassification,title)
+      // const number = Math.floor(Math.random() * ((MALICIOUS_INTENT_RESPONSES.length - 1)));
+      // return {title: title ?? "",type:"malicious",text:MALICIOUS_INTENT_RESPONSES[number] ?? "Sensitive data can only be accessed and used within this system — I can’t send it elsewhere.",data:null}
+    }
+
+    if(relatedIntent){
+      return llmResponses.related(relatedIntentLLMResponse,title)
+    }
+
+    // if(initialMessageClassification === "out_of_scope"){
+    //   return llmResponses.reject(initialMessageClassification,title)
+      // const number = Math.floor(Math.random() * (OUT_OF_SCOPE_RESPONSES.length - 1));
+      // return {title: title ?? "",type:"out_of_scope",text:MALICIOUS_INTENT_RESPONSES[number] ?? "That\’s outside my lane, I\’m here for more specific tasks.",data:null}
     // }
 
-    if(initialMessageClassification === "malicious") {
-      const number = Math.floor(Math.random() * ((MALICIOUS_INTENT_RESPONSES.length - 1)));
-      return {title: title ?? "",type:"malicious",text:MALICIOUS_INTENT_RESPONSES[number] ?? "Sensitive data can only be accessed and used within this system — I can’t send it elsewhere.",data:null}
-    }
-
-    if(initialMessageClassification === "out_of_scope"){
-      const number = Math.floor(Math.random() * (OUT_OF_SCOPE_RESPONSES.length - 1));
-      return {title: title ?? "",type:"out_of_scope",text:MALICIOUS_INTENT_RESPONSES[number] ?? "That\’s outside my lane, I\’m here for more specific tasks.",data:null}
-    }
-
-    if(relatedIntent) return {title: title ?? "",type:"related", text: relatedIntentLLMResponse ,data:null}
+    // if(relatedIntent) return {title: title ?? "",type:"related", text: relatedIntentLLMResponse ,data:null}
 
     if(focusedIntent){
-      console.log("Focused Intent Classification: ", focusedIntentClassification)
       if(focusedIntentClassification == "similar_products"){
         const res = domainExecution.getSimilarModelsByModel("any",filteredMatches)
-        return {title: title ?? "",type:"similar_products", text: null,data: res}  
+        return llmResponses.similarProducts
+        // return {title: title ?? "",type:"similar_products", text: null,data: res}  
       }
 
       if(focusedIntentClassification == "product_comparison"){

@@ -4,7 +4,7 @@ import type { ChatServices } from "../services/chat.services.js";
 import { buildApiResponseSchema, NewUserMessageSchema, UserMessageSchema } from "../types/api.types.js";
 import type { QueriesType } from "../db/queries.js";
 import type z from "zod";
-import { failure } from "../api/responseGenerators.js";
+import { failure, success } from "../api/responseGenerators.js";
 
 export function buildChatController(chatService: ChatServices, queries: QueriesType, ) {
 // console.log("---chat.controller---")
@@ -67,7 +67,16 @@ export function buildChatController(chatService: ChatServices, queries: QueriesT
     try {
       const llmResponse = await chatService.generateRespone(data, request.user!)
       // const {title,...rest} = agentResult
-      return llmResponse
+      // return llmResponse
+      
+
+      return success({
+        conversation: {
+          title: llmResponse.title,
+          
+        }
+      })
+
       // LLM Response Shape:
       // *****
       // return {

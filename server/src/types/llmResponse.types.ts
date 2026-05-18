@@ -14,7 +14,12 @@ export type ExtractedSpecMapType = {
 }[keyof SpecRowType][]
 
 
-export const ReturnedSpecValue = z.array(z.object({category: categoryEnum,value: z.array(z.string()).nullable()})) 
+export const ReturnedSpecValue = z.array(
+    z.object({
+        category: categoryEnum,
+        value: z.array(z.string()).nullable()
+    })
+) 
 
 export const SpecValueSchema = z.object({
   "specValues":  ReturnedSpecValue 

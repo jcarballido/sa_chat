@@ -7,7 +7,7 @@ import { SpecValueSchema } from "../types/llmResponse.types.js";
 type MessageType = z.infer<typeof MessageSchema>
 
 export const agentState = new StateSchema({
-  newMessage: z.boolean(), 
+  // newMessage: z.boolean(), 
   messages: new ReducedValue(
       z.array(z.custom<MessageType>()).default([]),
     {

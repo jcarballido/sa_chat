@@ -4,11 +4,12 @@ import { messages, type InsertMessage } from "./schema/messages.schema.js";
 
 export async function buildQueries() {
 
-  async function createConversation(newConversation: InsertConversation) {
-    await db
+  async function createConversation(supabaseUserId: string) {
+    const result = await db
       .insert(conversations)
-      .values(newConversation)
-      .returning({newConversationId: conversations.id})
+      .values({supabaseUserId})
+      .returning({newConversationId: conversations.id})    
+    return result
   }
 
   async function getConversations() {

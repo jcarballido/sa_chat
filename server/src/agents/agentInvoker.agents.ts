@@ -3,7 +3,7 @@ import type { IntentAgentType } from "./intentAgent.js"
 
 export async function buildAgentInvoker(agent: IntentAgentType): Promise<AgentInvokerType> {
 
-  async function invoke(message: string, inventoriedModelNumbers: string[],options?: {title:string | null, conversationId:string | null, newMessage: boolean}) {
+  async function invoke(message: string, inventoriedModelNumbers: string[],options?: {title:string | null, conversationId:number | null}) {
 
     console.log("---BUILD AGENT---")
 

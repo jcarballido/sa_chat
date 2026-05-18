@@ -32,17 +32,16 @@ export const AssistantMessageContentSchema = z.discriminatedUnion("type", [
 ])
 
 export const MessageSchema = z.object({ 
-  id: z.string(),
-  conversationId: z.string().nullable(),
-  createdAt: z.iso.datetime(),
+  // conversationId: z.string().nullable(),
   status: z.enum(["delivered", "error", "sending"]),
-  title: z.string().nullable()
 })
 
 export const AssistantMessageSchema = MessageSchema.extend({
+  id: z.string(),
   role: z.literal("assistant"),
   content: AssistantMessageContentSchema,
-
+  conversationId: z.string(),
+  status: z.literal("delivered")
 })
 
 export const UserMessageSchema = MessageSchema.extend({
@@ -50,7 +49,29 @@ export const UserMessageSchema = MessageSchema.extend({
   content: z.string()
 })
 
+export const EnhancedUserMessageSchema = UserMessageSchema.extend({
+  id: z.string()
+})
+
+export const NewUserMessageSchema = z.object({
+  conversation: z.object({
+    title: z.string().nullable(),
+    conversationId: z.string().nullable(),
+    newMessage: UserMessageSchema
+  }) 
+}) 
+
+export const LLMResponseSchema = z.object({
+  conversation: z.object({
+    title: z.string(),
+    conversationId: z.string(),
+    messages: z.tuple([AssistantMessageSchema, EnhancedUserMessageSchema])
+  }) 
+})
+
 export type MessageType = z.infer<typeof MessageSchema>
 
 export type AssistantMessageType = z.infer<typeof AssistantMessageSchema>
 export type UserMessageType = z.infer<typeof UserMessageSchema>
+export type LLMResponseType = z.infer<typeof LLMResponseSchema>
+export type NewUserMessageType = z.infer<typeof NewUserMessageSchema>

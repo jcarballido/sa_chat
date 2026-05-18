@@ -7,27 +7,28 @@ import type { AgentInvokerType } from "../types/agentInvoker.types.js"
 import { SpecRowSchema } from "../types/stores.types.js"
 import type { ExtractedSpecMapType, ExtractedSpecType } from "../types/llmResponse.types.js"
 import type { DomainExecutionType } from "./domainExecution.services.js"
-import type { AssistantMessageContentSchema, RequestMessageSchema } from "../types/api.types.js"
+import type { LLMResponseType, NewUserMessageType, RequestMessageSchema } from "../types/api.types.js"
 import type { QueriesType } from "../db/queries.js"
 
 export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery: SpecQueryType, agentInvoker: AgentInvokerType, domainExecution: DomainExecutionType, queries: QueriesType){
 
-  async function determineIntent(message: z.infer<typeof RequestMessageSchema>) {
-    const { conversationId,title, content } = message
+  async function determineIntent(message: NewUserMessageType) {
+    const { conversationId,title, newMessage } = message.conversation
+    const content = newMessage.content
     const inventoryModels = inventoryQuery.getColumnValues("model")
-    return await agentInvoker.invoke(content,inventoryModels,{title: title ?? null,conversationId,newMessage: !!conversationId} )
+    return await agentInvoker.invoke( content, inventoryModels, {title,conversationId} )
   }
   
-  async function executeIntent(agentState:State): Promise<z.infer<typeof AssistantMessageContentSchema>>  {
+  async function executeIntent(agentState:State): Promise<LLMResponseType>  {
 
     const {initialMessageClassification, relatedIntent, relatedIntentLLMResponse, focusedIntent, focusedIntentClassification, filteredMatches, title, newMessage} = agentState
 
-    if(newMessage){
-      await queries.createConversation({
-        supabaseUserId:1,
-        title: title!
-      })
-    }
+    // if(newMessage){
+    //   await queries.createConversation({
+    //     supabaseUserId:1,
+    //     title: title!
+    //   })
+    // }
 
     if(initialMessageClassification === "malicious") {
       const number = Math.floor(Math.random() * ((MALICIOUS_INTENT_RESPONSES.length - 1)));
@@ -99,9 +100,34 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
     return {title: title ?? "",type: "other", text: "Something went wrong",data:null}
   }
 
-  async function generateRespone(userMessage:z.infer<typeof RequestMessageSchema>): Promise<z.infer<typeof AssistantMessageContentSchema>> {
+  async function generateRespone(
+    userMessage: NewUserMessageType,
+    userId:{sub: string}
+  ) : Promise<LLMResponseType> {
+    
+    const { conversationId } = userMessage.conversation
+    let llmPayload: NewUserMessageType 
+
+    if(!conversationId){
+      try {
+        const [ result ] = await queries.createConversation(userId.sub)
+        llmPayload = {
+          conversation:{
+            ...userMessage.conversation,
+            conversationId: result?.newConversationId!
+          }
+        }
+      } catch (error) {
+        console.log("ERROR CREATING NEW CONVERSATION:")
+        console.log(error)
+        throw error        
+      }
+    }else{
+      llmPayload = userMessage
+    }
+
     try {
-      const intent = await determineIntent(userMessage)
+      const intent = await determineIntent(llmPayload)
       const executionResult = await executeIntent(intent)
       console.log("EXECUTION RESULT:")
       console.log(executionResult)

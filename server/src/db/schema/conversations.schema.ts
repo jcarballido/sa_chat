@@ -1,9 +1,9 @@
-import { integer, serial, pgTable as table, text, timestamp } from "drizzle-orm/pg-core";
+import { integer, serial, pgTable as table, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const conversations = table("conversations", {
   id: serial().primaryKey(),
-  supabaseUserId: integer("supabase_user_id").notNull(),
-  title: text().notNull(),
+  supabaseUserId: uuid("supabase_user_id").notNull(),
+  title: text(),
 })
 
 export type SelectConversation = typeof conversations.$inferSelect

@@ -45,19 +45,24 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
     if(focusedIntent){
       if(focusedIntentClassification == "similar_products"){
         const res = domainExecution.getSimilarModelsByModel("any",filteredMatches)
-        return llmResponses.similarProducts
+        return llmResponses.similarProducts(res, title)
         // return {title: title ?? "",type:"similar_products", text: null,data: res}  
       }
 
       if(focusedIntentClassification == "product_comparison"){
-        if(filteredMatches.length < 2) return {title: title ?? "",type: "other", text:  "At least 2 model numbers required.",data:null}
+        if(filteredMatches.length < 2) {
+          // return llmResponses.productComparison(filteredSpecs, title, text:"At least 2 models required for comparison.")
+          return {title: title ?? "",type: "other", text:  "At least 2 model numbers required.",data:null}
+        }
+
         const allSpecs = filteredMatches.map( match => {
           const specs = specQuery.getRowsWhere("model",match)
           return specs[0]
         })
         const filteredSpecs = allSpecs.filter(spec => spec != undefined)
         if(filteredSpecs.length < 2) return {title: title ?? "",type: "other", text:"Could not locate specs for all model numbers to compare",data:null}
-        return {title: title ?? "",type: "product_comparison", text: null,data:filteredSpecs}
+        return llmResponses.productComparison(filteredSpecs, title)
+        // return {title: title ?? "",type: "product_comparison", text: null,data:filteredSpecs}
       }
       
       if(focusedIntentClassification == "product_lookup_by_model"){
@@ -66,6 +71,7 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
           return specs[0]
         })
         const filteredSpecs = allSpecs.filter(spec => spec != undefined)
+        return llmResponses.productLookupByModel(filteredSpecs,title )
         return {title: title ?? "",type: "product_comparison", text: null,data:filteredSpecs}
       }
 
@@ -94,19 +100,23 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
         // }) as TransformedSpec[]
         // const filteredRequestedSpecValues = typedSpecValues.filter(spec => spec.value !== null )
         const res = domainExecution.getModelsBySpecs("any",typedSpecValues)
-        if (res !== undefined) return {title: title ?? "",type:"product_lookup_by_specs",text:null,data:res}
+        return llmResponses.productLookupBySpecs(res,title)
+
+        // if (res !== undefined) return {title: title ?? "",type:"product_lookup_by_specs",text:null,data:res}
       }
     }
-    return {title: title ?? "",type: "other", text: "Something went wrong",data:null}
+    
+    // return {title: title ?? "",type: "other", text: "Something went wrong",data:null}
+    return llmResponses.reject("other", title)
   }
 
   async function generateRespone(
     userMessage: NewUserMessageType,
     userId:{sub: string}
-  ) : Promise<LLMResponseType> {
+  ) : Promise<{result: LLMResponseType, conversationId: number}> {
     
     const { conversationId } = userMessage.conversation
-    let llmPayload: NewUserMessageType 
+    let llmPayload: NewUserMessageType
 
     if(!conversationId){
       try {
@@ -131,7 +141,7 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
       const executionResult = await executeIntent(intent)
       console.log("EXECUTION RESULT:")
       console.log(executionResult)
-      return executionResult      
+      return {result: executionResult, conversationId: conversationId!}      
     } catch (error) {
       console.log("ERROR IN chat.service: ",error)
       throw error

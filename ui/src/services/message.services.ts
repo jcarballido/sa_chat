@@ -3,8 +3,8 @@ import { type AssistantMessageType, AssistantMessageSchema, type NewUserMessageT
 
 async function send (userMessage: NewUserMessageType ): Promise<AssistantMessageType> {  
   try {
-    const response = api.post("/api/chat/process", AssistantMessageSchema, userMessage)
-
+    const response = api.post("/chat/process", AssistantMessageSchema, userMessage)
+    
     return response
 
   } catch (error) {

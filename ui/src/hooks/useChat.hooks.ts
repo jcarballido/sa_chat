@@ -17,7 +17,7 @@ export const useChat = () => {
     const newUserMessage = ( newUserMessage:string ): NewUserMessageType => ({
       conversation: {
         title,
-        conversationId: activeConversationId,
+        conversationId: Number(activeConversationId),
         newMessage:{
           role:"user",
           content: newUserMessage,

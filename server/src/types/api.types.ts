@@ -31,7 +31,7 @@ z.object({
 
 export const UserMessageSchema = MessageSchema.extend({
   role: z.literal("user"),
-  status: z.literal("delivered")
+  status: z.literal("sending")
 })
 
 export const NewUserMessageSchema = z.object({

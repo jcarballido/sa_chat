@@ -31,6 +31,8 @@ export function buildChatController(chatService: ChatServices, queries: QueriesT
 
     const result = NewUserMessageSchema.safeParse(request.body)
     if(result.error){
+      console.log("FAILED VALIDATION:")
+      console.log(result.error)
       return failure("FAIL","ERROR PARSING BODY")
       // return{
       //   status:"error",
@@ -68,11 +70,16 @@ export function buildChatController(chatService: ChatServices, queries: QueriesT
       const llmResponse = await chatService.generateRespone(data, request.user!)
       // const {title,...rest} = agentResult
       // return llmResponse
+      const {result, conversationId} = llmResponse
+      const {} = result
       
-
       return success({
         conversation: {
-          title: llmResponse.title,
+          title: llmResponse.result.title,
+          conversationId: llmResponse.conversationId,
+          newAssistantMessage:[
+            {...result},data
+          ]
           
         }
       })

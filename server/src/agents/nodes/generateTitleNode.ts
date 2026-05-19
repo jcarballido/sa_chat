@@ -6,7 +6,7 @@ export async function generateTitleNode(state:State): Promise<Update> {
 
   console.log("---GENERATE TITLE RUNNING---")  
   try {
-    const res = await prompt(state.initialMessage,{systemPrompt: GENERATE_TITLE})
+    const res = await prompt([{content: state.initialMessage,"role":"user"}],{systemPrompt: GENERATE_TITLE})
     console.log("---GENERATE TITLE RESPONSE---")
     console.log("RESPONSE: ",res)
   console.log("---GENERATE TITLE COMPLETE---")

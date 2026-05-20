@@ -7,13 +7,13 @@ import type { AgentInvokerType } from "../types/agentInvoker.types.js"
 import { SpecRowSchema } from "../types/stores.types.js"
 import type { ExtractedSpecMapType, ExtractedSpecType } from "../types/llmResponse.types.js"
 import type { DomainExecutionType } from "./domainExecution.services.js"
-import type { LLMResponseType, NewUserMessageType, RequestMessageSchema } from "../types/api.types.js"
+import type { LLMResponseType, IncomingMessageType, RequestMessageSchema } from "../types/api.types.js"
 import type { QueriesType } from "../db/queries.js"
 import { llmResponses } from "../llmResponses.js"
 
 export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery: SpecQueryType, agentInvoker: AgentInvokerType, domainExecution: DomainExecutionType, queries: QueriesType){
 
-  async function determineIntent(message: NewUserMessageType) {
+  async function determineIntent(message: IncomingMessageType) {
     const { conversationId,title, newMessage } = message.conversation
     const content = newMessage.content
     const inventoryModels = inventoryQuery.getColumnValues("model")
@@ -110,22 +110,19 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
     return llmResponses.reject("other", title)
   }
 
-  async function generateRespone(
-    userMessage: NewUserMessageType,
-    userId:{sub: string}
-  ) : Promise<{result: LLMResponseType, conversationId: number}> {
+  async function processIncomingMessage(
+    userMessage: IncomingMessageType, 
+    userId:{sub: string}): Promise<{agentResponse: LLMResponseType, conversationId: number}> {
     
-    const { conversationId } = userMessage.conversation
-    let llmPayload: NewUserMessageType
+    const { conversationId } = userMessage
+    let llmPayload: IncomingMessageType
 
-    if(!conversationId){
+    if(typeof conversationId === "string"){
       try {
         const [ result ] = await queries.createConversation(userId.sub)
         llmPayload = {
-          conversation:{
-            ...userMessage.conversation,
-            conversationId: result?.newConversationId!
-          }
+          ...userMessage,
+          conversationId: result?.newConversationId!
         }
       } catch (error) {
         console.log("ERROR CREATING NEW CONVERSATION:")
@@ -137,11 +134,13 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
     }
 
     try {
+      // await storeMessage(llmPayload.newMessage)
       const intent = await determineIntent(llmPayload)
-      const executionResult = await executeIntent(intent)
-      console.log("EXECUTION RESULT:")
-      console.log(executionResult)
-      return {result: executionResult, conversationId: conversationId!}      
+      const result   = await executeIntent(intent)
+      // console.log("EXECUTION RESULT:")
+      // console.log(executionResult)
+      // return {agentResponse: executionResult, conversationId: conversationId!}    
+
     } catch (error) {
       console.log("ERROR IN chat.service: ",error)
       throw error
@@ -149,7 +148,7 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
   }
 
   return{
-    generateRespone
+    processIncomingMessage
   }
 }
 

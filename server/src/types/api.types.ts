@@ -5,18 +5,18 @@ import { SpecRowSchema } from "./stores.types.js"
 // export const RemoveModel = SpecifcationRowSchema.omit({
 //   model:true
 // })
-export const MessageSchema = z.object({
-  role: z.enum(["user","system","assistant"]),
-  content: z.string() 
-})
+
+// export const MessageSchema = z.object({
+//   role: z.enum(["user","system","assistant"]),
+//   id:z.string().or(z.number()),
+//   content: z.string() 
+// })
+
 const ComparisonResultSchema = z.record(z.string(), z.array(SpecRowSchema)).refine(obj => Object.keys(obj).length === 1, {
   message: "Each object can only have one key."
 })
 
 export type ComparisonResultType = z.infer<typeof ComparisonResultSchema>
-
-
-
 
 export const RequestMessageSchema =  
 z.object({
@@ -29,17 +29,26 @@ z.object({
   status: z.enum(["delivered","error","sending"])
 })
 
-export const UserMessageSchema = MessageSchema.extend({
-  role: z.literal("user"),
-  status: z.literal("sending")
-})
 
-export const NewUserMessageSchema = z.object({
-  conversation: z.object({
-    title: z.string().nullable(),
-    conversationId: z.number().nullable(),
-    newMessage: UserMessageSchema
-  }) 
+export const UserMessageSchema = z.object({
+  role: z.literal("user"),
+  id:z.string().or(z.number()),
+  content: z.string() 
+})
+export const AssistantMessageSchema = z.object({
+  role: z.literal("assistant"),
+  id:z.string().or(z.number()),
+  content: z.string() 
+})
+export const MessageSchema = z.discriminatedUnion("role",[
+  UserMessageSchema,
+  AssistantMessageSchema
+])
+
+export const IncomingMessageSchema = z.object({
+  title: z.string(),
+  conversationId: z.string().or(z.number()),
+  newMessage: UserMessageSchema
 }) 
 
 // export const UserMessageSchema = MessageSchema.extend({
@@ -133,6 +142,6 @@ export const LLMResponseSchema = z.discriminatedUnion("type", [
   })
 ])
 
-export type NewUserMessageType = z.infer<typeof NewUserMessageSchema>
+export type IncomingMessageType = z.infer<typeof IncomingMessageSchema>
 export type LLMResponseType = z.infer<typeof LLMResponseSchema>
 export type ResponseOf<T extends LLMResponseType["type"]> = Extract<LLMResponseType,{type: T}>

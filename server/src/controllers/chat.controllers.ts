@@ -1,132 +1,39 @@
 import { type FastifyReply, type FastifyRequest } from "fastify";
 // import { RequestMessageSchema } from "../schemas/schemas.js"
 import type { ChatServices } from "../services/chat.services.js";
-import { buildApiResponseSchema, NewUserMessageSchema, UserMessageSchema } from "../types/api.types.js";
+import { buildApiResponseSchema, IncomingMessageSchema, UserMessageSchema } from "../types/api.types.js";
 import type { QueriesType } from "../db/queries.js";
 import type z from "zod";
 import { failure, success } from "../api/responseGenerators.js";
 
 export function buildChatController(chatService: ChatServices, queries: QueriesType, ) {
-// console.log("---chat.controller---")
-
-//   export const LLMResponseSchema = z.object({
-//   conversation: z.object({
-//     title: z.string(),
-//     conversationId: z.string(),
-//     messages: z.tuple([AssistantMessageSchema, EnhancedUserMessageSchema])
-  //   }) 
-  // })
-
-  // export const NewUserMessageSchema = z.object({
-  // conversation: z.object({
-  //   title: z.string().nullable(),
-  //   conversationId: z.string().nullable(),
-  //   newMessage: UserMessageSchema
-  // }) 
-  // }) 
+  console.log("---chat.controller---")
+  
   async function processMessage(request: FastifyRequest,reply: FastifyReply) {
 
     console.log("REQUEST BODY:")
     console.log(request.body)
 
-    const result = NewUserMessageSchema.safeParse(request.body)
+    const result = IncomingMessageSchema.safeParse(request.body)
     if(result.error){
       console.log("FAILED VALIDATION:")
       console.log(result.error)
-      return failure("FAIL","ERROR PARSING BODY")
-      // return{
-      //   status:"error",
-      //   data:null,
-      //   error:{
-      //     code:"FAIL",
-      //     message:"ERROR PARSING BODY."
-      //   }
-      // }
+      reply.code(400)
+      return failure("INVALID_INPUT",`${JSON.stringify(result.error.flatten)}`)
     }
 
-    const data = result.data
-
-    // let llmPayload: z.infer<typeof UserMessageSchema>
-
-    // if "New message" -> Create conversation
-    // if(!userMessage.conversationId){
-    //   try {
-    //     const [ newConversation ] = await queries.createConversation(request.user?.sub!)
-    //     llmPayload = {
-    //       ...userMessage,
-    //       conversationId: newConversation?.newConversationId!
-    //     }
-    //     await queries.addMessage(llmPayload)
-    //   } catch (error) {
-    //     console.log("ERROR CREATING CONVERSATION:")
-    //     console.log(error)
-    //     throw error        
-    //   }
-    // }else{
-    //   llmPayload = userMessage
-    // }
+    const incomingMessage = result.data
 
     try {
-      const llmResponse = await chatService.generateRespone(data, request.user!)
-      // const {title,...rest} = agentResult
-      // return llmResponse
-      const {result, conversationId} = llmResponse
-      const {} = result
+      const responseMessage = await chatService.processIncomingMessage(incomingMessage, request.user!)
       
-      return success({
-        conversation: {
-          title: llmResponse.result.title,
-          conversationId: llmResponse.conversationId,
-          newAssistantMessage:[
-            {...result},data
-          ]
-          
-        }
-      })
-
-      // LLM Response Shape:
-      // *****
-      // return {
-      //   status:"success",
-      //   data:{
-      //      conversation:{
-      //        title:"",
-      //        convId: number,
-      //        newAsssitantMessage:[
-      //          {role:user,content:originalMessage,status}
-      //          {role:assistant,content:,status }
-      //        ]
-      //      }
-      //   },
-      // }      
-      // *****
-      // return {
-      //   status:"success",
-      //   data:{
-      //     title,
-      //     id: userMessage.id,
-      //     conversationId: userMessage.conversationId,
-      //     conversationTitle: title,
-      //     role:"assistant",
-      //     content:rest,
-      //     createdAt: new Date().toISOString(),
-      //     status: "delivered"
-      //   },
-      //   error: null
-      // }      
+      reply.code(201)
+      return success(responseMessage)
+  
     } catch (error) {
       console.log("ERROR  in chat.controllers")
       console.log(error)
-      return failure("FAIL",`${error}`)
-
-      // return {
-      //   status:"error",
-      //   data:null,
-      //   error:{
-      //     code:"FAIL",
-      //     message:`${error}`
-      //   }
-      // }
+      return failure("INTERNAL_SERVICE_ERROR",`${error}`)
     }
   }
 

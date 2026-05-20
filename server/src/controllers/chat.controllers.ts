@@ -1,7 +1,7 @@
 import { type FastifyReply, type FastifyRequest } from "fastify";
 // import { RequestMessageSchema } from "../schemas/schemas.js"
 import type { ChatServices } from "../services/chat.services.js";
-import { buildApiResponseSchema, IncomingMessageSchema, UserMessageSchema } from "../types/api.types.js";
+import { buildApiResponseSchema, IncomingMessageSchema, UserMessageSchema, type IncomingMessageType, type OutgoingMessageType } from "../types/api.types.js";
 import type { QueriesType } from "../db/queries.js";
 import type z from "zod";
 import { failure, success } from "../api/responseGenerators.js";
@@ -22,13 +22,13 @@ export function buildChatController(chatService: ChatServices, queries: QueriesT
       return failure("INVALID_INPUT",`${JSON.stringify(result.error.flatten)}`)
     }
 
-    const incomingMessage = result.data
+    const incomingMessage: IncomingMessageType = result.data
 
     try {
-      const responseMessage = await chatService.processIncomingMessage(incomingMessage, request.user!)
+      const outgoingMessage: OutgoingMessageType = await chatService.processIncomingMessage(incomingMessage, request.user!)
       
       reply.code(201)
-      return success(responseMessage)
+      return success(outgoingMessage)
   
     } catch (error) {
       console.log("ERROR  in chat.controllers")

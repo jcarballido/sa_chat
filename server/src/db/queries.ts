@@ -19,7 +19,7 @@ export async function buildQueries() {
     return result
   }
 
-  async function addMessage(newMessage: InsertMessage) {
+  async function addMessage(newMessage: InsertMessage, conversationId: number) {
     await db
       .insert(messages)
       .values(newMessage)

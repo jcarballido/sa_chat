@@ -32,12 +32,15 @@ z.object({
 
 export const UserMessageSchema = z.object({
   role: z.literal("user"),
-  id:z.string().or(z.number()),
+  id:z.object({
+    temp:z.string(),
+    storage: z.number().or(z.undefined())
+  }),
   content: z.string() 
 })
 export const AssistantMessageSchema = z.object({
   role: z.literal("assistant"),
-  id:z.string().or(z.number()),
+  id:z.number(),
   content: z.string() 
 })
 export const MessageSchema = z.discriminatedUnion("role",[
@@ -45,11 +48,19 @@ export const MessageSchema = z.discriminatedUnion("role",[
   AssistantMessageSchema
 ])
 
+type MessageType = z.infer<typeof MessageSchema>
+
 export const IncomingMessageSchema = z.object({
   title: z.string(),
   conversationId: z.string().or(z.number()),
   newMessage: UserMessageSchema
 }) 
+
+export const OutgoingMessageSchema = IncomingMessageSchema.extend({
+  conversationId: z.number(),
+  newMessage: MessageSchema
+})
+
 
 // export const UserMessageSchema = MessageSchema.extend({
   //   role: z.literal("user"),
@@ -143,5 +154,6 @@ export const LLMResponseSchema = z.discriminatedUnion("type", [
 ])
 
 export type IncomingMessageType = z.infer<typeof IncomingMessageSchema>
+export type OutgoingMessageType = z.infer<typeof OutgoingMessageSchema>
 export type LLMResponseType = z.infer<typeof LLMResponseSchema>
 export type ResponseOf<T extends LLMResponseType["type"]> = Extract<LLMResponseType,{type: T}>

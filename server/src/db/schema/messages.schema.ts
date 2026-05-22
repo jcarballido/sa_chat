@@ -10,4 +10,5 @@ export const messages = table("messages",{
   content: text().notNull()
 })
 
-export type InsertMessage = typeof messages.$inferInsert 
+export type InsertMessage = typeof messages.$inferInsert
+export type SelectMessage = typeof messages.$inferSelect 

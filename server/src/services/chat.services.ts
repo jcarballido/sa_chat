@@ -10,15 +10,14 @@ import type { DomainExecutionType } from "./domainExecution.services.js"
 import type { LLMResponseType, IncomingMessageType, RequestMessageSchema, OutgoingMessageType, UserMessageType } from "../types/api.types.js"
 import type { QueriesType } from "../db/queries.js"
 import { llmResponses } from "../llmResponses.js"
-import type { InsertMessage } from "../db/schema/messages.schema.js"
+import type { InsertMessage, SelectMessage } from "../db/schema/messages.schema.js"
 
 export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery: SpecQueryType, agentInvoker: AgentInvokerType, domainExecution: DomainExecutionType, queries: QueriesType){
 
-  async function determineIntent(message: IncomingMessageType) {
-    const { conversationId,title, newMessage } = message
-    const content = newMessage.content
+  async function determineIntent(message: SelectMessage, title: string | undefined) {
+    const content = message.content
     const inventoryModels = inventoryQuery.getColumnValues("model") //Change to a stored value instead of calling it everytime a message comes in
-    return await agentInvoker.invoke( content, inventoryModels, {title,conversationId} )
+    return await agentInvoker.invoke( content, inventoryModels, title )
   }
   
   async function executeIntent(agentState:State): Promise<LLMResponseType>  {
@@ -142,24 +141,27 @@ addMessage: (newMessage: {
     const storedConversationId = await assignConversationId(conversationId)
 
     // 2. Cast message to InsertMessage type
-    const toInsertMessage = (rawMessage: IncomingMessageType["newMessage"], conversationId: number): InsertMessage => {
+    const toInsertUserMessage = (rawMessage: IncomingMessageType["newMessage"], conversationId: number): InsertMessage & {role: "user"} => {
       return {
         conversationId,
-        role: "user",
+        role:"user",
         content: rawMessage.content
       }
     }
 
-    const newUserMessage = toInsertMessage(newMessage, storedConversationId) 
+    const insertUserMessage = toInsertUserMessage(newMessage, storedConversationId) 
 
     // 3. Add message to the conversation by conv. id 
-    // CHORE: Return the whole message to pass to the intent flow.
-    const [ result ] = await queries.addMessage(newUserMessage)
-    if(!result) throw new Error("Error adding user message.")      
+    const [ storedMessage ] = await queries.addMessage(insertUserMessage)
+    if(!storedMessage) throw new Error("Error adding user message.")
+      
+    // 4. Pass resulting message to intent agent
     try {
-      // await storeMessage(llmPayload.newMessage)
-      const intent = await determineIntent(llmPayload)
+      const intent = await determineIntent(storedMessage, title)
       const result   = await executeIntent(intent)
+
+      // 5. Convert result to outgoing message, being returned to chat.controller.processMessage
+      // CHORE: Establish conversion function "toOutgoingMessage()"
       // console.log("EXECUTION RESULT:")
       // console.log(executionResult)
       // return {agentResponse: executionResult, conversationId: conversationId!}
@@ -172,7 +174,6 @@ addMessage: (newMessage: {
       //   newMessage:[]
       // }    
 
-      return toOutgoingMessage()
 
     } catch (error) {
       console.log("ERROR IN chat.service: ",error)

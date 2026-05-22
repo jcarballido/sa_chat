@@ -23,7 +23,7 @@ export async function buildQueries() {
     const result = await db
       .insert(messages)
       .values(newMessage)
-      .returning({newMessageId: messages.id})
+      .returning()
     return result    
   }
 

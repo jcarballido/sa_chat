@@ -4,9 +4,6 @@ export type AgentInvokerType = {
   invoke:(
     message:string,
     modelNumbers: string[],
-    options?: {
-      title: string | null,
-      conversationId: number | null
-    }
+    title?: string 
   ) => Promise<State>
 }

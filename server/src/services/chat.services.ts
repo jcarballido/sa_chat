@@ -7,10 +7,9 @@ import type { AgentInvokerType } from "../types/agentInvoker.types.js"
 import { SpecRowSchema } from "../types/stores.types.js"
 import type { ExtractedSpecMapType, ExtractedSpecType } from "../types/llmResponse.types.js"
 import type { DomainExecutionType } from "./domainExecution.services.js"
-import type { LLMResponseType, IncomingMessageType, RequestMessageSchema, OutgoingMessageType } from "../types/api.types.js"
+import type { LLMResponseType, IncomingMessageType, RequestMessageSchema, OutgoingMessageType, UserMessageType } from "../types/api.types.js"
 import type { QueriesType } from "../db/queries.js"
 import { llmResponses } from "../llmResponses.js"
-import type { UserMessageType } from "../types/message.types.js"
 import type { InsertMessage } from "../db/schema/messages.schema.js"
 
 export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery: SpecQueryType, agentInvoker: AgentInvokerType, domainExecution: DomainExecutionType, queries: QueriesType){
@@ -102,39 +101,61 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
   }
 
   async function processIncomingMessage(incomingMessage: IncomingMessageType, userId:{sub: string}): Promise<OutgoingMessageType> {
-    // export const IncomingMessageSchema = z.object({
-    //   title: z.string(),
-    //   conversationId: z.string().or(z.number()),
-    //   newMessage: UserMessageSchema
-    // }) 
-    
-    // export const OutgoingMessageSchema = IncomingMessageSchema.extend({
-    //   conversationId: z.number(),
-    //   newMessage: UserMessageSchema.extend({id: z.number()})
-    // })
+    // Convert incoming message to an agentPayload
+    /*
+export const messages = table("messages",{
+  id: serial().primaryKey(),
+  conversationId: integer("conversation_id").references(() => conversations.id).notNull(),
+  createdAt: timestamp("created_at",{withTimezone: true}).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at",{withTimezone: true}).defaultNow().notNull(),
+  role: text({ enum:["user","assistant"] }).notNull(),
+  content: text()
+})
 
-    // 1. Determine if a new conversation must be created from the conversation ID 
-    let conversationId: number
+addMessage: (newMessage: {
+    role: "user" | "assistant";
+    content: string;
+    conversationId: number;
+    id?: number | undefined;
+    createdAt?: Date | undefined;
+    updatedAt?: Date | undefined;
 
-    if(typeof incomingMessage.conversationId === "string"){
-      try {
-        const [ result ] = await queries.createConversation(userId.sub)
-        if(!result?.newConversationId) throw new Error("A new conversation could not be created.")
-        conversationId = result?.newConversationId!
-      } catch (error) {
-        console.log("ERROR CREATING NEW CONVERSATION:")
-        console.log(error)
-        throw error        
+    */
+    const {title, conversationId, newMessage} = incomingMessage 
+
+    // 1. Cast conversation id to stored conversation ID
+    const assignConversationId = async(conversationId: string | number) => {
+      if(typeof conversationId === "string"){
+        try {
+          const [ result ] = await queries.createConversation(userId.sub)
+          if(!result?.newConversationId) throw new Error("A new conversation could not be created.")
+          return result?.newConversationId!
+        } catch (error) {
+          console.log("ERROR CREATING NEW CONVERSATION:")
+          console.log(error)
+          throw error        
+        }
+      }else{
+        return conversationId
       }
-    }else{
-      conversationId = incomingMessage.conversationId
+    }  
+    const storedConversationId = await assignConversationId(conversationId)
+
+    // 2. Cast message to InsertMessage type
+    const toInsertMessage = (rawMessage: IncomingMessageType["newMessage"], conversationId: number): InsertMessage => {
+      return {
+        conversationId,
+        role: "user",
+        content: rawMessage.content
+      }
     }
-    // 2. Using the conversation ID, store the incoming message, and capture the auto-assigned ID for return.
-    const newUserMessage: InsertMessage = {
-      ...incomingMessage.newMessage,
-      conversationId
-    } 
+
+    const newUserMessage = toInsertMessage(newMessage, storedConversationId) 
+
+    // 3. Add message to the conversation by conv. id 
+    // CHORE: Return the whole message to pass to the intent flow.
     const [ result ] = await queries.addMessage(newUserMessage)
+    if(!result) throw new Error("Error adding user message.")      
     try {
       // await storeMessage(llmPayload.newMessage)
       const intent = await determineIntent(llmPayload)
@@ -142,11 +163,16 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
       // console.log("EXECUTION RESULT:")
       // console.log(executionResult)
       // return {agentResponse: executionResult, conversationId: conversationId!}
-      return {
-        title:,
-        conversationId,
-        newMessage:[]
-      }    
+      const toOutgoingMessage = (result) => {
+
+      }
+      // return {
+      //   title:,
+      //   conversationId,
+      //   newMessage:[]
+      // }    
+
+      return toOutgoingMessage()
 
     } catch (error) {
       console.log("ERROR IN chat.service: ",error)

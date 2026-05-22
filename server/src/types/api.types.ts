@@ -38,6 +38,7 @@ export const UserMessageSchema = z.object({
   }),
   content: z.string() 
 })
+export type UserMessageType = z.infer<typeof UserMessageSchema>
 export const AssistantMessageSchema = z.object({
   role: z.literal("assistant"),
   id:z.number(),

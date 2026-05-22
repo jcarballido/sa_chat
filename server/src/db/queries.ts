@@ -19,11 +19,12 @@ export async function buildQueries() {
     return result
   }
 
-  async function addMessage(newMessage: InsertMessage, conversationId: number) {
-    await db
+  async function addMessage(newMessage: InsertMessage) {
+    const result = await db
       .insert(messages)
       .values(newMessage)
-      .returning({newMessageId: messages.id})    
+      .returning({newMessageId: messages.id})
+    return result    
   }
 
   return {

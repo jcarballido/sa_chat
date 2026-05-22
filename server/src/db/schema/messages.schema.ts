@@ -6,8 +6,8 @@ export const messages = table("messages",{
   conversationId: integer("conversation_id").references(() => conversations.id).notNull(),
   createdAt: timestamp("created_at",{withTimezone: true}).defaultNow().notNull(),
   updatedAt: timestamp("updated_at",{withTimezone: true}).defaultNow().notNull(),
-  role: text({ enum:["user","assistant","system"] }).notNull(),
-  content: text()
+  role: text({ enum:["user","assistant"] }).notNull(),
+  content: text().notNull()
 })
 
 export type InsertMessage = typeof messages.$inferInsert 

@@ -42,8 +42,9 @@ export type UserMessageType = z.infer<typeof UserMessageSchema>
 export const AssistantMessageSchema = z.object({
   role: z.literal("assistant"),
   id:z.number(),
-  content: z.string() 
+  content: z.unknown() 
 })
+export type AssistantMessageType = z.infer<typeof AssistantMessageSchema>
 export const MessageSchema = z.discriminatedUnion("role",[
   UserMessageSchema,
   AssistantMessageSchema
@@ -59,8 +60,8 @@ export const IncomingMessageSchema = z.object({
 
 export const OutgoingMessageSchema = IncomingMessageSchema.extend({
   conversationId: z.number(),
-  newMessage: MessageSchema
-})
+  responseMessage: z.array(MessageSchema)
+}).omit({newMessage: true})
 
 
 // export const UserMessageSchema = MessageSchema.extend({

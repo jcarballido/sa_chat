@@ -5,7 +5,7 @@ import type { ConversationType } from "../types/conversation.schema"
 
 type State = {
   conversations: ConversationType[]
-  activeConversationId: string|null,
+  activeConversationId: string|number|null,
 }
 
 type Action = {

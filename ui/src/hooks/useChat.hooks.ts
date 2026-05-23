@@ -17,7 +17,7 @@ export const useChat = () => {
     const newUserMessage = ( newUserMessage:string ): NewUserMessageType => ({
       conversation: {
         title,
-        conversationId: Number(activeConversationId),
+        conversationId: activeConversationId ?? `temp_${Math.floor(Math.random()*1000000) + 1}`,
         newMessage:{
           role:"user",
           content: newUserMessage,

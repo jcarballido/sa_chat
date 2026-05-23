@@ -54,11 +54,9 @@ export const EnhancedUserMessageSchema = UserMessageSchema.extend({
 })
 
 export const NewUserMessageSchema = z.object({
-  conversation: z.object({
-    title: z.string().nullable(),
-    conversationId: z.number().nullable(),
-    newMessage: UserMessageSchema
-  }) 
+  title: z.string().nullable(),
+  conversationId: z.number().or(z.string()),
+  newMessage: UserMessageSchema 
 }) 
 
 export const LLMResponseSchema = z.object({

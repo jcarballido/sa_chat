@@ -7,7 +7,7 @@ import type { AgentInvokerType } from "../types/agentInvoker.types.js"
 import { SpecRowSchema } from "../types/stores.types.js"
 import type { ExtractedSpecMapType, ExtractedSpecType } from "../types/llmResponse.types.js"
 import type { DomainExecutionType } from "./domainExecution.services.js"
-import type { LLMResponseType, IncomingMessageType, RequestMessageSchema, OutgoingMessageType, UserMessageType } from "../types/api.types.js"
+import type { LLMResponseType, IncomingMessageType, RequestMessageSchema, OutgoingMessageType, UserMessageType, AssistantMessageType } from "../types/api.types.js"
 import type { QueriesType } from "../db/queries.js"
 import { llmResponses } from "../llmResponses.js"
 import type { InsertMessage, SelectMessage } from "../db/schema/messages.schema.js"
@@ -152,22 +152,74 @@ addMessage: (newMessage: {
     const insertUserMessage = toInsertUserMessage(newMessage, storedConversationId) 
 
     // 3. Add message to the conversation by conv. id 
-    const [ storedMessage ] = await queries.addMessage(insertUserMessage)
-    if(!storedMessage) throw new Error("Error adding user message.")
+    const [ storedUserMessage ] = await queries.addMessage(insertUserMessage)
+    if(!storedUserMessage) throw new Error("Error adding user message.")
       
     // 4. Pass resulting message to intent agent
     try {
-      const intent = await determineIntent(storedMessage, title)
+      const intent = await determineIntent(storedUserMessage, title)
       const result   = await executeIntent(intent)
 
-      // 5. Convert result to outgoing message, being returned to chat.controller.processMessage
-      // CHORE: Establish conversion function "toOutgoingMessage()"
-      // console.log("EXECUTION RESULT:")
-      // console.log(executionResult)
-      // return {agentResponse: executionResult, conversationId: conversationId!}
-      const toOutgoingMessage = (result) => {
-
+      const toInsertAssistantMessage = (agentResponse: LLMResponseType, storedConversationId: number): InsertMessage & {role: "assistant"} => {
+        return {
+          conversationId: storedConversationId,
+          role:"assistant",
+          content: JSON.stringify(agentResponse)
+        }
       }
+      // 5. Store assistant message
+      const insertAssistantMessage = toInsertAssistantMessage(result,storedConversationId)
+      const [ storedAssistantMessage ] = await queries.addMessage(insertAssistantMessage) 
+      if(!storedAssistantMessage) throw new Error("Error adding assistant message.")
+
+      // 6. Convert result to outgoing message, being returned to chat.controller.processMessage
+      // CHORE: Establish conversion function "toOutgoingMessage()"
+
+      // export const UserMessageSchema = z.object({
+      //   role: z.literal("user"),
+      //   id:z.object({
+      //     temp:z.string(),
+      //     storage: z.number().or(z.undefined())
+      //   }),
+      //   content: z.string() 
+      // })
+      // export type UserMessageType = z.infer<typeof UserMessageSchema>
+      // export const AssistantMessageSchema = z.object({
+      //   role: z.literal("assistant"),
+      //   id:z.number(),
+      //   content: z.unknown() 
+      // })
+      // export type AssistantMessageType = z.infer<typeof AssistantMessageSchema>
+      // export const MessageSchema = z.discriminatedUnion("role",[
+      //   UserMessageSchema,
+      //   AssistantMessageSchema
+      // ])
+      const toOutgoingMessage = (storedAssistantMessage: SelectMessage): OutgoingMessageType => {
+
+        // export const AssistantMessageSchema = z.object({
+        //   role: z.literal("assistant"),
+        //   id:z.number(),
+        //   content: z.unknown() 
+        // })
+
+        const assistantMessage: AssistantMessageType = {
+          role: "assistant",
+          id: storedAssistantMessage.id,
+          content: JSON.parse(storedAssistantMessage.content).catch(()=> undefined) 
+        }
+        
+
+        return {
+          title:"",
+          conversationId:1,
+          responseMessage:[
+            {...newMessage,id: {...newMessage.id,storage: storedUserMessage.id}},
+            assistantMessage
+          ]
+        }
+      }
+
+      return toOutgoingMessage(storedAssistantMessage)
       // return {
       //   title:,
       //   conversationId,

@@ -12,7 +12,7 @@ export const SpecRowSchema = z.object({
   "fire_rating_time":z.string().transform(val => Number(val)),
   "fire_rating_temp":z.string().transform(val => Number(val)),
   "gun_count": z.string().transform(val => Number(val)),
-  "waterproof":z.string().transform(val => val === "true")
+  "waterproof":z.string().transform(val => val.toLowerCase() === "true" )
 })
 
 export const categoryEnum = SpecRowSchema.keyof()

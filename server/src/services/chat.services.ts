@@ -83,6 +83,8 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
           category: spec.category,
           value: spec.value?.map( val => SpecRowSchema.shape[spec.category].parse(val))
         })) as ExtractedSpecMapType
+        console.log("EXTRACTED SPEC VALUES:")
+        console.log(typedSpecValues)
         // const convertedSpecValues = returnedSpecValues.map( spec => {
         //   const test = transformSpecs(spec)
         //   return test
@@ -159,7 +161,8 @@ addMessage: (newMessage: {
     try {
       const intent = await determineIntent(storedUserMessage, title)
       const result   = await executeIntent(intent)
-
+      console.log("AGENT RESULT AFTER EXECUTION:")
+      console.log(result)
       const toInsertAssistantMessage = (agentResponse: LLMResponseType, storedConversationId: number): InsertMessage & {role: "assistant"} => {
         return {
           conversationId: storedConversationId,
@@ -201,11 +204,13 @@ addMessage: (newMessage: {
         //   id:z.number(),
         //   content: z.unknown() 
         // })
+        console.log("STORED ASSISTANT MESSAGE")
+        console.log(JSON.parse(storedAssistantMessage.content))
 
         const assistantMessage: AssistantMessageType = {
           role: "assistant",
           id: storedAssistantMessage.id,
-          content: JSON.parse(storedAssistantMessage.content).catch(()=> undefined) 
+          content: JSON.parse(storedAssistantMessage.content)
         }
         
 

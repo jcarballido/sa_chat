@@ -45,6 +45,7 @@ export const AssistantMessageSchema = z.object({
   content: z.unknown() 
 })
 export type AssistantMessageType = z.infer<typeof AssistantMessageSchema>
+
 export const MessageSchema = z.discriminatedUnion("role",[
   UserMessageSchema,
   AssistantMessageSchema

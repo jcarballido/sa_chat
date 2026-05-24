@@ -7,7 +7,7 @@ export async function specValueExtractionNode(state:State): Promise<Update> {
   console.log("---specValueExtractionNode RUNNING---")
 
   try {
-    const response = await prompt(state.initialMessage, {systemPrompt:EXTRACT_SPEC_VALUES})
+    const response = await prompt(state.initialMessage, EXTRACT_SPEC_VALUES)
     console.log("RESPONSE RECIEVED:")
     console.log(response)
     console.log("---specValueExtractionNode COMPLETE---")

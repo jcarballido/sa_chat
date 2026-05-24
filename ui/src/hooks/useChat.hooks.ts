@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useMessageStore } from "../stores/message.store"
 import { messageService } from "../services/message.services"
-import { AssistantMessageSchema, LLMResponseSchema, type AssistantMessageType, type NewUserMessageType, type UserMessageType } from "../types/message.schema"
+import { AssistantMessageSchema, ResponseMessageSchema, type AssistantMessageType, type NewUserMessageType, type UserMessageType } from "../types/message.schema"
 // import { useAuthStore } from "../stores/auth.store"
 
 export const useChat = () => {
@@ -15,15 +15,16 @@ export const useChat = () => {
   const sendUserMessage = async(input: string) => {
 
     const newUserMessage = ( newUserMessage:string ): NewUserMessageType => ({
-      conversation: {
         title,
         conversationId: activeConversationId ?? `temp_${Math.floor(Math.random()*1000000) + 1}`,
         newMessage:{
           role:"user",
           content: newUserMessage,
-          status:"sending", 
+          id:{
+            temp:`temp_${Math.floor(Math.random()*1000000) + 1}`,
+            storage: undefined
+          }
         }
-      }
     })
 
     const userMessage = newUserMessage(input)
@@ -31,14 +32,16 @@ export const useChat = () => {
     try {
       // addMessage(userMessage)
       const response = await messageService.send(userMessage)
+      console.log("RESPONSE RECEIVED:")
+      console.log(response)
       // response: original message WITH id assigned + llm response
       // const result: AssistantMessageType = AssistantMessageSchema.parse(response)
       // addMessage(result)
 
-      const result = LLMResponseSchema.parse(response)
-      return result.conversation
+      const result = ResponseMessageSchema.parse(response)
+      return result
     } catch (error) {
-
+      console.log("ERROR sending and parsing response from backend.")
       console.error(error)
     }finally{
       setIsLoading(false)

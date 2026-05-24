@@ -1,19 +1,13 @@
 import ollama from "ollama"
-import type { AssistantMessageType, UserMessageType } from "../../types/message.types.js"
+// import type { AssistantMessageType, UserMessageType } from "../../types/message.types.js"
 import type { SystemMessage } from "@langchain/core/messages"
 
-export async function prompt(conversation:(UserMessageType | AssistantMessageType | SystemMessage)[],option?:{initialMessage?:string,systemPrompt?: string}) {
+export async function prompt(initialMessage:string, systemPrompt: string) {
 
-  if(option?.initialMessage){
-
-  }
-  const messages = option?.systemPrompt && option?.initialMessage ? [
-    {role: "system", content: option.systemPrompt},
-    {role: "user", content: option.initialMessage}
-  ] : [
-    { role: "user", content:"dflkj"}
+  const messages = [
+    {role: "system", content:systemPrompt},
+    {role: "user", content: initialMessage}
   ]
-
   try {
     const response = await ollama.chat({
       model:process.env.MODEL,

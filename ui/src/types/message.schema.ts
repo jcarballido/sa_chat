@@ -31,45 +31,69 @@ export const AssistantMessageContentSchema = z.discriminatedUnion("type", [
   })
 ])
 
-export const MessageSchema = z.object({ 
-  // conversationId: z.string().nullable(),
-  status: z.enum(["delivered", "error", "sending"]),
-})
 
-export const AssistantMessageSchema = MessageSchema.extend({
+export const AssistantMessageSchema = z.object({
   id: z.string(),
   role: z.literal("assistant"),
   content: AssistantMessageContentSchema,
   conversationId: z.string(),
-  status: z.literal("delivered")
 })
 
-export const UserMessageSchema = MessageSchema.extend({
+export const UserMessageSchema = z.object({
   role: z.literal("user"),
+  id:z.object({
+    temp:z.string(),
+    storage: z.number().or(z.undefined())
+  }),
   content: z.string()
 })
 
+export const MessageSchema = z.discriminatedUnion("role",[
+  UserMessageSchema,
+  AssistantMessageSchema
+])
 export const EnhancedUserMessageSchema = UserMessageSchema.extend({
   id: z.string()
 })
+// export const IncomingMessageSchema = z.object({
+//   title: z.string(),
+//   conversationId: z.string().or(z.number()),
+//   newMessage: UserMessageSchema
+// }) 
+// export const UserMessageSchema = z.object({
+//   role: z.literal("user"),
+//   id:z.object({
+//     temp:z.string(),
+//     storage: z.number().or(z.undefined())
+//   }),
+//   content: z.string() 
+// })
+
 
 export const NewUserMessageSchema = z.object({
   title: z.string().nullable(),
   conversationId: z.number().or(z.string()),
   newMessage: UserMessageSchema 
-}) 
-
-export const LLMResponseSchema = z.object({
-  conversation: z.object({
-    title: z.string(),
-    conversationId: z.string(),
-    messages: z.tuple([AssistantMessageSchema, EnhancedUserMessageSchema])
-  }) 
 })
+
+export const ResponseMessageSchema = z.object({
+  title: z.string(),
+  conversationId: z.number(),
+  responseMessage: z.array(MessageSchema)
+})
+
+
+// export const LLMResponseSchema = z.object({
+//   conversation: z.object({
+//     title: z.string(),
+//     conversationId: z.string(),
+//     messages: z.tuple([AssistantMessageSchema, EnhancedUserMessageSchema])
+//   }) 
+// })
 
 export type MessageType = z.infer<typeof MessageSchema>
 
 export type AssistantMessageType = z.infer<typeof AssistantMessageSchema>
 export type UserMessageType = z.infer<typeof UserMessageSchema>
-export type LLMResponseType = z.infer<typeof LLMResponseSchema>
+// export type LLMResponseType = z.infer<typeof LLMResponseSchema>
 export type NewUserMessageType = z.infer<typeof NewUserMessageSchema>

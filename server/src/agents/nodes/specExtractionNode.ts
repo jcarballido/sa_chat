@@ -6,7 +6,7 @@ export async function specExtractionNode(state:State): Promise<Update> {
     console.log("SPEC EXTRACTION NODE running...")
 
     try {
-        const response = await prompt(state.initialMessage, {systemPrompt: EXTRACT_SPECS})
+        const response = await prompt(state.initialMessage, EXTRACT_SPECS)
         console.log("LLM RESPONE:")
         console.log(response)
         

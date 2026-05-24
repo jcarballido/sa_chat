@@ -9,7 +9,7 @@ export async function modelExtractionNode(state:State): Promise<Update> {
   const inventory = EXTRACT_MODEL_SYSTEM_PROMPT(state.inventoryStore)
 
   try {
-    const response = await prompt(state.initialMessage,{systemPrompt: inventory})
+    const response = await prompt(state.initialMessage,inventory)
     console.log("MODEL EXTRACTION response:")
     console.log(response.message.content)
     return {

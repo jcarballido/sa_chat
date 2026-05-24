@@ -7,7 +7,7 @@ export async function modelTokenExtractorNode(state:State): Promise<Update> {
   console.log("TOKEN EXTRACTION NODE running.")
 
   try {
-    const response = await prompt(state.initialMessage,{systemPrompt: NONENGLISH_MODEL_NUMBERS})
+    const response = await prompt(state.initialMessage,NONENGLISH_MODEL_NUMBERS)
     console.log("TOKEN EXTRACTION response:")
     console.log(response.message.content)
     return {

@@ -6,7 +6,7 @@ export async function focusedIntentNode(state:State): Promise<Update> {
   console.log("FOCUSED INTENT NODE running.")
 
   try {
-    const response = await prompt(state.initialMessage,{systemPrompt: EXTRACT_OBJECTIVES_SYSTEM_PROMPT})
+    const response = await prompt(state.initialMessage,EXTRACT_OBJECTIVES_SYSTEM_PROMPT)
     console.log("FOCUSED INTENT LLM response:")
     console.log(response.message.content)
     console.log("END OF FOCUSED INTENT LLM response")

@@ -19,14 +19,6 @@ const fastify: FastifyInstance = Fastify({
   logger: true
 })
 
-fastify.addHook("preHandler", async (request, reply) => {
-  const token = request.headers.authorization?.replace("Bearer ","")
-  if(!token) return reply.code(401).send({ error: "Missing auth headers" })
-  const payload = await verifyAuthJWT(token)
-  if(!payload) return reply.code(401).send({ error: "Unathorized" })
-  request.user = {sub: payload.sub}
-})
-
 fastify.register(configPlugins)
 fastify.register(queriesPlugins)
 fastify.register(rowsPlugins)
@@ -36,8 +28,8 @@ fastify.register(agentPlugins)
 fastify.register(servicesPlugins)
 fastify.register(controllersPlugins)
 
-fastify.register(chatRoutes, { prefix: "/chat"})
 fastify.register(loginRoutes, {prefix:"/login"})
+fastify.register(chatRoutes, { prefix: "/chat"})
 
 const checkDependencies = async() => {
   try {

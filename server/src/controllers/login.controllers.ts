@@ -7,7 +7,7 @@ export function buildLoginController(loginServices: LoginServices ){
   async function requestMagicLink(request: FastifyRequest) {
     console.log("Request: requestMagicLink")
     console.log(request.body)
-    const response = await loginServices.processMagicLinkRequest(request.body)
+    const response = loginServices.processMagicLinkRequest(request.body)
     console.log("RESULT FROM MAGIC LINK REQUEST:")
     console.log(JSON.stringify(response))
 

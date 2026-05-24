@@ -1,7 +1,7 @@
 import Fastify, { type FastifyInstance } from "fastify"
 import { checkModelAvailble, checkOllamaReachable } from "./services/ollama.services.js"
-import chatRoutes from "./routes/chat.routes.js"
 import "dotenv/config"
+import chatRoutes from "./routes/chat.routes.js"
 import loginRoutes from "./routes/login.routes.js"
 import configPlugins from "./plugins/config.plugins.js"
 import rowsPlugins from "./plugins/rows.plugins.js"

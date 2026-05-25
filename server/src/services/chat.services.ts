@@ -83,8 +83,8 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
           category: spec.category,
           value: spec.value?.map( val => SpecRowSchema.shape[spec.category].parse(val))
         })) as ExtractedSpecMapType
-        console.log("EXTRACTED SPEC VALUES:")
-        console.log(typedSpecValues)
+        // console.log("EXTRACTED SPEC VALUES:")
+        // console.log(typedSpecValues)
         // const convertedSpecValues = returnedSpecValues.map( spec => {
         //   const test = transformSpecs(spec)
         //   return test
@@ -102,26 +102,7 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
   }
 
   async function processIncomingMessage(incomingMessage: IncomingMessageType, userId:{sub: string}): Promise<OutgoingMessageType> {
-    // Convert incoming message to an agentPayload
-    /*
-export const messages = table("messages",{
-  id: serial().primaryKey(),
-  conversationId: integer("conversation_id").references(() => conversations.id).notNull(),
-  createdAt: timestamp("created_at",{withTimezone: true}).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at",{withTimezone: true}).defaultNow().notNull(),
-  role: text({ enum:["user","assistant"] }).notNull(),
-  content: text()
-})
 
-addMessage: (newMessage: {
-    role: "user" | "assistant";
-    content: string;
-    conversationId: number;
-    id?: number | undefined;
-    createdAt?: Date | undefined;
-    updatedAt?: Date | undefined;
-
-    */
     const {title, conversationId, newMessage} = incomingMessage 
 
     // 1. Cast conversation id to stored conversation ID
@@ -176,34 +157,7 @@ addMessage: (newMessage: {
       if(!storedAssistantMessage) throw new Error("Error adding assistant message.")
 
       // 6. Convert result to outgoing message, being returned to chat.controller.processMessage
-      // CHORE: Establish conversion function "toOutgoingMessage()"
-
-      // export const UserMessageSchema = z.object({
-      //   role: z.literal("user"),
-      //   id:z.object({
-      //     temp:z.string(),
-      //     storage: z.number().or(z.undefined())
-      //   }),
-      //   content: z.string() 
-      // })
-      // export type UserMessageType = z.infer<typeof UserMessageSchema>
-      // export const AssistantMessageSchema = z.object({
-      //   role: z.literal("assistant"),
-      //   id:z.number(),
-      //   content: z.unknown() 
-      // })
-      // export type AssistantMessageType = z.infer<typeof AssistantMessageSchema>
-      // export const MessageSchema = z.discriminatedUnion("role",[
-      //   UserMessageSchema,
-      //   AssistantMessageSchema
-      // ])
       const toOutgoingMessage = (storedAssistantMessage: SelectMessage): OutgoingMessageType => {
-
-        // export const AssistantMessageSchema = z.object({
-        //   role: z.literal("assistant"),
-        //   id:z.number(),
-        //   content: z.unknown() 
-        // })
         console.log("STORED ASSISTANT MESSAGE")
         console.log(JSON.parse(storedAssistantMessage.content))
 
@@ -213,10 +167,9 @@ addMessage: (newMessage: {
           content: JSON.parse(storedAssistantMessage.content)
         }
         
-
         return {
-          title:"",
-          conversationId:1,
+          title:result.title!,
+          conversationId:storedConversationId,
           responseMessage:[
             {...newMessage,id: {...newMessage.id,storage: storedUserMessage.id}},
             assistantMessage
@@ -225,13 +178,6 @@ addMessage: (newMessage: {
       }
 
       return toOutgoingMessage(storedAssistantMessage)
-      // return {
-      //   title:,
-      //   conversationId,
-      //   newMessage:[]
-      // }    
-
-
     } catch (error) {
       console.log("ERROR IN chat.service: ",error)
       throw error

@@ -31,8 +31,8 @@ export async function verifySpecExtractionNode(state: State) : Promise<Update> {
   }
   
   const specCategories = safeParseResult.data?.specCategories
-  console.log("VERIFICATION OF SPEC CATEGORIES NODE:")
-  console.log(JSON.stringify(specCategories))
+  // console.log("VERIFICATION OF SPEC CATEGORIES NODE:")
+  // console.log(JSON.stringify(specCategories))
   return {
     focusedIntentSpecsExtracted: specCategories,
     retries: 0

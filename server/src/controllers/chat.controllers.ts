@@ -3,10 +3,10 @@ import { type FastifyReply, type FastifyRequest } from "fastify";
 import type { ChatServices } from "../services/chat.services.js";
 import { buildApiResponseSchema, IncomingMessageSchema, UserMessageSchema, type IncomingMessageType, type OutgoingMessageType } from "../types/api.types.js";
 import type { QueriesType } from "../db/queries.js";
-import type z from "zod";
 import { failure, success } from "../api/responseGenerators.js";
 
-export function buildChatController(chatService: ChatServices, queries: QueriesType, ) {
+export function buildChatController(chatService: ChatServices, queries: QueriesType) {
+
   console.log("---chat.controller---")
   
   async function processMessage(request: FastifyRequest,reply: FastifyReply) {

@@ -42,8 +42,6 @@ export function buildDomainExecution(inventoryQuery: InventoryQueryType, specQue
 
   function getModelsByQualifiers(rows: "any"|"inventory", qualifiers: Filter<SpecRowType>): SpecRowType[] {
     const arr = rows == "any" ? specQuery.getAll() : merged.matches
-    console.log("ARR IN getModelsByQualifiers:")
-    console.log(arr)
     const results = arr.filter((row) => {
       return Object.entries(qualifiers).every(([key, qualifier]) => {
         const value = row[key as keyof SpecRowType]
@@ -60,8 +58,6 @@ export function buildDomainExecution(inventoryQuery: InventoryQueryType, specQue
         return true
       })
     })
-    console.log("RESULT FROM getModelsByQualifiers")
-    console.log(results)
     return results
   }
 
@@ -119,8 +115,6 @@ export function buildDomainExecution(inventoryQuery: InventoryQueryType, specQue
 
   const getModelsBySpecs = (rows: "any" | "inventory" ,extractedSpecs: ExtractedSpecMapType) => {
     const operators = convertExtractedSpecs(extractedSpecs)
-    console.log("OPERATORS:")
-    console.log(operators)
     const result = getModelsByQualifiers(rows,operators)
     return result
   }

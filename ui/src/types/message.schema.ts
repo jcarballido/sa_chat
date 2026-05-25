@@ -25,7 +25,7 @@ export const AssistantMessageContentSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     title: z.string(),
-    type: z.enum(["malicious","out_of_scope"]),
+    type: z.enum(["malicious","out_of_scope","related"]),
     text: z.string().nullable(),
     data: z.null()
   })

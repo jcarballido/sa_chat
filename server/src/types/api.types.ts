@@ -38,11 +38,18 @@ export const UserMessageSchema = z.object({
   }),
   content: z.string() 
 })
+
 export type UserMessageType = z.infer<typeof UserMessageSchema>
+
 export const AssistantMessageSchema = z.object({
   role: z.literal("assistant"),
   id:z.number(),
-  content: z.unknown() 
+  content: z.object({
+    data:z.unknown(),
+    text:z.string().or(z.undefined()).or(z.null()),
+    title:z.string(),
+    type:z.string()
+  })
 })
 export type AssistantMessageType = z.infer<typeof AssistantMessageSchema>
 

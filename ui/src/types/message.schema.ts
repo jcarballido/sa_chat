@@ -12,19 +12,19 @@ const ComparisonResultSchema = z.record(z.string(), z.array(SpecifcationRowSchem
 
 export const AssistantMessageContentSchema = z.discriminatedUnion("type", [
   z.object({
-    // title: z.string(),
+    title: z.string(),
     type: z.enum(["product_lookup_by_model", "product_lookup_by_specs","product_comparison"]),
     text: z.string().nullable(),
     data: z.array(SpecifcationRowSchema)
   }),
   z.object({
-    // title: z.string(),
+    title: z.string(),
     type: z.enum(["similar_products"]),
     text: z.string().nullable(),
     data: z.array(ComparisonResultSchema)
   }),
   z.object({
-    // title: z.string(),
+    title: z.string(),
     type: z.enum(["malicious","out_of_scope"]),
     text: z.string().nullable(),
     data: z.null()
@@ -33,10 +33,9 @@ export const AssistantMessageContentSchema = z.discriminatedUnion("type", [
 
 
 export const AssistantMessageSchema = z.object({
-  id: z.string(),
+  id: z.number(),
   role: z.literal("assistant"),
   content: AssistantMessageContentSchema,
-  conversationId: z.string(),
 })
 
 export const UserMessageSchema = z.object({
@@ -75,12 +74,52 @@ export const NewUserMessageSchema = z.object({
   conversationId: z.number().or(z.string()),
   newMessage: UserMessageSchema 
 })
+// export function success<T>(dataSchema: T) {
+//   return{
+//     status:"success",
+//     data: dataSchema,
+//     error:null
+//   }
+// }
+  
+// export function failure (code: string, message:string){
+//   return {
+//     status:"error",
+//     data: null,
+//     error:{
+//       code,
+//       message
+//     }
+//   }
+// }
 
-export const ResponseMessageSchema = z.object({
-  title: z.string(),
-  conversationId: z.number(),
-  responseMessage: z.array(MessageSchema)
+const SuccessResponseSchema = z.object({
+  status:z.literal("success"),
+  data: z.object({
+    conversationId:z.number(),
+    title: z.string(),
+    responseMessage: z.array(z.discriminatedUnion("role",[
+      UserMessageSchema,
+      AssistantMessageSchema
+    ]))
+  }),
+  error: z.null()
 })
+const ErrorResponseSchema = z.object({
+  status:z.literal("error"),
+  data: z.null(),
+  error: z.object({
+    code:z.string(),
+    message:z.string()
+  })
+})
+
+
+
+export const ResponseMessageSchema = z.discriminatedUnion("status",[
+  SuccessResponseSchema,
+  ErrorResponseSchema
+])
 
 
 // export const LLMResponseSchema = z.object({

@@ -1,9 +1,9 @@
 import { api } from "../api/apiClient";
-import { type AssistantMessageType, AssistantMessageSchema, type NewUserMessageType } from "../types/message.schema";
+import { type AssistantMessageType, AssistantMessageSchema, type NewUserMessageType, ResponseMessageSchema } from "../types/message.schema";
 
-async function send (userMessage: NewUserMessageType ): Promise<AssistantMessageType> {  
+async function send (userMessage: NewUserMessageType ) {  
   try {
-    const response = api.post("/chat/process", AssistantMessageSchema, userMessage)
+    const response = api.post("/chat/process", ResponseMessageSchema, userMessage)
     
     return response
 

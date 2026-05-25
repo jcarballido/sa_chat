@@ -39,6 +39,7 @@ export const useChat = () => {
       // addMessage(result)
 
       const result = ResponseMessageSchema.parse(response)
+      if(result.status === "error") throw new Error(`${result.error.code}: ${result.error.message}`)
       return result
     } catch (error) {
       console.log("ERROR sending and parsing response from backend.")

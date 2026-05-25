@@ -32,17 +32,17 @@ export function createApiClient(config: ClientConfig){
       throw error
     }
 
-    console.log("RAW RESPONSE:")
+    console.log("RAW RESPONSE in createApiClient:")
     console.log(response)
 
     const json = await response.json()
-    console.log("JSON RESPONSE:")
+    console.log("JSON RESPONSE in createApiClient:")
     console.log(json)
 
     const result = schema.safeParse(json)
 
     if(result.error){
-      console.log("ERROR PARSING RESPONSE:")
+      console.log("ERROR PARSING RESPONSE in createApiClient:")
       console.log(result.error)
       const error: ValidationError = {
         type:"validation",

@@ -1,54 +1,54 @@
-import { useState } from "react"
+// import { useState } from "react"
 import { useMessageStore } from "../stores/message.store"
 import { messageService } from "../services/message.services"
-import { AssistantMessageSchema, ResponseMessageSchema, type AssistantMessageType, type NewUserMessageType, type UserMessageType } from "../types/message.schema"
-// import { useAuthStore } from "../stores/auth.store"
+import { type NewUserMessageType } from "../types/message.schema"
+// import { number } from "zod"
 
 export const useChat = () => {
-  const [ isLoading, setIsLoading ] = useState(false)
+  // const [ isLoading ] = useState(false)
   const messageStore = useMessageStore()
-  const { activeConversationId, addMessage, conversations } = messageStore
-  // const session = useAuthStore(s => s.session)
+  const { activeConversationId, activeTitle, setActiveConversationID, addUserMessage } = messageStore
 
-  const title = activeConversationId ? conversations.filter(conv => conv.conversationId === activeConversationId)[0].title : null
+  const title = activeTitle
 
   const sendUserMessage = async(input: string) => {
-
-    const newUserMessage = ( newUserMessage:string ): NewUserMessageType => ({
-        title,
-        conversationId: activeConversationId ?? `temp_${Math.floor(Math.random()*1000000) + 1}`,
-        newMessage:{
-          role:"user",
-          content: newUserMessage,
-          id:{
-            temp:`temp_${Math.floor(Math.random()*1000000) + 1}`,
-            storage: undefined
-          }
+    const createNewUserMessage = ( newUserMessage:string ): NewUserMessageType => ({
+      title,
+      conversationId: typeof(activeConversationId) === "number" ? activeConversationId : `temp_${Math.floor(Math.random()*1000000) + 1}`,
+      newMessage:{
+        role:"user",
+        content: newUserMessage,
+        id:{
+          temp:`temp_${Math.floor(Math.random()*1000000) + 1}`,
+          storage: undefined
         }
+      }
     })
+    
+    const userMessage = createNewUserMessage(input)
 
-    const userMessage = newUserMessage(input)
+    if(activeConversationId === null){
+      setActiveConversationID(userMessage.conversationId)
+    }
+    
+    addUserMessage(userMessage.newMessage.content)
 
     try {
-      // addMessage(userMessage)
       const response = await messageService.send(userMessage)
       console.log("RESPONSE RECEIVED:")
       console.log(response)
-      // response: original message WITH id assigned + llm response
-      // const result: AssistantMessageType = AssistantMessageSchema.parse(response)
+      const { data } = response 
+      const { conversationId, responseMessage } = data
+      // const { messages } = responseMessage
+      const [originalUserMessage] = responseMessage.filter(mes => mes.role === "user")
+      const storedId = originalUserMessage.id.storage!
+      updateConversation(conversationId, {originalUserMessageIDs:{temp: originalUserMessage.id.temp, storage: originalUserMessage.id.storage}})
       // addMessage(result)
-
-      const result = ResponseMessageSchema.parse(response)
-      if(result.status === "error") throw new Error(`${result.error.code}: ${result.error.message}`)
-      return result
     } catch (error) {
-      console.log("ERROR sending and parsing response from backend.")
       console.error(error)
-    }finally{
-      setIsLoading(false)
     }
   }
   
-  return { sendUserMessage, isLoading }
+  return { sendUserMessage }
   
 }

@@ -1,23 +1,38 @@
 import { create } from "zustand"
-import { persist } from "zustand/middleware"
-import type { AssistantMessageType, UserMessageType } from "../types/message.schema"
-import type { ConversationType } from "../types/conversation.schema"
+import type { UserMessageType } from "../types/message.schema"
+import {  ConversationMetadataSchemaArray, DefinedConversationMetadataSchema, type ActiveConversationType, type ConversationMetadataArrayType, type ConversationType, type DefinedConversationMetadataType } from "../types/conversation.schema"
+import { api } from "../api/apiClient"
 
 type State = {
-  conversations: ConversationType[]
-  activeConversationId: string|number|null,
+  activeConversation: ActiveConversationType,
+  activeConversationID: ActiveConversationType["conversationId"]["temp"] | Exclude<ActiveConversationType["conversationId"]["storage"],null>,
+  storedConversationMetadata: DefinedConversationMetadataType
+  // activeConversation: (UserMessageType["content"] | AssistantMessageType["content"])[],
+  // conversationsMetadata: ConversationMetadatataArrayType, 
+  // activeConversationId: string | number | null,
+  // activeTitle: string | null
 }
 
 type Action = {
-  addMessage:(message: UserMessageType | AssistantMessageType,options?:{conversationId?: string}) => void,
-  setActiveConversation:(conversationId: string | null)=> void,
-  setConversationTitle: (title: string, activeConversationId: string) => void
+  getStoredConversationMetadata: () => Promise<void>,
+  setActiveConversation: () => Promise<void>,
+  updateActiveConversationMetadata: () => void,
+  addUserMessage: (newUserMessage: UserMessageType) => void,
+  updateUserMessage: (userMessageID: number | string) => void
+  
+  // getConversationsMetadata: () => Promise<void>,
+  // addUserMessage: (content: string) => void,
+  // setActiveConversationID:(conversationId: string | number)=> void,
+  // setConversationTitle: (title: string, activeConversationId: number) => void
 }
 
-const createConversation = (initialMessage: UserMessageType) => {
+const createConversation = (initialMessage: UserMessageType): ConversationType => {
   const conversation = {
-    conversationId:initialMessage.conversationId!,
-    createdAt:new Date().toISOString(),
+    conversationId:{
+      temp:`temp_${Math.floor(Math.random()*1000000) + 1}`,
+      storage: null
+    },
+    createdAt:null,
     updatedAt:null,
     messages:[initialMessage],
     title:""
@@ -25,43 +40,92 @@ const createConversation = (initialMessage: UserMessageType) => {
   return conversation
 }
 
-export const useMessageStore = create<State & Action>()(
-  persist(
-    (set,get) => ({
-      conversations: [],
-      activeConversationId: null,
-      addMessage: (message: UserMessageType | AssistantMessageType) => {
-        const { activeConversationId } = get()
-        if(activeConversationId === null && message.role === "user"){
-          const newConversation = createConversation(message)
+const randomInt = (): number => {
+  const n = Math.floor((Math.random() * 10000) + 1)
+  return n
+}
 
-          return set((state) => ({
-            activeConversationId: message.conversationId!,
-            conversations: [...state.conversations,newConversation],
-          }))
-        }
-        if(activeConversationId === message.conversationId)
-        return set((state) => ({
-          conversations: state.conversations.map( conv => {
-            return conv.conversationId === message.conversationId
-            ? {...conv,messages: [...conv.messages,message]}
-            : conv
-          })
-        }))
+export const useMessageStore = create<State & Action>()(
+  (set,get) => ({
+
+    activeConversation: {
+      conversationId: {
+        temp: `temp_${randomInt}`,
+        storage: null
       },
-      setActiveConversation:(activeConversationId: string | null) => set({activeConversationId}),
-      setConversationTitle:(title: string, activeConversationId: string) => set((state)=> {
-        const convs = state.conversations
-        const updated = convs.map(conv => {
-          if(conv.conversationId === activeConversationId){
-            if(!conv["title"] || conv.title === "") conv["title"] === title 
+      title: "",
+      messages:[]
+    },
+
+    activeConversationID: get().activeConversation.conversationId.temp,
+    
+    storedConversationMetadata:[],
+    
+    getStoredConversationMetadata: async() => {
+      try {
+        const res = await api.get("/api/getStoredConversations", DefinedConversationMetadataSchema)
+        set((state) => {
+          return {
+            storedConversationMetadata:[...res]
           }
-          return conv
         })
-        return {
-          conversations: [...updated]
-        }
-      })
-    }),{name:'message-store'}
-  )
+      } catch (error) {
+        console.log("ERROR LOADING STORED CONVERSATIONS")
+      }
+    },
+    
+    setActiveConversation:,
+    
+    updateActiveConversationMetadata:,
+    
+    addUserMessage:,
+    
+    updateUserMessage:
+  
+
+    // conversationsMetadata: [],
+    // activeConversation: [],
+    // activeConversationId: null,    
+    // activeTitle: null, 
+
+    // getConversationsMetadata: async() => {
+    //   const response = await api.get("/api/getConverstations", ConversationMetadataSchemaArray)
+    //   if(!response){
+    //     throw new Error("Failed to load conversations.")
+    //   }
+    //   set({
+    //     conversationsMetadata: [...response]
+    //   })
+    // },
+
+    // setActiveConversationID:(activeConversationId: string | number) => {
+    //   if(typeof(activeConversationId) === "string" ){
+    //     set({activeConversationId: activeConversationId})
+    //   }
+    //   // else if type = number, fetch the contents of the conversation and set 'conversation' equal to it.
+    // },
+
+    // addUserMessage: (message: UserMessageType["content"]) => {
+    //   set((state) => {
+    //     return {
+    //       activeConversation: [...state.activeConversation,message]
+    //     }
+      // })
+  //   },
+
+
+  //   setConversationTitle:(title: string, activeConversationId: number) => set((state)=> {
+  //     const convs = state.conversations
+  //     const updated = convs.map(conv => {
+  //       if(conv.conversationId === activeConversationId){
+  //         if(!conv["title"] || conv.title === "") conv["title"] === title 
+  //       }
+  //       return conv
+  //     })
+  //     return {
+  //       conversations: [...updated]
+  //     }
+  //   })
+
+  })
 )

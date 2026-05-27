@@ -9,7 +9,7 @@ interface TextInputComponentProps {
   disabled: boolean
 }
 
-const TextInputComponent = ({ value, isLoading, submit, disabled }: TextInputComponentProps) => {
+const TextInputComponent = ({ value, submit, disabled }: TextInputComponentProps) => {
 
   const [ input, setInput ] = useState(value)
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)

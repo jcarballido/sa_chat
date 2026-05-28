@@ -6,8 +6,8 @@ export const ConversationSchema = z.object({
     temp: z.string(),
     storage: z.union([z.number(), z.null()]),
   }),
-  createdAt:z.iso.datetime().nullable(),
-  updatedAt:z.iso.datetime().nullable(),
+  // createdAt:z.iso.datetime().nullable(),
+  // updatedAt:z.iso.datetime().nullable(),
   messages: z.array( UserMessageSchema.or(AssistantMessageSchema)),
   title: z.string(),
 })

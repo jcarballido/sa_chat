@@ -5,17 +5,17 @@ import StoredConversations from "./StoredConversations"
 import TitleCard from "./TitleCard"
 import PencilSVG from "../../assets/pencil.svg"
 import SearchSVG from "../../assets/search.svg"
-import { useMessageStore } from "../../stores/message.store"
+// import { useMessageStore } from "../../stores/message.store"
 import useInteraction from "../../hooks/useInteraction.hooks"
 
 const Aside = () => {
 
-  const setActiveConversation  = useMessageStore(s => s.setActiveConversation)
+  // const setActiveConversation  = useMessageStore(s => s.setActiveConversation)
   const { disabled } = useInteraction()
 
   const newChat = () => {
     console.log("NEW CHAT STARTED")
-    setActiveConversation(null)
+    // setActiveConversation(null)
   }
   
   return(

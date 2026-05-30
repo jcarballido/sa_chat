@@ -3,7 +3,7 @@ import Aside from "../features/chat/Aside";
 import LoginModal from "../features/chat/LoginModal";
 import MainContainer from "../features/chat/MainContainer";
 import { useAuthStore } from "../stores/auth.store";
-import { useMessageStore } from "../stores/message.store";
+// import { useMessageStore } from "../stores/message.store";
 // import { useAuth } from "../hooks/useAuth.hooks";
 // import { useAuthStore } from "../stores/auth.store";
 
@@ -13,11 +13,11 @@ const App = () => {
   const session = useAuthStore(s => s.session)
   console.log("SESSION: ")
   console.log(session)
-  const getConversationsMetadata = useMessageStore(s => s.getConversationsMetadata)
+  // const getConversationsMetadata = useMessageStore(s => s.getConversationsMetadata)
 
-  useEffect(() => {
-    getConversationsMetadata()
-  },[session])
+  // useEffect(() => {
+  //   getConversationsMetadata()
+  // },[session])
   
 
   return (

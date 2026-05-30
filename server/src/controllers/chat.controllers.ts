@@ -5,7 +5,7 @@ import { buildApiResponseSchema, IncomingMessageSchema, UserMessageSchema, type 
 import type { QueriesType } from "../db/queries.js";
 import { failure, success } from "../api/responseGenerators.js";
 
-export function buildChatController(chatService: ChatServices, queries: QueriesType) {
+export function buildChatController(chatService: ChatServices) {
 
   console.log("---chat.controller---")
   
@@ -37,8 +37,21 @@ export function buildChatController(chatService: ChatServices, queries: QueriesT
     }
   }
 
+  async function getStoredConversationMetadata(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const result = await chatService.getStoredConversationMetadata()
+      reply.code(201)
+      return success(result)      
+    } catch (error) {
+      console.log("ERROR AT CONTROLLER")
+      reply.code(400)
+      return failure("INTERNAL SERVICE ERROR", `${error}`)
+    }
+  }
+
   return{
     processMessage,
+    getStoredConversationMetadata
   }
 }
 

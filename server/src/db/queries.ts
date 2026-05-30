@@ -12,9 +12,15 @@ export async function buildQueries() {
     return result
   }
 
-  async function getConversations() {
+  async function getConversationMetadata() {
     const result = await db
-      .select()
+      .select({
+        conversationId: {
+          temp: conversations.tempId,
+          storage: conversations.id
+        },
+        title: conversations.title
+      })
       .from(conversations)
     return result
   }
@@ -29,7 +35,7 @@ export async function buildQueries() {
 
   return {
     createConversation,
-    getConversations,
+    getConversationMetadata,
     addMessage
   }
 }

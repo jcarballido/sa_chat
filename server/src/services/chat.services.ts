@@ -184,8 +184,14 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
     }
   }
 
+  async function getStoredConversationMetadata() {
+    const storedConversationMetadata = await queries.getConversationMetadata()
+    return storedConversationMetadata
+  }
+
   return{
-    processIncomingMessage
+    processIncomingMessage,
+    getStoredConversationMetadata
   }
 }
 

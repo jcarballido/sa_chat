@@ -1,20 +1,15 @@
-// import { useState } from "react"
-import { useMessageStore } from "../stores/message.store"
+import { useConversationStore } from "../stores/conversation.store"
 import { messageService } from "../services/message.services"
 import { type NewUserMessageType } from "../types/message.schema"
-// import { number } from "zod"
 
 export const useChat = () => {
-  // const [ isLoading ] = useState(false)
-  const messageStore = useMessageStore()
-  const { activeConversationId, activeTitle, setActiveConversationID, addUserMessage } = messageStore
-
-  const title = activeTitle
+  const conversationStore = useConversationStore()
+  const { activeConversation, setActiveConversation, addUserMessage, updateUserMessageID, addToStoredConversation } = conversationStore
 
   const sendUserMessage = async(input: string) => {
     const createNewUserMessage = ( newUserMessage:string ): NewUserMessageType => ({
-      title,
-      conversationId: typeof(activeConversationId) === "number" ? activeConversationId : `temp_${Math.floor(Math.random()*1000000) + 1}`,
+      title: activeConversation.title,
+      conversationId: activeConversation.conversationId.storage ? activeConversation.conversationId.storage : `temp_${Math.floor(Math.random()*1000000) + 1}`,
       newMessage:{
         role:"user",
         content: newUserMessage,
@@ -26,12 +21,8 @@ export const useChat = () => {
     })
     
     const userMessage = createNewUserMessage(input)
-
-    if(activeConversationId === null){
-      setActiveConversationID(userMessage.conversationId)
-    }
     
-    addUserMessage(userMessage.newMessage.content)
+    addUserMessage(userMessage.newMessage)
 
     try {
       const response = await messageService.send(userMessage)
@@ -39,11 +30,24 @@ export const useChat = () => {
       console.log(response)
       const { data } = response 
       const { conversationId, responseMessage } = data
+      console.log("CONV ID")
+      console.log(conversationId)
+      console.log("RESPONSE MESSAGE")
+      console.log(responseMessage)
+      const [assistantMessage] = responseMessage.filter(rsp => rsp.role === "assistant")
+      console.log("ASST MSG")
+      console.log(assistantMessage)
+      //updateStoredConversation
+      addToStoredConversation({conversationId:{
+        temp:userMessage.conversationId as string,
+        storage: conversationId
+        }, 
+        title:assistantMessage.content.title
+      },)
       // const { messages } = responseMessage
       const [originalUserMessage] = responseMessage.filter(mes => mes.role === "user")
       const storedId = originalUserMessage.id.storage!
-      updateConversation(conversationId, {originalUserMessageIDs:{temp: originalUserMessage.id.temp, storage: originalUserMessage.id.storage}})
-      // addMessage(result)
+      updateUserMessageID(originalUserMessage.id.temp, storedId)
     } catch (error) {
       console.error(error)
     }

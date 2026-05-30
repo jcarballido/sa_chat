@@ -132,19 +132,19 @@
 
 import { create } from "zustand"
 import type { UserMessageType } from "../types/message.schema"
-import {  ConversationMetadataSchemaArray, ConversationSchema, DefinedConversationMetadataSchema, type ActiveConversationType, type ConversationMetadataArrayType, type ConversationType, type DefinedConversationMetadataType } from "../types/conversation.schema"
+import { ConversationSchema, DefinedConversationMetadataSchema, type ActiveConversationType, type ConversationType, type DefinedConversationMetadataType } from "../types/conversation.schema"
 import { api } from "../api/apiClient"
 
 type State = {
   activeConversation: ActiveConversationType,
-  activeConversationID: ActiveConversationType["conversationId"]["temp"] | Exclude<ActiveConversationType["conversationId"]["storage"],null>,
+  // activeConversationID: ActiveConversationType["conversationId"]["temp"] | Exclude<ActiveConversationType["conversationId"]["storage"],null>,
   storedConversationMetadata: DefinedConversationMetadataType
 }
 
 type Action = {
   getStoredConversationMetadata: () => Promise<void>,
   setActiveConversation: () => Promise<void>,
-  addToStoredConversation: (storedConversation?: ) => void,
+  addToStoredConversation: (storedConversation: DefinedConversationMetadataType[number]) => void,
   addUserMessage: (newUserMessage: UserMessageType) => void,
   updateUserMessageID: (tempID: string, storageID: number) => void
 }
@@ -183,6 +183,7 @@ const randomInt = (): number => {
 
 export const useConversationStore = create<State & Action>()(
   (set,get) => ({
+
     activeConversation: {
       conversationId: {
         temp: `temp_${randomInt()}`,
@@ -192,13 +193,13 @@ export const useConversationStore = create<State & Action>()(
       messages:[]
     },
 
-    activeConversationID: get().activeConversation.conversationId.storage ?? get().activeConversation.conversationId.temp,
+    // activeConversationID: get().activeConversation.conversationId.storage ?? get().activeConversation.conversationId.temp,
     
     storedConversationMetadata:[],
     
     getStoredConversationMetadata: async() => {
       try {
-        const res = await api.get("/api/getStoredConversations", DefinedConversationMetadataSchema)
+        const res = await api.get("/api/chat/getStoredConversations", DefinedConversationMetadataSchema)
         set({
           storedConversationMetadata:[...res]
         })
@@ -263,7 +264,8 @@ export const useConversationStore = create<State & Action>()(
         })
         return{
           activeConversation: {
-            ...state.activeConversation, updatedMessage
+            ...state.activeConversation, 
+            messages: [...updatedMessage]
           }
         }
       })

@@ -7,15 +7,17 @@ import PencilSVG from "../../assets/pencil.svg"
 import SearchSVG from "../../assets/search.svg"
 // import { useMessageStore } from "../../stores/message.store"
 import useInteraction from "../../hooks/useInteraction.hooks"
+import { useConversationStore } from "../../stores/conversation.store"
 
 const Aside = () => {
 
   // const setActiveConversation  = useMessageStore(s => s.setActiveConversation)
+  const { setActiveConversation } = useConversationStore()
   const { disabled } = useInteraction()
 
   const newChat = () => {
     console.log("NEW CHAT STARTED")
-    // setActiveConversation(null)
+    setActiveConversation()
   }
   
   return(

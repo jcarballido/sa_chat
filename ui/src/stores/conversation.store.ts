@@ -131,8 +131,8 @@
 // )
 
 import { create } from "zustand"
-import type { UserMessageType } from "../types/message.schema"
-import { ConversationSchema, DefinedConversationMetadataSchema, type ActiveConversationType, type ConversationType, type DefinedConversationMetadataType } from "../types/conversation.schema"
+import type { AssistantMessageType, UserMessageType } from "../types/message.schema"
+import { ConversationMetadataSchemaArray, ConversationSchema, DefinedConversationMetadataSchema, ResponseConversationMetadataSchema, type ActiveConversationType, type ConversationType, type DefinedConversationMetadataType } from "../types/conversation.schema"
 import { api } from "../api/apiClient"
 
 type State = {
@@ -143,9 +143,11 @@ type State = {
 
 type Action = {
   getStoredConversationMetadata: () => Promise<void>,
-  setActiveConversation: () => Promise<void>,
+  setActiveConversation: (id?: number) => Promise<void>,
+  updateActiveConversationID: (storedID: number) => void, 
   addToStoredConversation: (storedConversation: DefinedConversationMetadataType[number]) => void,
   addUserMessage: (newUserMessage: UserMessageType) => void,
+  addAssistantMessage: (newAssistantMessage: AssistantMessageType) => void,
   updateUserMessageID: (tempID: string, storageID: number) => void
 }
 
@@ -199,9 +201,11 @@ export const useConversationStore = create<State & Action>()(
     
     getStoredConversationMetadata: async() => {
       try {
-        const res = await api.get("/api/chat/getStoredConversations", DefinedConversationMetadataSchema)
+        const res = await api.get("/chat/getStoredConversations", ResponseConversationMetadataSchema)
+        if(res.error) throw new Error("Error from server.")
+        const { data } = res
         set({
-          storedConversationMetadata:[...res]
+          storedConversationMetadata:[...data]
         })
       } catch (error) {
         console.log("ERROR LOADING STORED CONVERSATIONS")
@@ -222,6 +226,23 @@ export const useConversationStore = create<State & Action>()(
       }
       set({activeConversation: {...conversation}})
     },
+
+    updateActiveConversationID: (storedID: number) => {
+      set((state)=> {
+        if(!state.activeConversation.conversationId.storage){
+          return {
+            activeConversation: {
+              ...state.activeConversation,
+              conversationId: {
+                temp:state.activeConversation.conversationId.temp,
+                storage: storedID
+              }
+            }
+          }
+        }
+        return {activeConversation: {...state.activeConversation}}
+      })
+    },
     
     addToStoredConversation: ( convertedConversation: DefinedConversationMetadataType[number] )=>{
       // const { conversationId, title } = convertedConversation
@@ -240,6 +261,21 @@ export const useConversationStore = create<State & Action>()(
         }
         return {
           activeConversation: updatedConversation 
+        }
+      })
+    },
+
+    addAssistantMessage:(newAssistantMessage: AssistantMessageType) => {
+      set( (state) => {
+
+        return {
+          activeConversation: {
+            ...state.activeConversation,
+            messages:[
+              ...state.activeConversation.messages,
+              newAssistantMessage
+            ]
+          }
         }
       })
     },

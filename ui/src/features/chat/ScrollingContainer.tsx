@@ -10,8 +10,8 @@ import useData from '../../hooks/useData.hooks';
 const ScrollingContainer = () => {
 
   const { activeConversation } = useData()
-  console.log("ACTIVE CONVERSATION:")
-  console.log(activeConversation)
+  // console.log("ACTIVE CONVERSATION in SCROLLING CONTAINER:")
+  // console.log(activeConversation)
 
   return (
     <div className={`flex flex-col h-full w-[70%] gap-2 p-2 bg-transparent border-4 border-green-900`}>
@@ -23,6 +23,7 @@ const ScrollingContainer = () => {
        [&::-webkit-scrollbar-thumb]:rounded-full
        hover:[&::-webkit-scrollbar-thumb]:bg-black/40       
         ">
+          Send a Message
           </div>
         : activeConversation.messages.map(msg => {
         return (
@@ -31,7 +32,7 @@ const ScrollingContainer = () => {
        [&::-webkit-scrollbar-track]:bg-transparent
        [&::-webkit-scrollbar-thumb]:rounded-full
        hover:[&::-webkit-scrollbar-thumb]:bg-black/40">
-            {typeof(msg.content) === "string" ? "TEST" :  "sdfkjdslfj"}
+            {msg.role === "user" ? msg.content : msg.content.text ? msg.content.text :msg.content.type}
           </div>
         )
       })

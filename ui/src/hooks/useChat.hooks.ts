@@ -4,12 +4,15 @@ import { type NewUserMessageType } from "../types/message.schema"
 
 export const useChat = () => {
   const conversationStore = useConversationStore()
-  const { activeConversation, setActiveConversation, addUserMessage, updateUserMessageID, addToStoredConversation } = conversationStore
+  const { activeConversation, setActiveConversation, addUserMessage, updateUserMessageID, addToStoredConversation, updateActiveConversationID, addAssistantMessage } = conversationStore
+
+  // console.log("ACTIVE CONVERSATION IN USECHAT HOOK:")
+  // console.log(activeConversation)
 
   const sendUserMessage = async(input: string) => {
     const createNewUserMessage = ( newUserMessage:string ): NewUserMessageType => ({
       title: activeConversation.title,
-      conversationId: activeConversation.conversationId.storage ? activeConversation.conversationId.storage : `temp_${Math.floor(Math.random()*1000000) + 1}`,
+      conversationId: activeConversation.conversationId.storage ?? activeConversation.conversationId.temp ,
       newMessage:{
         role:"user",
         content: newUserMessage,
@@ -21,6 +24,8 @@ export const useChat = () => {
     })
     
     const userMessage = createNewUserMessage(input)
+    console.log("NEW USER MESSAGE CREATED:")
+    console.log(userMessage)
     
     addUserMessage(userMessage.newMessage)
 
@@ -38,6 +43,7 @@ export const useChat = () => {
       console.log("ASST MSG")
       console.log(assistantMessage)
       //updateStoredConversation
+      updateActiveConversationID(conversationId)
       addToStoredConversation({conversationId:{
         temp:userMessage.conversationId as string,
         storage: conversationId
@@ -48,6 +54,7 @@ export const useChat = () => {
       const [originalUserMessage] = responseMessage.filter(mes => mes.role === "user")
       const storedId = originalUserMessage.id.storage!
       updateUserMessageID(originalUserMessage.id.temp, storedId)
+      addAssistantMessage(assistantMessage)
     } catch (error) {
       console.error(error)
     }

@@ -24,6 +24,30 @@ const ActiveConversationSchema = ConversationSchema.pick({conversationId: true, 
 
 export const ConversationIDs = ConversationSchema.shape.conversationId.pick({storage: true})
 
+const SuccessResponseSchema = z.object({
+  status:z.literal("success"),
+  data: DefinedConversationMetadataSchema,
+  error: z.null()
+})
+
+const ErrorResponseSchema = z.object({
+  status:z.literal("error"),
+  data: z.null(),
+  error: z.object({
+    code:z.string(),
+    message:z.string()
+  })
+})
+
+
+
+export const ResponseConversationMetadataSchema = z.discriminatedUnion("status",[
+  SuccessResponseSchema,
+  ErrorResponseSchema
+])
+
+
+
 export type ConversationType = z.infer<typeof ConversationSchema>
 export type ConversationMetadataType = z.infer<typeof ConversationMetadataSchema>
 export type ConversationMetadataArrayType = z.infer<typeof ConversationMetadataSchemaArray>

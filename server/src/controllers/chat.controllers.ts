@@ -4,6 +4,7 @@ import type { ChatServices } from "../services/chat.services.js";
 import { buildApiResponseSchema, IncomingMessageSchema, UserMessageSchema, type IncomingMessageType, type OutgoingMessageType } from "../types/api.types.js";
 import type { QueriesType } from "../db/queries.js";
 import { failure, success } from "../api/responseGenerators.js";
+import type { SelectConversation } from "../db/schema/conversations.schema.js";
 
 export function buildChatController(chatService: ChatServices) {
 
@@ -49,9 +50,27 @@ export function buildChatController(chatService: ChatServices) {
     }
   }
 
+  async function getStoredConversation(request: FastifyRequest<{
+  Params: {
+    id: string
+  }
+}>, reply: FastifyReply) {
+    try {
+      const id: SelectConversation["id"] = Number(request.params.id)
+      const result = await chatService.getStoredConversation(id)
+      reply.code(201)
+      return success(result)            
+    } catch (error) {
+      console.log("ERROR AT CONTROLLER")
+      reply.code(400)
+      return failure("INTERNAL SERVICE ERROR", `${error}`)      
+    }
+  }
+
   return{
     processMessage,
-    getStoredConversationMetadata
+    getStoredConversationMetadata,
+    getStoredConversation
   }
 }
 

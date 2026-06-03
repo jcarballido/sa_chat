@@ -47,10 +47,21 @@ export const UserMessageSchema = z.object({
   content: z.string()
 })
 
-export const MessageSchema = z.discriminatedUnion("role",[
-  UserMessageSchema,
-  AssistantMessageSchema
-])
+// export const MessageSchema = z.discriminatedUnion("role",[
+//   UserMessageSchema,
+//   AssistantMessageSchema
+// ])
+export const StoredMessageSchema = z.object({
+  id: z.number(),
+  conversationId: z.number(),
+  createdAt: z.ZodISODateTime,
+  updatedAt: z.ZodISODateTime,
+  role: z.literal("user").or(z.literal("assistant")),
+  content: z.string()
+})
+
+export const MessageSchema = z.union([UserMessageSchema,AssistantMessageContentSchema, StoredMessageSchema])
+
 export const EnhancedUserMessageSchema = UserMessageSchema.extend({
   id: z.string()
 })
@@ -114,12 +125,53 @@ const ErrorResponseSchema = z.object({
   })
 })
 
-
-
 export const ResponseMessageSchema = z.discriminatedUnion("status",[
   SuccessResponseSchema,
   ErrorResponseSchema
 ])
+
+// export const messages = table("messages",{
+//   id: serial().primaryKey(),
+//   conversationId: integer("conversation_id").references(() => conversations.id).notNull(),
+//   createdAt: timestamp("created_at",{withTimezone: true}).defaultNow().notNull(),
+//   updatedAt: timestamp("updated_at",{withTimezone: true}).defaultNow().notNull(),
+//   role: text({ enum:["user","assistant"] }).notNull(),
+//   content: text().notNull()
+// })
+
+// export const StoredMessageSchema = z.object({
+//   id: z.number(),
+//   conversationId: z.number(),
+//   createdAt: z.ZodISODateTime,
+//   updatedAt: z.ZodISODateTime,
+//   role: z.literal("user").or(z.literal("assistant")),
+//   content: z.string()
+// })
+// export const StoredAssistantMessageSchema
+
+// export const StoredMessageSchema = z.discriminatedUnion("role",[
+//   StoredUserMessageSchema,
+//   StoredAssistantMessageSchema
+// ]) 
+
+// type SelectMessage = {
+//     id: number;
+//     conversationId: number;
+//     createdAt: Date;
+//     updatedAt: Date;
+//     role: "user" | "assistant";
+//     content: string;
+// }
+
+// export const messages = table("messages",{
+//   id: serial().primaryKey(),
+//   conversationId: integer("conversation_id").references(() => conversations.id).notNull(),
+//   createdAt: timestamp("created_at",{withTimezone: true}).defaultNow().notNull(),
+//   updatedAt: timestamp("updated_at",{withTimezone: true}).defaultNow().notNull(),
+//   role: text({ enum:["user","assistant"] }).notNull(),
+//   content: text().notNull()
+// })
+
 
 
 // export const LLMResponseSchema = z.object({

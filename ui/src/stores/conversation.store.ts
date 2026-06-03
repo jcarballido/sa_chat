@@ -131,8 +131,8 @@
 // )
 
 import { create } from "zustand"
-import type { AssistantMessageType, UserMessageType } from "../types/message.schema"
-import { ConversationMetadataSchemaArray, ConversationSchema, DefinedConversationMetadataSchema, ResponseConversationMetadataSchema, type ActiveConversationType, type ConversationType, type DefinedConversationMetadataType } from "../types/conversation.schema"
+import { StoredMessageSchema, type AssistantMessageType, type UserMessageType } from "../types/message.schema"
+import { ConversationMetadataSchemaArray, ConversationSchema, DefinedConversationMetadataSchema, ResponseConversationMetadataSchema, ResponseConversationSchema, type ActiveConversationType, type ConversationType, type DefinedConversationMetadataType } from "../types/conversation.schema"
 import { api } from "../api/apiClient"
 
 type State = {
@@ -216,8 +216,33 @@ export const useConversationStore = create<State & Action>()(
       let conversation: ConversationType
       if(storedConversationID) {
         try {
-          const res = await api.get(`/api/conversations/${storedConversationID}`,ConversationSchema)          
-          conversation = {...res}
+          const res = await api.get(`/chat/conversations/${storedConversationID}`,ResponseConversationSchema)
+                    
+          if(res.error) throw new Error()
+          // export const ConversationSchema = z.object({
+          //   conversationId: z.object({
+          //     temp: z.string(),
+          //     storage: z.union([z.number(), z.null()]),
+          //   }),
+          //   // createdAt:z.iso.datetime().nullable(),
+          //   // updatedAt:z.iso.datetime().nullable(),
+          //   messages: z.array( UserMessageSchema.or(AssistantMessageSchema)),
+          //   title: z.string(),
+          // })
+          // const ActiveConversationSchema = ConversationSchema.pick({conversationId: true, title: true, messages: true})
+
+          const { conversation: c, messages } = res.data
+
+          const compiledConversation: ActiveConversationType = {
+            conversationId: {
+              temp:c.tempId!,
+              storage:c.id,
+            },
+            title:c.title!,
+            messages: [...messages]
+          }
+
+          conversation = compiledConversation
         } catch (error) {
           throw new Error(`COULD NOT LOAD CONVERSATION ID: ${storedConversationID}`)
         }
@@ -285,7 +310,7 @@ export const useConversationStore = create<State & Action>()(
         const messages = [...state.activeConversation.messages]
         const updatedMessage = messages.map(msg => {
           // msg = {id:{},role:"",content}
-          if(msg.role === "user" && msg.id.temp === tempID){
+          if(msg.role === "user" && typeof(msg) !== typeof(StoredMessageSchema) && msg.id.temp === tempID){
             return {
               ...msg,
               id:{

@@ -11,6 +11,7 @@ import type { LLMResponseType, IncomingMessageType, RequestMessageSchema, Outgoi
 import type { QueriesType } from "../db/queries.js"
 import { llmResponses } from "../llmResponses.js"
 import type { InsertMessage, SelectMessage } from "../db/schema/messages.schema.js"
+import type { SelectConversation } from "../db/schema/conversations.schema.js"
 
 export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery: SpecQueryType, agentInvoker: AgentInvokerType, domainExecution: DomainExecutionType, queries: QueriesType){
 
@@ -189,9 +190,16 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
     return storedConversationMetadata
   }
 
+  async function getStoredConversation(id:SelectConversation["id"]) {
+    const [ storedConversation ] = await queries.getStoredConversation(id)
+    const conversationMessage = await queries.getStoredMessages(id)
+    return {conversation: storedConversation, messages: conversationMessage}
+  }
+
   return{
     processIncomingMessage,
-    getStoredConversationMetadata
+    getStoredConversationMetadata,
+    getStoredConversation
   }
 }
 

@@ -20,6 +20,7 @@ async function chatRoutes (fastify: FastifyInstance) {
   console.log("LOADING CHATROUTES")
   fastify.post("/process", fastify.controllers.chat.processMessage)
   fastify.get("/getStoredConversations", fastify.controllers.chat.getStoredConversationMetadata)
+  fastify.get("/conversations/:id", fastify.controllers.chat.getStoredConversation)
 }
 
 export default chatRoutes

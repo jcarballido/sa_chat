@@ -1,5 +1,6 @@
+import { eq } from "drizzle-orm";
 import { db } from "./client.js";
-import { conversations, type InsertConversation } from "./schema/conversations.schema.js";
+import { conversations, type InsertConversation, type SelectConversation } from "./schema/conversations.schema.js";
 import { messages, type InsertMessage } from "./schema/messages.schema.js";
 
 export async function buildQueries() {
@@ -33,10 +34,29 @@ export async function buildQueries() {
     return result    
   }
 
+  async function getStoredConversation(conversationId:SelectConversation["id"]) {
+    const result = await db 
+      .select()
+      .from(conversations)
+      .where(eq(conversations.id, conversationId))
+    return result
+   } 
+
+
+  async function getStoredMessages(id:SelectConversation["id"]) {
+    const result = await db
+      .select()
+      .from(messages)
+      .where(eq(messages.conversationId,id))
+    return result
+  }
+
   return {
     createConversation,
     getConversationMetadata,
-    addMessage
+    addMessage,
+    getStoredConversation,
+    getStoredMessages
   }
 }
 

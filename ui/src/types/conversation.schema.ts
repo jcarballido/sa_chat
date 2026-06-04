@@ -1,5 +1,5 @@
 import z from "zod";
-import { AssistantMessageSchema, StoredMessageSchema, UserMessageSchema } from "./message.schema";
+import { AssistantMessageSchema, MessageSchema, UserMessageSchema } from "./message.schema";
 
 export const ConversationSchema = z.object({
   conversationId: z.object({
@@ -56,7 +56,7 @@ const StoredConversationSchema = z.object({
     title: z.string().or(z.null())
   }),
   messages: z.array(
-    StoredMessageSchema
+    MessageSchema
   )
 })
 

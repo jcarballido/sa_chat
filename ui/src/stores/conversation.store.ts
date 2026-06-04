@@ -131,7 +131,7 @@
 // )
 
 import { create } from "zustand"
-import { StoredMessageSchema, type AssistantMessageType, type UserMessageType } from "../types/message.schema"
+import { type AssistantMessageType, type UserMessageType } from "../types/message.schema"
 import { ConversationMetadataSchemaArray, ConversationSchema, DefinedConversationMetadataSchema, ResponseConversationMetadataSchema, ResponseConversationSchema, type ActiveConversationType, type ConversationType, type DefinedConversationMetadataType } from "../types/conversation.schema"
 import { api } from "../api/apiClient"
 

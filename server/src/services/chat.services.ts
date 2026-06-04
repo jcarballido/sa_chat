@@ -128,6 +128,7 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
     const toInsertUserMessage = (rawMessage: IncomingMessageType["newMessage"], conversationId: number): InsertMessage & {role: "user"} => {
       return {
         conversationId,
+        tempId: rawMessage.id.temp,
         role:"user",
         content: rawMessage.content
       }

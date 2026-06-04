@@ -3,6 +3,7 @@ import { conversations } from "./conversations.schema.js"
 
 export const messages = table("messages",{
   id: serial().primaryKey(),
+  tempId: text("temp_id"),
   conversationId: integer("conversation_id").references(() => conversations.id).notNull(),
   createdAt: timestamp("created_at",{withTimezone: true}).defaultNow().notNull(),
   updatedAt: timestamp("updated_at",{withTimezone: true}).defaultNow().notNull(),

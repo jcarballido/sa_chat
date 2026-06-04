@@ -51,16 +51,16 @@ export const UserMessageSchema = z.object({
 //   UserMessageSchema,
 //   AssistantMessageSchema
 // ])
-export const StoredMessageSchema = z.object({
-  id: z.number(),
-  conversationId: z.number(),
-  createdAt: z.ZodISODateTime,
-  updatedAt: z.ZodISODateTime,
-  role: z.literal("user").or(z.literal("assistant")),
-  content: z.string()
-})
+// export const StoredMessageSchema = z.object({
+//   id: z.number(),
+//   conversationId: z.number(),
+//   createdAt: z.ZodISODateTime,
+//   updatedAt: z.ZodISODateTime,
+//   role: z.literal("user").or(z.literal("assistant")),
+//   content: z.string()
+// })
 
-export const MessageSchema = z.union([UserMessageSchema,AssistantMessageContentSchema, StoredMessageSchema])
+export const MessageSchema = z.union([UserMessageSchema,AssistantMessageContentSchema])
 
 export const EnhancedUserMessageSchema = UserMessageSchema.extend({
   id: z.string()

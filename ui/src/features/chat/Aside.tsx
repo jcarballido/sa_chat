@@ -12,7 +12,7 @@ import { useConversationStore } from "../../stores/conversation.store"
 const Aside = () => {
 
   // const setActiveConversation  = useMessageStore(s => s.setActiveConversation)
-  const { setActiveConversation } = useConversationStore()
+  const { setActiveConversation, activeConversation } = useConversationStore()
   const { disabled } = useInteraction()
 
   const newChat = () => {
@@ -27,7 +27,7 @@ const Aside = () => {
         <SecondaryActionButton
           action={'New Request'}
           clickHandler={newChat} 
-          disabled={disabled}
+          disabled={disabled || activeConversation.conversationId.storage === null}
           icon={<img src={PencilSVG}/>}
         />
         <SecondaryActionButton

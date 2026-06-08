@@ -5,7 +5,6 @@ import SpecificationTable from "./SpecificationTable"
 const AssistantMessage = ({ assistantMessage }: { assistantMessage: AssistantMessageType }) => {
   // try {
   const result = assistantMessage.content
-  try {
     // const parsed: z.infer<typeof AssistantMessageContentSchema> = JSON.parse(result)
     const validatedResult = AssistantMessageContentSchema.safeParse(result)
     if (validatedResult.error) {
@@ -20,15 +19,14 @@ const AssistantMessage = ({ assistantMessage }: { assistantMessage: AssistantMes
       )
     }
     const content = validatedResult.data
-    if(content.data.length === 0){
-    return (
-      <div className={`my-8 text-[#121212]`}>
-        <div className={`w-full p-2 rounded-xl`}>
-          No results found.
+    if(content.data?.length === 0){
+      return (
+        <div className={`my-8 text-[#121212]`}>
+          <div className={`w-full p-2 rounded-xl`}>
+            No results found.
+          </div>
         </div>
-      </div>
-    )
-      
+      )      
     }
     if (content.type === "similar_products") {
       // console.log("RESULT TYPE: SIMILAR PRODUCTS")
@@ -56,23 +54,23 @@ const AssistantMessage = ({ assistantMessage }: { assistantMessage: AssistantMes
     return (
       <div className={`my-8 text-black`}>
         <div className={`w-full p-2 rounded-xl`}>
-          <SpecificationTable specs={content.data} />
+          <SpecificationTable specs={content.data ?? []} />
         </div>
       </div>
     )
 
-  } catch (error) {
-    // console.log("CONTENT COULD NOT BE PARSED WITH JSON.parse")
-    console.log("RESULT:")
-    console.log(result)
-    return (
-      <div className={` my-8 text-black`}>
-        <div className={`w-full p-2 rounded-xl`}>
-          {result.text}
-        </div>
-      </div>
-    )
-  }
+  // } catch (error) {
+  //   // console.log("CONTENT COULD NOT BE PARSED WITH JSON.parse")
+  //   console.log("RESULT:")
+  //   console.log(result)
+  //   return (
+  //     <div className={` my-8 text-black`}>
+  //       <div className={`w-full p-2 rounded-xl`}>
+  //         {result.text}
+  //       </div>
+  //     </div>
+  //   )
+  // }
 }
 
 export default AssistantMessage

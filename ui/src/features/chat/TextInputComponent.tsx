@@ -3,15 +3,14 @@ import SendSVG from "../../assets/send.svg"
 import { colorMap } from "../../constants/colorTheme.constants";
 
 interface TextInputComponentProps {
-  value: string;
-  isLoading: boolean;
+
   submit: (message:string) => void,
   disabled: boolean
 }
 
-const TextInputComponent = ({ value, submit, disabled }: TextInputComponentProps) => {
+const TextInputComponent = ({ submit, disabled }: TextInputComponentProps) => {
 
-  const [ input, setInput ] = useState(value)
+  const [ input, setInput ] = useState("")
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
   useEffect(() => {
     autoResize()
@@ -51,6 +50,7 @@ const TextInputComponent = ({ value, submit, disabled }: TextInputComponentProps
         onChange={(e) =>{
           setInput(e.target.value)
         }}
+        placeholder="Retrieve any secure storage info..."
       />
       <div className="flex flex-col justify-end">
         <button className={`text-white rounded-xl aspect-square transition duration-500 ${input === ''? 'bg-gray-600': colorMap.accent} flex justify-center items-center min-w-11`}  type="submit" disabled={input === '' || disabled}>

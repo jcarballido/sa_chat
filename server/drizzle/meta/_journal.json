@@ -15,6 +15,13 @@
       "when": 1780109973436,
       "tag": "0001_freezing_electro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780719128487,
+      "tag": "0002_careless_mephistopheles",
+      "breakpoints": true
     }
   ]
 }

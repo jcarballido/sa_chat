@@ -1,4 +1,4 @@
-import { useState, type MouseEventHandler } from 'react';
+import { useEffect, useState, type MouseEventHandler } from 'react';
 import LogoutSVG from '../../assets/logout.svg'
 import { supabase } from '../../supabase/client';
 import { useAuthStore } from '../../stores/auth.store';
@@ -19,6 +19,12 @@ const BottomFixedUserComponent = ({ style }: BottomFixedUserComponentProps) => {
       console.log(error)
     }
   }
+
+  useEffect(() => {
+    if(!showSlide) return
+    document.addEventListener("mousedown",() => setShowSlide(false))
+    return document.removeEventListener("mousedown",() => setShowSlide(false))
+  },[showSlide])
 
   const id = user?.email!.replace(/(@gmail.com)/,"")
   const firstLetter = id?.charAt(0).toUpperCase()

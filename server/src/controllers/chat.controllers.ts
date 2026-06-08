@@ -62,6 +62,7 @@ export function buildChatController(chatService: ChatServices) {
       return success(result)            
     } catch (error) {
       console.log("ERROR AT CONTROLLER")
+      console.log(error)
       reply.code(400)
       return failure("INTERNAL SERVICE ERROR", `${error}`)      
     }

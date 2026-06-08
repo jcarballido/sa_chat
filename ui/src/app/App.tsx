@@ -11,19 +11,45 @@ import { useConversationStore } from "../stores/conversation.store";
 const App = () => {
 
   // useAuth()
-  const session = useAuthStore(s => s.session)
+  const { loading,session, setLoading} = useAuthStore()
   const { getStoredConversationMetadata } = useConversationStore()
   const [pinged, setPinged] = useState<boolean>(false)
   // console.log("SESSION: ")
   // console.log(session)
   // const getConversationsMetadata = useMessageStore(s => s.getConversationsMetadata)
+  const start = performance.now()
+  console.log("START TIME:")
+  console.log(start)
 
   useEffect(() => {
+    const remaining = performance.now() - start
+    console.log("REMAINING TIME:")
+    console.log(remaining)
+
+    if(remaining < 1000){
+      const c = async() =>  new Promise((resolve) => {
+      setTimeout(resolve,remaining)
+     })
+     c()
+    }
+
     if(session && !pinged){
-      setPinged(true)
-      getStoredConversationMetadata()
+      setLoading(!!session)
+      if(!pinged){
+        setPinged(true)
+        getStoredConversationMetadata()
+      }
     }
   },[session])
+
+  if(loading){
+    return (
+      <div className="bg-amber-600 w-screen h-screen">
+        LOADING
+      </div>
+    )
+  }
+
   
 
   return (

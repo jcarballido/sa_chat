@@ -8,6 +8,14 @@ type SpecificationTableProps = {
 
 const SpecificationTable = ({ specs }: SpecificationTableProps ) => {
 
+	console.log("SPECS PASSED INTO TABLE:")
+	console.log(specs)
+
+	if(specs.length === 0) {
+		console.log("No specs listed")
+		return
+	}
+
 	const headers = Object.keys(specs[0]) as (keyof typeof specs[number])[]
 	const convertedHeaders = dataManipulation.capitalizeFirstChar(headers)
 

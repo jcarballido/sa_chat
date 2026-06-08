@@ -5,10 +5,10 @@ import { messages, type InsertMessage } from "./schema/messages.schema.js";
 
 export async function buildQueries() {
 
-  async function createConversation(supabaseUserId: string) {
+  async function createConversation(supabaseUserId: string, tempId: string) {
     const result = await db
       .insert(conversations)
-      .values({supabaseUserId})
+      .values({supabaseUserId, tempId})
       .returning({newConversationId: conversations.id})    
     return result
   }
@@ -51,12 +51,20 @@ export async function buildQueries() {
     return result
   }
 
+  async function assignConversationTitle(title: string, storedConverationId: number) {
+    await db
+    .update(conversations)
+    .set({title})
+    .where(eq(conversations.id, storedConverationId))    
+  }
+
   return {
     createConversation,
     getConversationMetadata,
     addMessage,
     getStoredConversation,
-    getStoredMessages
+    getStoredMessages,
+    assignConversationTitle
   }
 }
 

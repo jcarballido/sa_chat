@@ -213,7 +213,7 @@ export const useConversationStore = create<State & Action>()(
     },
     
     setActiveConversation: async(storedConversationID?: number) => {
-      let conversation: ConversationType
+      let selectedConversation: ConversationType
       if(storedConversationID) {
         try {
           const res = await api.get(`/chat/conversations/${storedConversationID}`,ResponseConversationSchema)
@@ -231,25 +231,129 @@ export const useConversationStore = create<State & Action>()(
           // })
           // const ActiveConversationSchema = ConversationSchema.pick({conversationId: true, title: true, messages: true})
 
-          const { conversation: c, messages } = res.data
+          const { conversation, messages } = res.data
+
+          // export const ConversationSchema = z.object({
+          //   conversationId: z.object({
+          //     temp: z.string(),
+          //     storage: z.union([z.number(), z.null()]),
+          //   }),
+          //   // createdAt:z.iso.datetime().nullable(),
+          //   // updatedAt:z.iso.datetime().nullable(),
+          //   messages: z.array( UserMessageSchema.or(AssistantMessageSchema)),
+          //   title: z.string(),
+          // export const AssistantMessageSchema = z.object({
+          //   id: z.number(),
+          //   role: z.literal("assistant"),
+          //   content: AssistantMessageContentSchema,
+          // })
+          
+          // export const UserMessageSchema = z.object({
+          //   role: z.literal("user"),
+          //   id:z.object({
+          //     temp:z.string(),
+          //     storage: z.number().or(z.undefined())
+          //   }),
+          //   content: z.string()
+          // })
+          // export const AssistantMessageContentSchema = z.discriminatedUnion("type", [
+          //   z.object({
+          //     title: z.string(),
+          //     type: z.enum(["product_lookup_by_model", "product_lookup_by_specs","product_comparison"]),
+          //     text: z.string().nullable(),
+          //     data: z.array(SpecifcationRowSchema)
+          //   }),
+          //   z.object({
+          //     title: z.string(),
+          //     type: z.enum(["similar_products"]),
+          //     text: z.string().nullable(),
+          //     data: z.array(ComparisonResultSchema)
+          //   }),
+          //   z.object({
+          //     title: z.string(),
+          //     type: z.enum(["malicious","out_of_scope","related"]),
+          //     text: z.string().nullable(),
+          //     data: z.null()
+          //   })
+          // ])
+          
+          
+
+          const convertMessages = (originalMessages: typeof messages) => {
+            const result: (AssistantMessageType | UserMessageType)[] = originalMessages.map(msg => {
+              if(msg.role === "user"){
+                return {
+                  role: "user",
+                  id: {
+                      temp: msg.tempId,
+                      storage: msg.id,
+                  },
+                  content: msg.content
+                }
+              }else{
+                const parsed: AssistantMessageType["content"] = JSON.parse(msg.content)
+                
+                if(parsed.type === "product_lookup_by_model" || parsed.type ===  "product_lookup_by_specs" ||parsed.type ===  "product_comparison"){
+                  return {
+                    role:"assistant",
+                    id: msg.id,
+                    content: {...parsed}
+                  }
+                }
+
+                if(parsed.type === "similar_products"){
+                  return {
+                    role:"assistant",
+                    id: msg.id,
+                    content: {...parsed}
+                  } 
+                }
+
+                return {
+                  role: "assistant",
+                  id: msg.id,
+                  content: {...parsed}
+                }
+              }
+            })
+            return result
+          }
+
+          const parsedMessages = convertMessages(messages)
+
+          console.log("MESSAGES RECEIVED FROM SERVER: ")
+          console.log(messages)
+          console.log("PARSED: ")
+          console.log(parsedMessages)
+
+          // const storedConversationMessages: {
+          //   id: number;
+          //   tempId: string | null;
+          //   conversationId: number;
+          //   createdAt: Date;
+          //   updatedAt: Date;
+          //   role: "user" | "assistant";
+          //   content: string;
+          // }[]
 
           const compiledConversation: ActiveConversationType = {
             conversationId: {
-              temp:c.tempId!,
-              storage:c.id,
+              temp: conversation.tempId!,
+              storage: conversation.id,
             },
-            title:c.title!,
-            messages: [...messages]
+            title: conversation.title!,
+            messages: [...parsedMessages]
           }
-
-          conversation = compiledConversation
+          selectedConversation = compiledConversation
         } catch (error) {
+          console.log("ERROR from GET attempt: ")
+          console.log(error)
           throw new Error(`COULD NOT LOAD CONVERSATION ID: ${storedConversationID}`)
         }
       }else{
-        conversation = draftConversation()
+        selectedConversation = draftConversation()
       }
-      set({activeConversation: {...conversation}})
+      set({activeConversation: {...selectedConversation}})
     },
 
     updateActiveConversationID: (storedID: number) => {
@@ -310,7 +414,7 @@ export const useConversationStore = create<State & Action>()(
         const messages = [...state.activeConversation.messages]
         const updatedMessage = messages.map(msg => {
           // msg = {id:{},role:"",content}
-          if(msg.role === "user" && typeof(msg) !== typeof(StoredMessageSchema) && msg.id.temp === tempID){
+          if(msg.role === "user" && msg.id.temp === tempID){
             return {
               ...msg,
               id:{

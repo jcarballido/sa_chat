@@ -1,43 +1,41 @@
 // import { useMessageStore } from '../../stores/message.store';
 import InputForm from './InputForm';
-import { type AssistantMessageType, type UserMessageType } from '../../types/message.schema';
 import UserMessage from './UserMessage';
 import AssistantMessage from './AssistantMessage';
-import { useConversationSentinel } from '../../hooks/useSentinel.hooks';
 import useData from '../../hooks/useData.hooks';
 
 
 const ScrollingContainer = () => {
 
   const { activeConversation } = useData()
-  // console.log("ACTIVE CONVERSATION in SCROLLING CONTAINER:")
-  // console.log(activeConversation)
 
   return (
-    <div className={`flex flex-col h-full w-[70%] gap-2 p-2 bg-transparent border-4 border-green-900`}>
-      {
-        activeConversation.messages.length === 0 
-        ? <div className="grow  overflow-y-auto overflow-x-hidden 
-       [&::-webkit-scrollbar]:w-1
-       [&::-webkit-scrollbar-track]:bg-transparent
-       [&::-webkit-scrollbar-thumb]:rounded-full
-       hover:[&::-webkit-scrollbar-thumb]:bg-black/40       
-        ">
-          Send a Message
-          </div>
-        : activeConversation.messages.map(msg => {
-        return (
-          <div className="grow overflow-y-auto overflow-x-hidden 
-       [&::-webkit-scrollbar]:w-1
-       [&::-webkit-scrollbar-track]:bg-transparent
-       [&::-webkit-scrollbar-thumb]:rounded-full
-       hover:[&::-webkit-scrollbar-thumb]:bg-black/40">
-            {msg.role === "user" ? msg.content : msg.content.text ? msg.content.text :msg.content.type}
-          </div>
-        )
-      })
-
-      }
+    <div className={`flex flex-col h-full w-[70%] gap-2 p-2 bg-transparent `}>
+      <div className='grow flex flex-col justify-start'>
+        {
+          !activeConversation || activeConversation.messages?.length === 0 
+          ? <div className="grow  overflow-y-auto overflow-x-hidden flex justify-center items-center 
+            [&::-webkit-scrollbar]:w-1
+            [&::-webkit-scrollbar-track]:bg-transparent
+            [&::-webkit-scrollbar-thumb]:rounded-full
+            hover:[&::-webkit-scrollbar-thumb]:bg-black/40"
+            >
+              Send a message below...
+            </div>
+          : activeConversation.messages.map(msg => {
+            return (
+              <div className="overflow-y-auto overflow-x-hidden 
+                [&::-webkit-scrollbar]:w-1
+                [&::-webkit-scrollbar-track]:bg-transparent
+                [&::-webkit-scrollbar-thumb]:rounded-full
+                hover:[&::-webkit-scrollbar-thumb]:bg-black/40"
+              >
+                {msg.role === "user" ? <UserMessage userMessage={msg} /> : <AssistantMessage assistantMessage={msg}/>}
+              </div>
+            )
+          })
+        }
+      </div>
        <div className='w-full flex flex-col justify-center items-center '>
          <InputForm />    
        </div>

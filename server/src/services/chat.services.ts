@@ -104,13 +104,16 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
 
   async function processIncomingMessage(incomingMessage: IncomingMessageType, userId:{sub: string}): Promise<OutgoingMessageType> {
 
+    console.log("INCOMING MESSAGE at chat service:")
+    console.log(incomingMessage)
+
     const {title, conversationId, newMessage} = incomingMessage 
 
     // 1. Cast conversation id to stored conversation ID
     const assignConversationId = async(conversationId: string | number) => {
       if(typeof conversationId === "string"){
         try {
-          const [ result ] = await queries.createConversation(userId.sub)
+          const [ result ] = await queries.createConversation(userId.sub, conversationId)
           if(!result?.newConversationId) throw new Error("A new conversation could not be created.")
           return result?.newConversationId!
         } catch (error) {
@@ -130,7 +133,8 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
         conversationId,
         tempId: rawMessage.id.temp,
         role:"user",
-        content: rawMessage.content
+        content: rawMessage.content,
+        
       }
     }
 
@@ -150,9 +154,12 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
         return {
           conversationId: storedConversationId,
           role:"assistant",
-          content: JSON.stringify(agentResponse)
+          content: JSON.stringify(agentResponse),
+          tempId: null
         }
       }
+      // Update conversation to include title:
+      await queries.assignConversationTitle(result.title!, storedConversationId)
       // 5. Store assistant message
       const insertAssistantMessage = toInsertAssistantMessage(result,storedConversationId)
       const [ storedAssistantMessage ] = await queries.addMessage(insertAssistantMessage) 
@@ -193,8 +200,9 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
 
   async function getStoredConversation(id:SelectConversation["id"]) {
     const [ storedConversation ] = await queries.getStoredConversation(id)
-    const conversationMessage = await queries.getStoredMessages(id)
-    return {conversation: storedConversation, messages: conversationMessage}
+    const storedConversationMessages = await queries.getStoredMessages(id)
+    
+    return {conversation: storedConversation, messages: storedConversationMessages}
   }
 
   return{

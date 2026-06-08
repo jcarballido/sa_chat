@@ -49,15 +49,61 @@ const ErrorResponseSchema = z.object({
 //   content: text().notNull()
 // })
 
+// export const AssistantMessageSchema = z.object({
+//   id: z.number(),
+//   role: z.literal("assistant"),
+//   content: AssistantMessageContentSchema,
+// })
+
+// export const UserMessageSchema = z.object({
+//   role: z.literal("user"),
+//   id:z.object({
+//     temp:z.string(),
+//     storage: z.number().or(z.undefined())
+//   }),
+//   content: z.string()
+// })
+
+// const storedConversationMessages: {
+//     id: number;
+//     tempId: string | null;
+//     conversationId: number;
+//     createdAt: Date;
+//     updatedAt: Date;
+//     role: "user" | "assistant";
+//     content: string;
+// }[]
+
+const storedMessageSchema = z.array(
+  z.discriminatedUnion("role",[ 
+    z.object({
+      id: z.number(),
+      tempId: z.string(),
+      conversationId: z.number(),
+      createdAt: z.iso.datetime(),
+      updatedAt: z.iso.datetime(),
+      role: z.literal("user"),
+      content: z.string()
+    }),
+    z.object({
+      id: z.number(),
+      tempId: z.null(),
+      conversationId: z.number(),
+      createdAt: z.iso.datetime(),
+      updatedAt: z.iso.datetime(),
+      role: z.literal("assistant"),
+      content: z.string() 
+    }),
+]))
+
+
 const StoredConversationSchema = z.object({
   conversation: z.object({
     id: z.number(),
     tempId: z.string().or(z.null()),
     title: z.string().or(z.null())
   }),
-  messages: z.array(
-    MessageSchema
-  )
+  messages: storedMessageSchema
 })
 
 export const ConversationMetadataSuccessResponseSchema = makeSuccessResponseSchema(DefinedConversationMetadataSchema)

@@ -13,11 +13,12 @@ export const supabase = createClient(
 )
 
 supabase.auth.onAuthStateChange((event, session) => {
+  console.log("STATE CHANGE")
+  console.log("EVENT: ", event)
   if(session) {
-    useAuthStore.getState().setSession(session)
-    if(session.user){
-      useAuthStore.getState().setUser(session.user)
-    }
+      useAuthStore.getState().setAuthStatus({status:"authenticated",session: session, user: session.user})
+  }else{
+    useAuthStore.getState().setAuthStatus({status:"unauthenticated",session: null,user:null})
   }
 })
 

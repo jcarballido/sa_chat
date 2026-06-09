@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 // import { useAppStateStore } from "../stores/appState.store"
 import { useAuthStore } from "../stores/auth.store"
+import App from "./App"
 // import { useConversationStore } from "../stores/conversation.store"
 
 
@@ -38,22 +39,10 @@ const AppGate = () => {
       </div>
     )
   }
-  if(authStatus.status === "unauthenticated"){
-    return(
-      <div className="bg-amber-600 w-screen h-screen flex justify-center items-center text-9xl">
-        LOG IN
-      </div>
-    )
 
-  }
-
-  if(authStatus.status === "authenticated"){
-    return (
-      <div className="bg-blue-400 w-screen h-screen flex justify-center items-center text-9xl">
-        AUTHED
-      </div>
-    )
-  }
+  return (
+    <App />
+  )
 
 
 }

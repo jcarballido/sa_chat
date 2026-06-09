@@ -9,7 +9,7 @@ interface BottomFixedUserComponentProps {
 
 const BottomFixedUserComponent = ({ style }: BottomFixedUserComponentProps) => {
   const [ showSlide, setShowSlide ] = useState(false)
-  const { user } = useAuthStore()
+  const { authStatus } = useAuthStore()
 
   const handleSignOut: MouseEventHandler = async (e) => {
     e.preventDefault()
@@ -26,7 +26,7 @@ const BottomFixedUserComponent = ({ style }: BottomFixedUserComponentProps) => {
     return document.removeEventListener("mousedown",() => setShowSlide(false))
   },[showSlide])
 
-  const id = user?.email!.replace(/(@gmail.com)/,"")
+  const id = authStatus.user?.email!.replace(/(@gmail.com)/,"")
   const firstLetter = id?.charAt(0).toUpperCase()
 
   return (
@@ -35,7 +35,7 @@ const BottomFixedUserComponent = ({ style }: BottomFixedUserComponentProps) => {
         <img src={LogoutSVG} className={`transition delay-150 ease-in ${showSlide ? "text-white":"text-transparent"}`}/>
         <div className={`transition delay-150 ease-in ${showSlide ? "text-white":"text-transparent"} font-semibold`}>Sign Out</div>
       </button>
-      {user ? <div className='aspect-square h-8 rounded-full bg-blue-500 flex justify-center items-center font-extrabold text-xl  '>
+      {authStatus.user ? <div className='aspect-square h-8 rounded-full bg-blue-500 flex justify-center items-center font-extrabold text-xl  '>
         {firstLetter}
       </div> : null}  
       <div className={`whitespace-nowrap flex items-center justify-start p-2`} onClick={()=>setShowSlide(!showSlide)}>

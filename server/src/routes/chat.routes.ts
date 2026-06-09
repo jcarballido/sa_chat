@@ -10,10 +10,16 @@ async function chatRoutes (fastify: FastifyInstance) {
   // const services = buildServices(fastify.llm, domainExecutionServices)
   // const controller = buildChatController(services)
   fastify.addHook("preHandler", async (request, reply) => {
+    console.log("BEARER TOKEN: ")
+    console.log(request.headers.authorization)
     const token = request.headers.authorization?.replace("Bearer ","")
     if(!token) return reply.code(401).send({ error: "Missing auth headers" })
     const payload = await verifyAuthJWT(token)
-    if(!payload) return reply.code(401).send({ error: "Unathorized" })
+    
+    if(!payload){
+      console.log("NO PAYLOAD FOUND")
+      return reply.code(401).send({ error: "Unathorized" })
+    } 
     request.user = {sub: payload.sub}
   })
 

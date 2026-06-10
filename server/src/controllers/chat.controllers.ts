@@ -39,8 +39,9 @@ export function buildChatController(chatService: ChatServices) {
   }
 
   async function getStoredConversationMetadata(request: FastifyRequest, reply: FastifyReply) {
+    const userId = request.user!
     try {
-      const result = await chatService.getStoredConversationMetadata()
+      const result = await chatService.getStoredConversationMetadata(userId.sub)
       reply.code(201)
       return success(result)      
     } catch (error) {
@@ -55,9 +56,10 @@ export function buildChatController(chatService: ChatServices) {
     id: string
   }
 }>, reply: FastifyReply) {
+    const userId = request.user!
     try {
       const id: SelectConversation["id"] = Number(request.params.id)
-      const result = await chatService.getStoredConversation(id)
+      const result = await chatService.getStoredConversation(id, userId.sub)
       reply.code(201)
       return success(result)            
     } catch (error) {

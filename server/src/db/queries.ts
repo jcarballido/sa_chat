@@ -1,7 +1,8 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "./client.js";
 import { conversations, type InsertConversation, type SelectConversation } from "./schema/conversations.schema.js";
 import { messages, type InsertMessage } from "./schema/messages.schema.js";
+import { error } from "node:console";
 
 export async function buildQueries() {
 
@@ -13,7 +14,7 @@ export async function buildQueries() {
     return result
   }
 
-  async function getConversationMetadata() {
+  async function getConversationMetadata(userId: SelectConversation["supabaseUserId"]) {
     const result = await db
       .select({
         conversationId: {
@@ -23,10 +24,27 @@ export async function buildQueries() {
         title: conversations.title
       })
       .from(conversations)
+      .where(
+        eq(conversations.supabaseUserId, userId)
+      )
     return result
   }
 
-  async function addMessage(newMessage: InsertMessage) {
+  async function addMessage(newMessage: InsertMessage, userId: SelectConversation["supabaseUserId"]) {
+    const check = await db
+      .select({
+        conversationId: conversations.id
+      })
+      .from(conversations)
+      .where(
+        and(
+          eq(conversations.id, newMessage.conversationId ),
+          eq(conversations.supabaseUserId, userId)
+        )
+      )
+
+    if(check.length === 0) throw new Error("UNAUTHORIZED REQUEST")
+
     const result = await db
       .insert(messages)
       .values(newMessage)
@@ -34,11 +52,16 @@ export async function buildQueries() {
     return result    
   }
 
-  async function getStoredConversation(conversationId:SelectConversation["id"]) {
+  async function getStoredConversation(conversationId:SelectConversation["id"], userId: SelectConversation["supabaseUserId"]) {
     const result = await db 
       .select()
       .from(conversations)
-      .where(eq(conversations.id, conversationId))
+      .where(
+        and(
+          eq(conversations.id, conversationId),
+          eq(conversations.supabaseUserId, userId)
+        )
+      )
     return result
    } 
 

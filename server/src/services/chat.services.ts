@@ -141,7 +141,7 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
     const insertUserMessage = toInsertUserMessage(newMessage, storedConversationId) 
 
     // 3. Add message to the conversation by conv. id 
-    const [ storedUserMessage ] = await queries.addMessage(insertUserMessage)
+    const [ storedUserMessage ] = await queries.addMessage(insertUserMessage, userId.sub)
     if(!storedUserMessage) throw new Error("Error adding user message.")
       
     // 4. Pass resulting message to intent agent
@@ -162,7 +162,7 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
       await queries.assignConversationTitle(result.title!, storedConversationId)
       // 5. Store assistant message
       const insertAssistantMessage = toInsertAssistantMessage(result,storedConversationId)
-      const [ storedAssistantMessage ] = await queries.addMessage(insertAssistantMessage) 
+      const [ storedAssistantMessage ] = await queries.addMessage(insertAssistantMessage, userId.sub) 
       if(!storedAssistantMessage) throw new Error("Error adding assistant message.")
 
       // 6. Convert result to outgoing message, being returned to chat.controller.processMessage
@@ -193,13 +193,13 @@ export function buildChatServices(inventoryQuery: InventoryQueryType, specQuery:
     }
   }
 
-  async function getStoredConversationMetadata() {
-    const storedConversationMetadata = await queries.getConversationMetadata()
+  async function getStoredConversationMetadata(userId: SelectConversation["supabaseUserId"]) {
+    const storedConversationMetadata = await queries.getConversationMetadata(userId)
     return storedConversationMetadata
   }
 
-  async function getStoredConversation(id:SelectConversation["id"]) {
-    const [ storedConversation ] = await queries.getStoredConversation(id)
+  async function getStoredConversation(id:SelectConversation["id"], userId: SelectConversation["supabaseUserId"]) {
+    const [ storedConversation ] = await queries.getStoredConversation(id, userId)
     const storedConversationMessages = await queries.getStoredMessages(id)
     
     return {conversation: storedConversation, messages: storedConversationMessages}

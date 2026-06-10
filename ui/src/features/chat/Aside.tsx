@@ -21,7 +21,7 @@ const Aside = () => {
   }
   
   return(
-    <aside className={`h-full ${colorMap.bgMain} flex flex-col gap-4 text-white p-2`}>
+    <aside className={`h-full ${colorMap.bgMain2} flex flex-col gap-4 text-white p-2`}>
       <TitleCard />
       <div className="flex flex-col justify-start shrink-0">
         <SecondaryActionButton

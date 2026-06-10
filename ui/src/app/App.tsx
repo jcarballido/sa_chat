@@ -29,7 +29,7 @@ const App = () => {
   },[authStatus.status])
 
   return (
-    <div className="flex h-screen w-screen relative">
+    <div className="flex h-screen w-screen absolute z-0">
       {/* <div className="absolute border-4 border-purple-700">LINK ERROR</div> */}
       <LoginModal />
       <Aside />

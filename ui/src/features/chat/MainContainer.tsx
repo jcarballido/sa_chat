@@ -1,3 +1,4 @@
+import { colorMap } from "../../constants/colorTheme.constants"
 import ScrollingContainer from "./ScrollingContainer"
 
 const MainContainer = () => {
@@ -13,7 +14,7 @@ const MainContainer = () => {
   //   )
   // }
   return (
-    <main className="flex-1 h-full min-w-0 flex justify-center ${colorMap.bgSecondary} bg-[#eaeaea]">
+    <main className={`flex-1 h-full min-w-0 flex justify-center ${colorMap.bgSecondary2} `}>
       <ScrollingContainer/>
     </main>
   )

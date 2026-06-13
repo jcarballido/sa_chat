@@ -1,5 +1,4 @@
 // import { useMessageStore } from '../../stores/message.store';
-import InputForm from './InputForm';
 import UserMessage from './UserMessage';
 import AssistantMessage from './AssistantMessage';
 import useData from '../../hooks/useData.hooks';
@@ -10,25 +9,21 @@ const ScrollingContainer = () => {
   const { activeConversation } = useData()
 
   return (
-    <div className={`flex flex-col h-full w-[70%] gap-2 p-2 bg-transparent `}>
+    <div className={`flex flex-col h-full max-h-full w-full gap-2 p-2 bg-transparent overflow-scroll             [&::-webkit-scrollbar]:w-1
+            [&::-webkit-scrollbar-track]:bg-transparent
+            [&::-webkit-scrollbar-thumb]:rounded-full
+            hover:[&::-webkit-scrollbar-thumb]:bg-black/40
+`}>
       <div className='grow flex flex-col justify-start'>
         {
           !activeConversation || activeConversation.messages?.length === 0 
-          ? <div className="grow  overflow-y-auto overflow-x-hidden flex justify-center items-center 
-            [&::-webkit-scrollbar]:w-1
-            [&::-webkit-scrollbar-track]:bg-transparent
-            [&::-webkit-scrollbar-thumb]:rounded-full
-            hover:[&::-webkit-scrollbar-thumb]:bg-black/40"
+          ? <div className="grow  overflow-y-auto overflow-x-hidden flex justify-center items-center" 
             >
               Send a message below...
             </div>
           : activeConversation.messages.map(msg => {
             return (
-              <div className="overflow-y-auto overflow-x-hidden 
-                [&::-webkit-scrollbar]:w-1
-                [&::-webkit-scrollbar-track]:bg-transparent
-                [&::-webkit-scrollbar-thumb]:rounded-full
-                hover:[&::-webkit-scrollbar-thumb]:bg-black/40"
+              <div className=" "
               >
                 {msg.role === "user" ? <UserMessage userMessage={msg} /> : <AssistantMessage assistantMessage={msg}/>}
               </div>
@@ -36,9 +31,6 @@ const ScrollingContainer = () => {
           })
         }
       </div>
-       <div className='w-full flex flex-col justify-center items-center '>
-         <InputForm />    
-       </div>
     </div>
   )
 }

@@ -184,7 +184,7 @@ const randomInt = (): number => {
 }
 
 export const useConversationStore = create<State & Action>()(
-  (set,get) => ({
+  (set) => ({
 
     activeConversation: {
       conversationId: {
@@ -194,8 +194,6 @@ export const useConversationStore = create<State & Action>()(
       title: "",
       messages:[]
     },
-
-    // activeConversationID: get().activeConversation.conversationId.storage ?? get().activeConversation.conversationId.temp,
     
     storedConversationMetadata:[],
     
@@ -219,66 +217,7 @@ export const useConversationStore = create<State & Action>()(
           const res = await api.get(`/chat/conversations/${storedConversationID}`,ResponseConversationSchema)
                     
           if(res.error) throw new Error()
-          // export const ConversationSchema = z.object({
-          //   conversationId: z.object({
-          //     temp: z.string(),
-          //     storage: z.union([z.number(), z.null()]),
-          //   }),
-          //   // createdAt:z.iso.datetime().nullable(),
-          //   // updatedAt:z.iso.datetime().nullable(),
-          //   messages: z.array( UserMessageSchema.or(AssistantMessageSchema)),
-          //   title: z.string(),
-          // })
-          // const ActiveConversationSchema = ConversationSchema.pick({conversationId: true, title: true, messages: true})
-
           const { conversation, messages } = res.data
-
-          // export const ConversationSchema = z.object({
-          //   conversationId: z.object({
-          //     temp: z.string(),
-          //     storage: z.union([z.number(), z.null()]),
-          //   }),
-          //   // createdAt:z.iso.datetime().nullable(),
-          //   // updatedAt:z.iso.datetime().nullable(),
-          //   messages: z.array( UserMessageSchema.or(AssistantMessageSchema)),
-          //   title: z.string(),
-          // export const AssistantMessageSchema = z.object({
-          //   id: z.number(),
-          //   role: z.literal("assistant"),
-          //   content: AssistantMessageContentSchema,
-          // })
-          
-          // export const UserMessageSchema = z.object({
-          //   role: z.literal("user"),
-          //   id:z.object({
-          //     temp:z.string(),
-          //     storage: z.number().or(z.undefined())
-          //   }),
-          //   content: z.string()
-          // })
-          // export const AssistantMessageContentSchema = z.discriminatedUnion("type", [
-          //   z.object({
-          //     title: z.string(),
-          //     type: z.enum(["product_lookup_by_model", "product_lookup_by_specs","product_comparison"]),
-          //     text: z.string().nullable(),
-          //     data: z.array(SpecifcationRowSchema)
-          //   }),
-          //   z.object({
-          //     title: z.string(),
-          //     type: z.enum(["similar_products"]),
-          //     text: z.string().nullable(),
-          //     data: z.array(ComparisonResultSchema)
-          //   }),
-          //   z.object({
-          //     title: z.string(),
-          //     type: z.enum(["malicious","out_of_scope","related"]),
-          //     text: z.string().nullable(),
-          //     data: z.null()
-          //   })
-          // ])
-          
-          
-
           const convertMessages = (originalMessages: typeof messages) => {
             const result: (AssistantMessageType | UserMessageType)[] = originalMessages.map(msg => {
               if(msg.role === "user"){
@@ -325,17 +264,6 @@ export const useConversationStore = create<State & Action>()(
           console.log(messages)
           console.log("PARSED: ")
           console.log(parsedMessages)
-
-          // const storedConversationMessages: {
-          //   id: number;
-          //   tempId: string | null;
-          //   conversationId: number;
-          //   createdAt: Date;
-          //   updatedAt: Date;
-          //   role: "user" | "assistant";
-          //   content: string;
-          // }[]
-
           const compiledConversation: ActiveConversationType = {
             conversationId: {
               temp: conversation.tempId!,
@@ -374,12 +302,14 @@ export const useConversationStore = create<State & Action>()(
     },
     
     addToStoredConversation: ( convertedConversation: DefinedConversationMetadataType[number] )=>{
-      // const { conversationId, title } = convertedConversation
-      set((state) => {
-        return{
-          storedConversationMetadata: [...state.storedConversationMetadata, convertedConversation]
-        }  
-      })
+      if(!convertedConversation.conversationId.storage){
+        set((state) => {
+          return{
+            storedConversationMetadata: [...state.storedConversationMetadata, convertedConversation]
+          }  
+        })
+      }else return
+
     },
     
     addUserMessage:(userMessage: UserMessageType) => {

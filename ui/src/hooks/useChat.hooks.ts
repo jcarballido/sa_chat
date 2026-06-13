@@ -42,7 +42,6 @@ export const useChat = () => {
       const [assistantMessage] = responseMessage.filter(rsp => rsp.role === "assistant")
       console.log("ASST MSG")
       console.log(assistantMessage)
-      //updateStoredConversation
       updateActiveConversationID(conversationId)
       addToStoredConversation({conversationId:{
         temp:userMessage.conversationId as string,

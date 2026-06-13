@@ -4,22 +4,25 @@ import { useConversationStore } from "../../stores/conversation.store"
 
 const StoredConversations = () => {
   const { storedConversations } = useData()
-  const { setActiveConversation } = useConversationStore()
+  const { setActiveConversation, activeConversation } = useConversationStore()
+
+  // const handleClick = (conversationId: number) => {
+  //   if(activeConversation.conversationId.storage === conversationId) return 
+  //   setActiveConversation(conversationId)
+  // }
+
   return(
-    <div className="">
+    <div className="flex flex-col gap-0.5">
       {
         storedConversations.map(conv => (
-            <div className="w-full">
-              <SecondaryActionButton 
-                action={conv.title}
-                clickHandler={() => setActiveConversation(conv.conversationId.storage)}
-                disabled={false}
-                // clickHandler={()=> setActiveConversation(conv.conversationId)}
-                // disabled={disabled}
-              />
-            </div>
-          )
-        )
+          <div className={`w-full rounded-xl ${conv.conversationId.storage === activeConversation.conversationId.storage ? "bg-gray-700":""}`}>
+            <SecondaryActionButton 
+              action={conv.title}
+              clickHandler={()=>setActiveConversation(conv.conversationId.storage)}
+              disabled={activeConversation.conversationId.storage === conv.conversationId.storage}
+            />
+          </div>
+        ))
       }
     </div>
   )

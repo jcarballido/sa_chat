@@ -1,16 +1,34 @@
 import type {  SpecRowType } from "../types/stores.types.js";
 import type { Filter } from "./types.js";
 
-export function buildSpecQuery(specRows: SpecRowType[]) {
-  function getAllHeaders(){
-    return Object.keys(specRows) as (keyof SpecRowType)[]
+export function buildSpecQuery(specRows: {rows: SpecRowType[], normalizedColumnMap: <K extends keyof SpecRowType>(columnName: K) => Map<SpecRowType[K],SpecRowType[K]>}) {
+  // const modelMap = new Map<string,string>()
+  // specRows.map(row => {
+  //   modelMap.set(row["model"].replace("-",""),row["model"])
+  // })
+  // console.log("MODEL MAP:")
+  // console.log(modelMap)
+
+  const m = specRows.normalizedColumnMap("model")
+
+  function getProductionModelNumber(normalizedModelNumber: string) {
+    console.log("Normalized Modle Passed In:")
+    console.log(normalizedModelNumber)
+    console.log("Generated map:")
+    console.log(m)
+    return m.get(normalizedModelNumber)
   }
+
+  function getAllHeaders(){
+    return Object.keys(specRows.rows) as (keyof SpecRowType)[]
+  }
+
   function getAll(){
-    return specRows
+    return specRows.rows
   }
 
   function getRowsByRange(criteria: Filter<SpecRowType>){
-    const result = specRows.filter( row => {
+    const result = specRows.rows.filter( row => {
       return Object.entries(criteria).every(([key, operators]) => {
         const value = row[key as keyof SpecRowType]
         const requirements =  operators 
@@ -30,10 +48,10 @@ export function buildSpecQuery(specRows: SpecRowType[]) {
   }
 
   function getRowsWhere<K extends keyof SpecRowType>(column: K, value:SpecRowType[K] ){
-    return specRows.filter(row => row[column] === value )
+    return specRows.rows.filter(row => row[column] === value )
   }
   function getColumnValues<K extends keyof SpecRowType>(column: K){
-    return specRows.map( row => row[column])
+    return specRows.rows.map( row => row[column])
   }
 
   return {
@@ -41,7 +59,8 @@ export function buildSpecQuery(specRows: SpecRowType[]) {
     getAll,
     getRowsByRange,
     getRowsWhere,
-    getColumnValues
+    getColumnValues,
+    getProductionModelNumber
   }
 }
 

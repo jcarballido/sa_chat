@@ -30,7 +30,7 @@ return(
     <div className="border border-black/30 aspect-square shadow-2xl rounded-xl p-16 flex bg-white flex-col justify-center items-center gap-y-6 z-20 relative">
       <InvalidLinkMessage />
       <div className={`aspect-square h-16 ${colorMap.accent} shrink-0`} />
-      <div className="font-bold">Welcome to sacp_chat </div>
+      <div className="font-bold">Welcome to sa_chat </div>
       <div className="italic text-gray-500">
         <div className="flex justify-center items-center">Enter your email to receive a secure login link.</div>
         <div className="flex justify-center items-center">No password required.</div>

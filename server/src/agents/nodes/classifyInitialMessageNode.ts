@@ -7,7 +7,10 @@ export async function classifyInitialMessageNode(state: State): Promise<Update>{
   console.log("CLASSIFYING INITIAL MESSAGE NODE running.")
 
   try {
-    const response = await prompt(state.initialMessage, CLASSIFICATION_SYSTEM_PROMPT)
+    const initialMessage = state.initialMessage.replace("-","")
+    console.log("INITIAL MESSAGE: ")
+    console.log(initialMessage)
+    const response = await prompt(initialMessage, CLASSIFICATION_SYSTEM_PROMPT)
     console.log("RESPONSE FROM OLLAMA:")
     console.log(JSON.parse(response.message.content))
     return{

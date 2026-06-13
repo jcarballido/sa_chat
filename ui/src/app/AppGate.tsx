@@ -19,28 +19,27 @@ const AppGate = () => {
   // const { getStoredConversationMetadata } = useConversationStore()
   // const [ pinged, setPinged ] = useState<boolean>(false)
 
-  // useEffect(() => {
-  //   if(authStatus.status !== "loading"){
-  //     console.log("SESSION SET")
-  //     const elapsed = performance.now()
-  //     console.log("ELAPSED TIME: ", elapsed)
-  //     if(elapsed - start.current < 3000){
-  //       setTimeout(()=>{
-  //         setIsLeaving(true)
-  //         setTimeout(()=>setShowSplash(false),500)
-  //       }, (3000-(elapsed-start.current)))
-  //     }else{
-  //       setIsLeaving(true)
-  //       setTimeout(()=>setShowSplash(false),500)
-  //     }
-  //   }
-  // },[authStatus.status])
+  useEffect(() => {
+    if(authStatus.status !== "loading"){
+      console.log("SESSION SET")
+      const elapsed = performance.now()
+      console.log("ELAPSED TIME: ", elapsed)
+      if(elapsed - start.current < 3000){
+        setTimeout(()=>{
+          setIsLeaving(true)
+          setTimeout(()=>setShowSplash(false),500)
+        }, (3000-(elapsed-start.current)))
+      }else{
+        setIsLeaving(true)
+        setTimeout(()=>setShowSplash(false),500)
+      }
+    }
+  },[authStatus.status])
   
     return (
       <>
-      <SplashScreen isLeaving={isLeaving} />
-        {/* <App /> */}
-        {/* { showSplash && <SplashScreen isLeaving={isLeaving} />} */}
+        <App /> 
+        { showSplash && <SplashScreen isLeaving={isLeaving} />}
       </>
     )
 

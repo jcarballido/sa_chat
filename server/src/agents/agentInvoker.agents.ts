@@ -6,13 +6,17 @@ export async function buildAgentInvoker(agent: IntentAgentType): Promise<AgentIn
   async function invoke(message: string, inventoriedModelNumbers: string[], title?: string ) {
 
     console.log("---BUILD AGENT---")
+    console.log("INVENTORIED MODELS:")
+    console.log(inventoriedModelNumbers)
     try {
       const response = await agent.invoke({
         title,
-        initialMessage: message,
+        initialMessage: message.replaceAll("-",""),
         inventoryStore: inventoriedModelNumbers
       })
       console.log("---BUILD AGENT COMPLETE---")
+      console.log("BUILD AGENT RESULT:")
+      console.log(response)
       return response      
     } catch (error) {
       console.log("ERROR IN INVOKER")

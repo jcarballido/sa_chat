@@ -15,7 +15,7 @@ export default fp(storesPlugin)
 
 declare module "fastify"{
   interface FastifyInstance{
-    inventoryRows: InventoryRowType[],
-    specRows: SpecRowType[]
+    inventoryRows: {rows: InventoryRowType[],normalizedColumnMap: <K extends keyof InventoryRowType>(columnName: K) => Map<any,any>},
+    specRows: {rows:SpecRowType[], normalizedColumnMap: <K extends keyof SpecRowType>(columnName: K) => Map<any,any>}
   }
 }
